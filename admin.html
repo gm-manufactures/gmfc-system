@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMFC - የአስተዳዳሪ መቆጣጠሪያ ፓነል (Admin Dashboard)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #1b5e20;
+            --secondary-green: #2e7d32;
+            --accent-red: #d32f2f;
+            --dark-green: #0d2310;
+            --light-bg: #f4f6f4;
+            --white: #ffffff;
+            --gray: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background-color: var(--dark-green);
+            color: var(--white);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+
+        .sidebar-brand img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-menu li a {
+            color: #b3cbb5;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .sidebar-menu li a:hover, .sidebar-menu li a.active {
+            background-color: var(--secondary-green);
+            color: var(--white);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 15px;
+        }
+
+        .header-title h1 {
+            color: var(--dark-green);
+            font-size: 26px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--secondary-green);
+        }
+
+        .stat-card:nth-child(2) { border-left-color: #ff9800; }
+        .stat-card:nth-child(3) { border-left-color: var(--accent-red); }
+
+        .stat-info h3 {
+            font-size: 32px;
+            color: var(--dark-green);
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            font-size: 14px;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            color: #ccc;
+        }
+
+        /* Dashboard Sections */
+        .dashboard-section {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .section-heading {
+            font-size: 18px;
+            color: var(--primary-green);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        /* Table Styling for Members Approval */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f8f9f8;
+            color: var(--dark-green);
+            font-weight: bold;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-pending { background: #fff3e0; color: #ff9800; }
+        .status-approved { background: #e8f5e9; color: #2e7d32; }
+
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            margin: 2px;
+            transition: 0.2s;
+        }
+
+        .btn-approve { background: var(--secondary-green); color: white; }
+        .btn-approve:hover { background: var(--primary-green); }
+        .btn-reject { background: var(--accent-red); color: white; }
+        .btn-reject:hover { background: #b71c1c; }
+        .btn-delete { background: #666; color: white; }
+
+        /* Form Configuration for Page Editing */
+        .config-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-green);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-submit {
+            grid-column: span 2;
+            background: var(--primary-green);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: var(--dark-green);
+        }
+
+        .news-item {
+            background: var(--light-bg);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary-green);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 2000;
+            opacity: 0;
+            transition: 0.3s;
+        }
+        .toast.show { opacity: 1; }
+        .toast.error { background: var(--accent-red); }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 80px; padding: 15px; }
+            .sidebar-brand span, .sidebar-menu li a span { display: none; }
+            .main-content { margin-left: 80px; }
+            .config-form { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <img src="photo_2026-05-20_19-43-13.jpg" alt="GMFC Logo" onerror="this.src='https://via.placeholder.com/45'">
+            <span>GMFC Admin</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a class="active" onclick="showSection('dashboard')"><i class="fa-solid fa-chart-line"></i> <span>ማጠቃለያ ዴሽቦርድ</span></a></li>
+            <li><a onclick="showSection('members')"><i class="fa-solid fa-users-check"></i> <span>አባላትን ማጽደቂያ</span></a></li>
+            <li><a onclick="showSection('content')"><i class="fa-solid fa-pen-to-square"></i> <span>የገጽ ይዘት መቀየሪያ</span></a></li>
+            <li><a onclick="showSection('news')"><i class="fa-solid fa-newspaper"></i> <span>ዜና አስተዳደር</span></a></li>
+            <li><a href="index.html" target="_blank"><i class="fa-solid fa-globe"></i> <span>ወደ ዋናው ድረ-ገጽ</span></a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header-title">
+            <h1>የአስተዳዳሪ መቆጣጠሪያ ማዕከል</h1>
+            <div style="font-size: 14px; font-weight: bold; color: var(--gray);">እንኳን ደህና መጡ፣ አስተዳዳሪ!</div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 id="stat-total">0</h3>
+                        <p>ጠቅላላ የጸደቁ አባላት</p>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 id="stat-pending">0</h3>
+                        <p>በመጠባበቅ ላይ ያሉ</p>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 id="stat-news">0</h3>
+                        <p>ዜናዎች</p>
+                    </div>
+                    <div class="stat-icon"><i class="fa-solid fa-newspaper"></i></div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <div class="section-heading">
+                    <i class="fa-solid fa-bell"></i> የቅርብ ጊዜ ጥያቄዎች
+                </div>
+                <div id="recent-applications"></div>
+            </div>
+        </div>
+
+        <!-- Members Section -->
+        <div id="members-section" style="display:none;">
+            <div class="dashboard-section">
+                <div class="section-heading">
+                    <i class="fa-solid fa-users-check"></i> የአክሲዮን ጥያቄዎችን ማጽደቂያ
+                </div>
+                <p style="font-size: 13px; color: var(--gray); margin-bottom: 15px;">ከዋናው ገጽ ላይ ቅጽ የሞሉ ባለሀብቶች ዝርዝር እዚህ ይገኛል። ማረጋገጫ በመስጠት ማጽደቅ ይችላሉ።</p>
+                
+                <div class="table-container">
+                    <table id="members-table">
+                        <thead>
+                            <tr>
+                                <th>ሙሉ ስም</th>
+                                <th>ስልክ ቁጥር</th>
+                                <th>የአክሲዮን መጠን</th>
+                                <th>የመኖሪያ ከተማ</th>
+                                <th>ሁኔታ</th>
+                                <th>ድርጊት</th>
+                            </tr>
+                        </thead>
+                        <tbody id="members-tbody">
+                            <tr><td colspan="6" style="text-align:center;">በመጫን ላይ...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div id="content-section" style="display:none;">
+            <div class="dashboard-section">
+                <div class="section-heading">
+                    <i class="fa-solid fa-pen-to-square"></i> የድርጅት መረጃ እና የገጽ ይዘት መቀየሪያ ማዕከል
+                </div>
+                
+                <form class="config-form" id="profile-form">
+                    <div class="form-group full-width">
+                        <label>የማህበሩ ህጋዊ ስም (Company Name)</label>
+                        <input type="text" id="input-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>የኢንቨስትመንት ፈቃድ ቁጥር (Investment License)</label>
+                        <input type="text" id="input-license" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ዋና ስራ አስኪያጅ (General Manager)</label>
+                        <input type="text" id="input-manager" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ዋና መፈክር / የፊት ገጽ ጽሑፍ (Hero Title)</label>
+                        <input type="text" id="input-hero" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>የገጽ መግለጫ (Hero Subtitle)</label>
+                        <textarea id="input-subtitle" rows="3"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">ለውጦችን በድረ-ገጹ ላይ አዘምን (Save Changes)</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- News Section -->
+        <div id="news-management-section" style="display:none;">
+            <div class="dashboard-section">
+                <div class="section-heading">
+                    <i class="fa-solid fa-plus"></i> አዲስ ዜና መጨመሪያ
+                </div>
+                <form id="news-form" class="config-form">
+                    <div class="form-group">
+                        <label>ዓመት</label>
+                        <input type="text" id="news-year" placeholder="ለምሳሌ: መስከረም 2025" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ርዕስ</label>
+                        <input type="text" id="news-title" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>ዝርዝር መግለጫ</label>
+                        <textarea id="news-desc" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">ዜና ጨምር</button>
+                </form>
+            </div>
+
+            <div class="dashboard-section">
+                <div class="section-heading">
+                    <i class="fa-solid fa-list"></i> የተመዘገቡ ዜናዎች
+                </div>
+                <div id="news-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const API_BASE = window.location.origin + '/api';
+        
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function showSection(section) {
+            document.getElementById('dashboard-section').style.display = section === 'dashboard' ? 'block' : 'none';
+            document.getElementById('members-section').style.display = section === 'members' ? 'block' : 'none';
+            document.getElementById('content-section').style.display = section === 'content' ? 'block' : 'none';
+            document.getElementById('news-management-section').style.display = section === 'news' ? 'block' : 'none';
+            
+            if (section === 'dashboard') loadDashboard();
+            if (section === 'members') loadApplications();
+            if (section === 'content') loadProfile();
+            if (section === 'news') loadNewsList();
+        }
+
+        async function loadDashboard() {
+            try {
+                const statsRes = await fetch(`${API_BASE}/stats`);
+                const stats = await statsRes.json();
+                document.getElementById('stat-total').innerText = stats.totalApproved || 0;
+                document.getElementById('stat-pending').innerText = stats.totalPending || 0;
+                
+                const appsRes = await fetch(`${API_BASE}/applications`);
+                const apps = await appsRes.json();
+                document.getElementById('stat-news').innerText = apps.length || 0;
+                
+                const recent = apps.slice(0, 5);
+                const container = document.getElementById('recent-applications');
+                if (recent.length === 0) {
+                    container.innerHTML = '<p>ምንም ጥያቄዎች የሉም</p>';
+                } else {
+                    container.innerHTML = '<table style="width:100%"><tr><th>ስም</th><th>ስልክ</th><th>ሁኔታ</th></tr>' + 
+                        recent.map(app => `<tr><td>${app.name}</td><td>${app.phone}</td><td><span class="status-badge status-${app.status}">${app.status === 'pending' ? 'በመጠባበቅ' : 'የጸደቀ'}</span></td></tr>`).join('') + 
+                        '</table>';
+                }
+            } catch (err) {
+                console.error('Error loading dashboard:', err);
+            }
+        }
+
+        async function loadApplications() {
+            try {
+                const response = await fetch(`${API_BASE}/applications`);
+                const apps = await response.json();
+                const tbody = document.getElementById('members-tbody');
+                tbody.innerHTML = '';
+                
+                apps.forEach(app => {
+                    const row = tbody.insertRow();
+                    row.insertCell(0).innerText = app.name;
+                    row.insertCell(1).innerText = app.phone;
+                    row.insertCell(2).innerText = app.amount;
+                    row.insertCell(3).innerText = app.city || '-';
+                    row.insertCell(4).innerHTML = `<span class="status-badge status-${app.status}">${app.status === 'pending' ? 'በመጠባበቅ' : 'የጸደቀ'}</span>`;
+                    const actions = row.insertCell(5);
+                    if (app.status === 'pending') {
+                        actions.innerHTML = `<button class="btn-action btn-approve" onclick="updateStatus(${app.id}, 'approved')">አጽድቅ</button>
+                                            <button class="btn-action btn-reject" onclick="updateStatus(${app.id}, 'rejected')">ሰርዝ</button>`;
+                    } else {
+                        actions.innerHTML = `<button class="btn-action btn-delete" onclick="deleteApplication(${app.id})">ሰርዝ</button>`;
+                    }
+                });
+            } catch (err) {
+                console.error('Error loading applications:', err);
+                showToast('የአባላት መረጃ መጫን አልተቻለም', true);
+            }
+        }
+
+        async function updateStatus(id, status) {
+            try {
+                const response = await fetch(`${API_BASE}/applications/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: status })
+                });
+                if (response.ok) {
+                    showToast(status === 'approved' ? 'አባል ጸድቋል!' : 'ጥያቄ ውድቅ ተደርጓል');
+                    loadApplications();
+                    loadDashboard();
+                } else {
+                    showToast('ስህተት ተከስቷል', true);
+                }
+            } catch (err) {
+                showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+            }
+        }
+
+        async function deleteApplication(id) {
+            if (confirm('እርግጠኛ ነዎት?')) {
+                try {
+                    await fetch(`${API_BASE}/applications/${id}`, { method: 'DELETE' });
+                    showToast('ተሰርዟል');
+                    loadApplications();
+                    loadDashboard();
+                } catch (err) {
+                    showToast('ስህተት', true);
+                }
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_BASE}/profile`);
+                const data = await response.json();
+                document.getElementById('input-name').value = data.currentName || '';
+                document.getElementById('input-license').value = data.legalRegistration?.investmentLicenseNo || '';
+                document.getElementById('input-manager').value = data.generalManager || '';
+                document.getElementById('input-hero').value = data.heroTitle || '';
+                document.getElementById('input-subtitle').value = data.heroSubtitle || '';
+            } catch (err) {
+                console.error('Error loading profile:', err);
+            }
+        }
+
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                currentName: document.getElementById('input-name').value,
+                legalRegistration: { investmentLicenseNo: document.getElementById('input-license').value },
+                generalManager: document.getElementById('input-manager').value,
+                heroTitle: document.getElementById('input-hero').value,
+                heroSubtitle: document.getElementById('input-subtitle').value
+            };
+            try {
+                const response = await fetch(`${API_BASE}/profile`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    showToast('የድርጅት መረጃ ተዘምኗል!');
+                } else {
+                    showToast('ስህተት ተከስቷል', true);
+                }
+            } catch (err) {
+                showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+            }
+        });
+
+        async function loadNewsList() {
+            try {
+                const response = await fetch(`${API_BASE}/news`);
+                const news = await response.json();
+                const container = document.getElementById('news-list');
+                if (news.length === 0) {
+                    container.innerHTML = '<p>ምንም ዜና የለም</p>';
+                } else {
+                    container.innerHTML = news.map(item => `
+                        <div class="news-item">
+                            <div><strong>${item.year}</strong><br><small>${item.title}</small></div>
+                            <button class="btn-action btn-delete" onclick="deleteNews(${item.id})">ሰርዝ</button>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('Error loading news:', err);
+            }
+        }
+
+        async function deleteNews(id) {
+            if (confirm('ይህን ዜና መሰረዝ ይፈልጋሉ?')) {
+                try {
+                    await fetch(`${API_BASE}/news/${id}`, { method: 'DELETE' });
+                    showToast('ዜና ተሰርዟል');
+                    loadNewsList();
+                    loadDashboard();
+                } catch (err) {
+                    showToast('ስህተት', true);
+                }
+            }
+        }
+
+        document.getElementById('news-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                year: document.getElementById('news-year').value,
+                title: document.getElementById('news-title').value,
+                description: document.getElementById('news-desc').value
+            };
+            try {
+                const response = await fetch(`${API_BASE}/news`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    showToast('ዜና ተጨምሯል!');
+                    document.getElementById('news-form').reset();
+                    loadNewsList();
+                    loadDashboard();
+                } else {
+                    showToast('ስህተት', true);
+                }
+            } catch (err) {
+                showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+            }
+        });
+
+        window.onload = () => {
+            loadDashboard();
+        };
+    </script>
+</body>
+</html>
