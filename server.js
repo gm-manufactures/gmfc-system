@@ -14,8 +14,9 @@ app.use(express.static('.'));
 // SQLite Database
 const db = new sqlite3.Database('./gmfc_database.db');
 
-// Create tables
+// Create tables and insert default data
 db.serialize(() => {
+    // Applications table
     db.run(`CREATE TABLE IF NOT EXISTS applications (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -27,6 +28,7 @@ db.serialize(() => {
         submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
     
+    // Company profile table
     db.run(`CREATE TABLE IF NOT EXISTS company_profile (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         company_name TEXT NOT NULL,
@@ -37,6 +39,7 @@ db.serialize(() => {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
     
+    // News table
     db.run(`CREATE TABLE IF NOT EXISTS news (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         year TEXT NOT NULL,
@@ -45,7 +48,7 @@ db.serialize(() => {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
     
-    // Insert default data
+    // Insert default company profile if not exists
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
         if (!row) {
             db.run(`INSERT INTO company_profile (id, company_name, license_number, general_manager, hero_title, hero_subtitle)
@@ -59,6 +62,7 @@ db.serialize(() => {
         }
     });
     
+    // Insert default news if not exists
     db.get("SELECT * FROM news LIMIT 1", (err, row) => {
         if (!row) {
             db.run(`INSERT INTO news (year, title, description) VALUES 
@@ -70,10 +74,20 @@ db.serialize(() => {
     });
 });
 
-// API Routes
+// ============= API ROUTES =============
+
+// Root route - serve index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Get company profile
 app.get('/api/profile', (req, res) => {
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
         res.json({
             currentName: row.company_name,
             legalRegistration: { investmentLicenseNo: row.license_number },
@@ -84,6 +98,7 @@ app.get('/api/profile', (req, res) => {
     });
 });
 
+// Update company profile
 app.put('/api/profile', (req, res) => {
     const { currentName, generalManager, legalRegistration, heroTitle, heroSubtitle } = req.body;
     db.run(`UPDATE company_profile SET 
@@ -96,76 +111,120 @@ app.put('/api/profile', (req, res) => {
         WHERE id = 1`,
         [currentName, generalManager, legalRegistration?.investmentLicenseNo, heroTitle, heroSubtitle],
         function(err) {
-            if (err) return res.status(500).json({ error: err.message });
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
             res.json({ message: "Profile updated successfully" });
         }
     );
 });
 
+// Get all applications
 app.get('/api/applications', (req, res) => {
     db.all("SELECT * FROM applications ORDER BY submitted_at DESC", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
         res.json(rows);
     });
 });
 
+// Submit new inquiry
 app.post('/api/applications', (req, res) => {
     const { name, phone, amount, city, date } = req.body;
+    
     if (!name || !phone || !amount) {
-        return res.status(400).json({ error: "Name, phone and amount are required" });
+        res.status(400).json({ error: "Name, phone and amount are required" });
+        return;
     }
-    db.run(`INSERT INTO applications (name, phone, amount, city, date, status) VALUES (?, ?, ?, ?, ?, 'pending')`,
+    
+    db.run(
+        `INSERT INTO applications (name, phone, amount, city, date, status) VALUES (?, ?, ?, ?, ?, 'pending')`,
         [name, phone, amount, city || '', date || new Date().toLocaleDateString()],
         function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true, message: "Inquiry submitted successfully", id: this.lastID });
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json({ 
+                success: true, 
+                message: "Inquiry submitted successfully",
+                id: this.lastID 
+            });
         }
     );
 });
 
+// Update application status
 app.put('/api/applications/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
+    
     db.run(`UPDATE applications SET status = ? WHERE id = ?`, [status, id], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ success: true });
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ success: true, message: `Application ${status}` });
     });
 });
 
+// Delete application
 app.delete('/api/applications/:id', (req, res) => {
     const { id } = req.params;
     db.run(`DELETE FROM applications WHERE id = ?`, id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
         res.json({ success: true });
     });
 });
 
+// Get all news
 app.get('/api/news', (req, res) => {
     db.all("SELECT * FROM news ORDER BY created_at DESC", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
         res.json(rows);
     });
 });
 
+// Add new news
 app.post('/api/news', (req, res) => {
     const { year, title, description } = req.body;
+    
     if (!year || !title || !description) {
-        return res.status(400).json({ error: "All fields are required" });
+        res.status(400).json({ error: "All fields are required" });
+        return;
     }
+    
     db.run(`INSERT INTO news (year, title, description) VALUES (?, ?, ?)`, [year, title, description], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
         res.json({ success: true, id: this.lastID });
     });
 });
 
+// Delete news
 app.delete('/api/news/:id', (req, res) => {
     const { id } = req.params;
     db.run(`DELETE FROM news WHERE id = ?`, id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
         res.json({ success: true });
     });
 });
 
+// Get statistics
 app.get('/api/stats', (req, res) => {
     db.get("SELECT COUNT(*) as total FROM applications WHERE status = 'approved'", (err, approved) => {
         db.get("SELECT COUNT(*) as pending FROM applications WHERE status = 'pending'", (err, pending) => {
@@ -177,7 +236,14 @@ app.get('/api/stats', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ GMFC Server running on port ${PORT}`);
     console.log(`📍 URL: http://localhost:${PORT}`);
+    console.log(`🩺 Health: http://localhost:${PORT}/api/health`);
 });
