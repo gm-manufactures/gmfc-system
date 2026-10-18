@@ -319,34 +319,45 @@
         }
         
         // Load news
-        async function loadNews() {
-            try {
-                console.log('Fetching news...');
-                const response = await fetch(API_BASE + '/news');
-                const data = await response.json();
-                console.log('News data:', data);
-                
-                const newsBox = document.getElementById('news-box');
-                if (data.length === 0) {
-                    newsBox.innerHTML = '<p>ምንም ዜና የለም</p>';
-                } else {
-                    newsBox.innerHTML = '';
-                    data.forEach(item => {
-                        newsBox.innerHTML += `
-                            <div class="news-card">
-                                <div class="date">${item.year}</div>
-                                <h4>${item.title}</h4>
-                                <p>${item.description}</p>
-                            </div>
-                        `;
-                    });
-                }
-            } catch (err) {
-                console.error('News error:', err);
-                document.getElementById('news-box').innerHTML = '<p>ዜና መጫን አልተቻለም</p>';
-            }
+async function loadNews() {
+    try {
+        console.log('Fetching news...');
+        const response = await fetch(API_BASE + '/news');
+        
+        if (!response.ok) {
+            throw new Error(HTTP error! status: ${response.status});
         }
         
+        const data = await response.json();
+        console.log('News data:', data);
+
+        const newsBox = document.getElementById('news-box');
+        
+        // ዳታው ባዶ ከሆነ
+        if (!data || data.length === 0) {
+            newsBox.innerHTML = '<p>በአሁኑ ጊዜ ምንም ዜና የለም።</p>';
+        } else {
+            // ዳታው ካለ ዜናዎቹን ማሳየት
+            newsBox.innerHTML = ''; // መጀመሪያ ሳጥኑን ማጽዳት
+            data.forEach(item => {
+                newsBox.innerHTML += 
+                    <div class="news-card">
+                        <div class="date">${item.year}</div>
+                        <h4>${item.title}</h4>
+                        <p>${item.description}</p>
+                    </div>
+                ;
+            });
+        }
+    } catch (err) {
+        console.error('News error:', err);
+        // ስህተት ካለ ለተጠቃሚው ማሳወቅ
+        document.getElementById('news-box').innerHTML = '<p style="color: red;">ዜናዎችን ማምጣት አልተቻለም። እባክዎ ቆይተው እንደገና ይሞክሩ።</p>';
+        if (typeof showToast === 'function') {
+            showToast('ዜናዎችን ማምጣት አልተቻለም', true);
+        }
+    }
+}
         // Submit share inquiry
         document.getElementById('share-form').addEventListener('submit', async (e) => {
             e.preventDefault();
