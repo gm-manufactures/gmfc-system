@@ -1,26 +1,31 @@
 <!DOCTYPE html>
 <html lang="am">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMFC - የጋምቤላ ማጃንግ የጫካ ቡና አክሲዬን ማህበር</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-green: #1b5e20;
-            --secondary-green: #2e7d32;
-            --accent-red: #d32f2f;
-            --light-bg: #f1f8e9;
-            --white: #ffffff;
-            --dark: #0d2310;
-        }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        /* Dark Mode Styles */
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>የጋምቤላ ማጃንግ የጫካ ቡና አምራችና ኤክስፖርተር አክሲዬን ማህበር | GMFC</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&family=Noto+Sans:wght@400;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans Ethiopic', 'Noto Sans', 'Noto Naskh Arabic', 'Segoe UI', Tahoma, sans-serif; }
+html { scroll-behavior: smooth; }
+body { color: #333; line-height: 1.8; background-color: #f7f9f7; padding-top: 120px; transition: background-color 0.3s ease, color 0.3s ease; }
+
+body:not(.lang-en):not(.lang-ar) .en-text,
+body:not(.lang-en):not(.lang-ar) .ar-text { display: none !important; }
+body.lang-en .am-text,
+body.lang-en .ar-text { display: none !important; }
+body.lang-ar .am-text,
+body.lang-ar .en-text { display: none !important; }
+body.lang-ar { direction: rtl; }
+body.lang-ar .nav-container { flex-direction: row-reverse; }
+body.lang-ar nav ul { flex-direction: row-reverse; }
+
+/* Dark Mode Styles */
 body.dark-mode {
     --light-bg: #1a1a1a;
     --dark: #f1f8e9;
@@ -28,7 +33,6 @@ body.dark-mode {
     background-color: var(--light-bg);
     color: var(--dark);
 }
-
 body.dark-mode .news-card,
 body.dark-mode header,
 body.dark-mode nav,
@@ -38,406 +42,967 @@ body.dark-mode .lang-switch {
     color: #f1f8e9;
     border-color: #444;
 }
-
 body.dark-mode .news-card h4 {
-    color: var(--primary-green);
+    color: #4caf50; /* Fallback for primary-green */
+}
+body.dark-mode header { background-color: #1e1e1e; }
+body.dark-mode .news-card, body.dark-mode .benefit-card, body.dark-mode .investment-card, body.dark-mode .investment-text, body.dark-mode .ceo-card, body.dark-mode .support-box, body.dark-mode .price-widget-card, body.dark-mode .product-card, body.dark-mode .faq-item { background-color: #2d2d2d; color: #eee; border-color: #444; }
+body.dark-mode .section-title, body.dark-mode .section-subtitle { color: #a5d6a7; }
+body.dark-mode p, body.dark-mode li { color: #ccc; }
+body.dark-mode .top-bar input { background: #333; color: #fff; border-color: #555; }
+
+/* Navigation */
+header { background-color: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.08); position: fixed; width: 100%; top: 0; z-index: 1000; }
+.nav-container { max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; flex-wrap: wrap; gap: 10px; }
+.logo-text { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.logo-text img { height: 50px; width: auto; object-fit: contain; }
+.logo-text .logo-name { display: flex; flex-direction: column; line-height: 1.2; }
+.logo-text .logo-name strong { font-size: 20px; color: #d32f2f; font-weight: 700; }
+.logo-text .logo-name span { font-size: 12px; color: #2e7d32; font-weight: 600; }
+
+/* Top Bar for Search, Currency, Lang */
+.top-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; flex: 1; }
+.search-box { position: relative; width: 200px; }
+.search-box input { width: 100%; padding: 6px 12px 6px 30px; border: 2px solid #e0e0e0; border-radius: 20px; font-size: 12px; font-family: inherit; transition: all 0.3s; }
+.search-box input:focus { outline: none; border-color: #2e7d32; }
+.search-box i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #999; font-size: 12px; }
+
+.lang-btn, .currency-btn { background: #ffb300; color: #1b5e20 !important; padding: 6px 10px !important; border-radius: 20px !important; font-weight: 700 !important; display: flex; align-items: center; gap: 4px; cursor: pointer; border: none; font-family: inherit; font-size: 11px !important; }
+.lang-btn:hover, .currency-btn:hover { background: #d32f2f !important; color: #fff !important; }
+.cart-btn { position: relative; background: #2e7d32; color: #fff !important; padding: 6px 12px !important; border-radius: 20px !important; display: flex; align-items: center; gap: 6px; font-size: 12px !important; text-decoration: none; font-weight: 700; }
+.cart-btn:hover { background: #d32f2f !important; }
+.cart-count { position: absolute; top: -6px; right: -6px; background: #ffb300; color: #1b5e20; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+
+/* Dark Mode Toggle Button */
+#dark-mode-toggle {
+    background: transparent; border: none; font-size: 20px; cursor: pointer;
+    color: #2e7d32; padding: 5px; transition: transform 0.3s;
+}
+#dark-mode-toggle:hover { transform: scale(1.1); }
+body.dark-mode #dark-mode-toggle { color: #ffb300; }
+
+/* Live Exchange Rate Badge */
+.live-rate-badge { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+.live-rate-badge i { color: #2e7d32; }
+
+/* Main Menu */
+nav { width: 100%; display: flex; justify-content: center; margin-top: 5px; border-top: 1px solid #f0f0f0; padding-top: 5px; }
+nav ul { display: flex; list-style: none; gap: 5px; align-items: center; flex-wrap: wrap; justify-content: center; }
+nav ul li a { text-decoration: none; color: #2e7d32; font-weight: 600; font-size: 13px; padding: 6px 12px; border-radius: 5px; transition: all 0.3s; }
+nav ul li a:hover { color: #fff; background-color: #d32f2f; }
+.menu-toggle { display: none; background: none; border: none; font-size: 24px; color: #2e7d32; cursor: pointer; width: 100%; text-align: right; padding: 5px; }
+
+/* Hero */
+.hero { min-height: 85vh; background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.7)), url('hero-forest.jpg') no-repeat center center/cover; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 60px 20px; position: relative; }
+.hero-content { max-width: 900px; animation: fadeUp 1s ease; z-index: 2; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.hero-badge { display: inline-block; background: rgba(255, 179, 0, 0.9); color: #1b5e20; padding: 6px 20px; border-radius: 30px; font-weight: 700; font-size: 14px; margin-bottom: 20px; }
+.hero-content h1 { font-size: 40px; margin-bottom: 20px; line-height: 1.4; text-shadow: 2px 2px 6px rgba(0,0,0,0.7); }
+.hero-content p { font-size: 18px; max-width: 750px; margin: 0 auto 35px auto; color: #f1f8e9; }
+.hero-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+.btn { display: inline-block; background-color: #d32f2f; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 16px; border: 2px solid #d32f2f; transition: all 0.3s; cursor: pointer; }
+.btn:hover { background-color: #2e7d32; border-color: #2e7d32; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+.btn-outline { background-color: transparent; border-color: #fff; }
+.btn-outline:hover { background-color: #fff; color: #1b5e20; border-color: #fff; }
+.btn-telegram { background: #0088cc; border-color: #0088cc; }
+.btn-telegram:hover { background: #006699; border-color: #006699; }
+
+/* Visit Text */
+.visit-text { position: absolute; bottom: 20px; left: 20px; background: rgba(255, 179, 0, 0.9); color: #1b5e20; padding: 8px 15px; border-radius: 5px; font-weight: 700; font-size: 16px; transform: rotate(-5deg); box-shadow: 2px 2px 10px rgba(0,0,0,0.3); z-index: 5; animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 100% { transform: rotate(-5deg) translateY(0); } 50% { transform: rotate(-5deg) translateY(-10px); } }
+/* Sections */
+.section { padding: 60px 20px; max-width: 1200px; margin: 0 auto; }
+.section-title { text-align: center; font-size: 28px; color: #1b5e20; margin-bottom: 15px; font-weight: 700; }
+.section-subtitle { text-align: center; color: #666; font-size: 15px; margin-bottom: 40px; }
+.section-title::after { content: ''; display: block; width: 60px; height: 3px; background-color: #d32f2f; margin: 10px auto 0 auto; border-radius: 2px; }
+
+/* Ad Banner */
+.ad-banner { background: linear-gradient(135deg, #ffb300, #ff8f00); padding: 20px; text-align: center; }
+.ad-banner-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
+.ad-banner h3 { color: #1b5e20; font-size: 18px; font-weight: 700; }
+.ad-banner p { color: #4e342e; font-size: 13px; }
+.ad-banner .btn { background: #1b5e20; border-color: #1b5e20; padding: 8px 18px; font-size: 13px; }
+.ad-banner .btn:hover { background: #d32f2f; border-color: #d32f2f; }
+
+/* Benefits - Compact */
+.benefits-section { background: linear-gradient(135deg, #f1f8e9, #e8f5e9); padding: 60px 20px; }
+.benefits-container { max-width: 1200px; margin: 0 auto; }
+.benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-top: 30px; }
+.benefit-card { background: #fff; border-radius: 10px; padding: 20px 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 4px solid #2e7d32; transition: all 0.3s; }
+.benefit-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top-color: #d32f2f; }
+.benefit-card i { font-size: 30px; color: #2e7d32; margin-bottom: 10px; display: block; }
+.benefit-card:hover i { color: #d32f2f; }
+.benefit-card h3 { color: #1b5e20; font-size: 15px; margin-bottom: 8px; }
+.benefit-card p { color: #666; font-size: 12px; line-height: 1.6; }
+
+/* Prices */
+.prices-section { background: #f7f9f7; padding: 60px 20px; }
+.prices-container { max-width: 1200px; margin: 0 auto; }
+.prices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+.price-widget-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e8f5e9; display: flex; flex-direction: column; }
+.widget-header { background: linear-gradient(135deg, #1b5e20, #2e7d32); color: #fff; padding: 15px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.widget-header i { font-size: 20px; color: #ffb300; }
+.widget-header h3 { font-size: 16px; font-weight: 700; flex: 1; }
+.live-badge { background: #d32f2f; color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+.pulse { width: 6px; height: 6px; background: #fff; border-radius: 50%; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
+.update-badge { background: rgba(255, 179, 0, 0.2); color: #ffb300; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.tradingview-widget-container { padding: 15px; flex: 1; min-height: 250px; }
+.eth-price-list { padding: 15px 20px; flex: 1; }
+.eth-price-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.eth-price-item:last-child { border-bottom: none; }
+.eth-price-item .grade { font-weight: 700; color: #1b5e20; font-size: 14px; flex: 1; }
+.eth-price-item .price { font-weight: 700; color: #d32f2f; font-size: 16px; margin-right: 15px; }
+.eth-price-item .price small { font-size: 11px; color: #999; font-weight: 400; }
+.eth-price-item .change { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 10px; min-width: 65px; text-align: center; }
+.change.no-change { background: #f0f0f0; color: #666; }
+.change.down { background: #ffebee; color: #d32f2f; }
+.change.up { background: #e8f5e9; color: #2e7d32; }
+.widget-note { padding: 12px 20px; background: #f9f9f9; color: #666; font-size: 12px; display: flex; align-items: center; gap: 8px; border-top: 1px solid #eee; }
+.widget-note i { color: #2e7d32; }
+
+/* Investment - Compact */
+.investment-section { background: linear-gradient(135deg, #fff8e1, #ffecb3); padding: 60px 20px; }
+.investment-container { max-width: 1200px; margin: 0 auto; }
+.investment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: stretch; margin-top: 30px; }
+.investment-text { background: #fff; border-radius: 10px; padding: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+.investment-text h3 { color: #1b5e20; font-size: 20px; margin-bottom: 15px; }
+.investment-text ul { list-style: none; margin-bottom: 15px; }
+.investment-text ul li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-size: 14px; color: #444; }
+.investment-text ul li i { color: #2e7d32; font-size: 16px; margin-top: 3px; flex-shrink: 0; }
+.investment-card { background: #fff; border-radius: 10px; padding: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 4px solid #d32f2f; }
+.investment-card h4 { color: #1b5e20; margin-bottom: 15px; font-size: 18px; text-align: center; }
+.share-info-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+.share-info-item:last-of-type { border-bottom: none; }
+.share-info-item strong { color: #d32f2f; }
+.share-info-item .price-big { color: #d32f2f; font-size: 20px; font-weight: 800; }
+.btn-invest { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: #25D366; color: #fff; text-align: center; padding: 12px; border-radius: 6px; text-decoration: none; font-weight: 700; margin-top: 15px; transition: all 0.3s; font-size: 15px; }
+.btn-invest:hover { background: #128C7E; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4); }
+.btn-invest i { font-size: 18px; }
+.invest-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 15px; }
+.invest-feature { text-align: center; padding: 12px 8px; background: #f1f8e9; border-radius: 8px; border: 1px solid #c8e6c9; }
+.invest-feature i { font-size: 20px; color: #2e7d32; margin-bottom: 5px; }
+.invest-feature h5 { color: #1b5e20; font-size: 14px; margin-bottom: 2px; font-weight: 700; }
+.invest-feature p { font-size: 11px; color: #666; margin: 0; }
+
+/* CEO - Compact */
+.ceo-section { background: linear-gradient(135deg, #fff, #f1f8e9); padding: 60px 20px; }
+.ceo-container { max-width: 1000px; margin: 0 auto; }
+.ceo-card { display: grid; grid-template-columns: 1fr 2.5fr; gap: 25px; background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-top: 5px solid #2e7d32; margin-top: 30px; align-items: center; }
+.ceo-photo { position: relative; text-align: center; }
+.ceo-photo img { width: 100%; max-width: 180px; height: 180px; object-fit: cover; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 3px solid #ffb300; background: #e8f5e9; }
+.ceo-badge { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: #2e7d32; color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); border: 2px solid #fff; }
+.ceo-info h3 { color: #1b5e20; font-size: 22px; margin-bottom: 2px; }
+.ceo-title { color: #d32f2f; font-size: 14px; font-weight: 700; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed #c8e6c9; }
+.ceo-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+.ceo-stat { text-align: center; padding: 10px 5px; background: linear-gradient(135deg, #f1f8e9, #e8f5e9); border-radius: 8px; border: 1px solid #c8e6c9; }
+.ceo-stat i { color: #2e7d32; font-size: 18px; margin-bottom: 4px; display: block; }
+.ceo-stat strong { display: block; color: #1b5e20; font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+.ceo-stat span { color: #666; font-size: 11px; font-weight: 600; }
+.ceo-message { background: #f9f9f9; border-left: 4px solid #ffb300; padding: 15px 20px; border-radius: 6px; font-style: italic; color: #555; font-size: 14px; line-height: 1.8; margin-bottom: 15px; position: relative; }
+.ceo-message::before { content: '\201C'; position: absolute; top: 5px; right: 10px; font-size: 40px; color: #c8e6c9; font-family: Georgia, serif; line-height: 1; }
+.ceo-contact { display: flex; gap: 10px; flex-wrap: wrap; }
+.ceo-contact-btn { display: inline-flex; align-items: center; gap: 6px; background: #2e7d32; color: #fff; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 13px; transition: all 0.3s; }
+.ceo-contact-btn:hover { background: #d32f2f; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+.ceo-contact-btn.whatsapp { background: #25D366; }
+.ceo-contact-btn.whatsapp:hover { background: #128C7E; }
+
+/* News */
+.news-section { background: #fff; padding: 60px 20px; }
+.news-container { max-width: 1200px; margin: 0 auto; }
+.news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
+.news-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: all 0.3s; border: 1px solid #eee; }
+.news-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); }
+.news-image { height: 160px; overflow: hidden; position: relative; background: #f5f5f5; }
+.news-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+.news-card:hover .news-image img { transform: scale(1.08); }
+.news-source { position: absolute; top: 10px; left: 10px; background: rgba(211, 47, 47, 0.95); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.news-content { padding: 15px; }
+.news-date { color: #999; font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.news-date i { color: #2e7d32; }
+.news-content h3 { color: #1b5e20; font-size: 16px; margin-bottom: 8px; line-height: 1.4; }
+.news-content p { color: #666; font-size: 13px; line-height: 1.6; }
+.sources-title { text-align: center; font-size: 20px; color: #1b5e20; margin: 40px 0 20px 0; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.sources-title i { color: #d32f2f; }
+.sources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+.source-card { background: linear-gradient(135deg, #f1f8e9, #e8f5e9); border: 2px solid #c8e6c9; border-radius: 10px; padding: 20px 15px; text-align: center; text-decoration: none; transition: all 0.3s; }
+.source-card:hover { transform: translateY(-5px); border-color: #2e7d32; box-shadow: 0 8px 20px rgba(46, 125, 50, 0.15); }
+.source-card i { font-size: 28px; color: #1877f2; margin-bottom: 10px; display: block; }
+.source-card h4 { color: #1b5e20; font-size: 13px; margin-bottom: 5px; line-height: 1.4; }
+.source-card p { color: #666; font-size: 11px; margin: 0; }
+
+/* FAQ Section */
+.faq-section { background: #f7f9f7; padding: 60px 20px; }
+.faq-container { max-width: 900px; margin: 0 auto; }
+.faq-item { background: #fff; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 3px 12px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; overflow: hidden; }
+.faq-question { padding: 15px 20px; font-weight: 700; color: #1b5e20; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 15px; transition: background 0.3s; }
+.faq-question:hover { background: #f1f8e9; }
+.faq-question i { color: #d32f2f; transition: transform 0.3s; }
+.faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; color: #555; font-size: 14px; line-height: 1.7; }
+.faq-item.active .faq-answer { padding: 0 20px 15px 20px; max-height: 500px; }
+.faq-item.active .faq-question i { transform: rotate(180deg); }
+
+/* Testimonials */
+.testimonials-section { background: linear-gradient(135deg, #fff8e1, #ffecb3); padding: 60px 20px; }
+.testimonials-container { max-width: 1200px; margin: 0 auto; }
+.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+.testimonial-card { background: #fff; border-radius: 10px; padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); position: relative; transition: all 0.3s; }
+.testimonial-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); }
+.testimonial-card::before { content: '\201C'; position: absolute; top: 5px; right: 15px; font-size: 60px; color: #c8e6c9; font-family: Georgia, serif; line-height: 1; }
+.testimonial-stars { color: #ffb300; margin-bottom: 10px; font-size: 14px; }
+.testimonial-text { color: #555; font-size: 14px; line-height: 1.8; margin-bottom: 15px; font-style: italic; position: relative; z-index: 1; }
+.testimonial-author { display: flex; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid #f0f0f0; }
+.testimonial-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #2e7d32, #1b5e20); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; flex-shrink: 0; }
+.testimonial-author-info h4 { color: #1b5e20; font-size: 14px; margin-bottom: 2px; }
+.testimonial-author-info p { color: #999; font-size: 12px; margin: 0; }
+
+/* Newsletter */
+.newsletter-section { background: linear-gradient(135deg, #1b5e20, #2e7d32); padding: 50px 20px; color: #fff; }
+.newsletter-container { max-width: 800px; margin: 0 auto; text-align: center; }
+.newsletter-container i.newsletter-icon { font-size: 50px; color: #ffb300; margin-bottom: 15px; }
+.newsletter-container h2 { font-size: 26px; margin-bottom: 10px; }
+.newsletter-container > p { font-size: 14px; color: #c8e6c9; margin-bottom: 20px; }
+.newsletter-form { display: flex; gap: 10px; max-width: 500px; margin: 0 auto; flex-wrap: wrap; }
+.newsletter-form input { flex: 1; min-width: 200px; padding: 12px 15px; border: none; border-radius: 6px; font-size: 14px; font-family: inherit; }
+.newsletter-form input:focus { outline: 2px solid #ffb300; }
+.newsletter-form button { background: #ffb300; color: #1b5e20; border: none; padding: 12px 25px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s; font-family: inherit; }
+.newsletter-form button:hover { background: #d32f2f; color: #fff; transform: translateY(-2px); }
+
+/* Products */
+.products-section { background: #fff; padding: 60px 20px; }
+.products-container { max-width: 1200px; margin: 0 auto; }
+.products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 30px; }
+.product-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: all 0.3s; display: flex; flex-direction: column; border: 1px solid #eee; }
+.product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); }
+.product-image { height: 180px; overflow: hidden; position: relative; background: #f5f5f5; }
+.product-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+.product-card:hover .product-image img { transform: scale(1.08); }
+.product-badge { position: absolute; top: 10px; left: 10px; background: #d32f2f; color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.product-badge.featured { background: #ffb300; color: #1b5e20; }
+.product-info { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+.product-info h3 { color: #1b5e20; font-size: 16px; margin-bottom: 6px; }
+.product-info p { font-size: 13px; color: #666; margin-bottom: 10px; flex: 1; }
+.product-price { font-size: 20px; font-weight: 700; color: #d32f2f; margin-bottom: 5px; }
+.product-price small { font-size: 12px; color: #999; font-weight: 400; }
+.product-actions { display: flex; gap: 5px; margin-top: 10px; }
+.qty-selector { display: flex; align-items: center; border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden; }
+.qty-selector button { background: #f5f5f5; border: none; width: 28px; height: 28px; cursor: pointer; font-size: 14px; font-weight: 700; color: #2e7d32; transition: all 0.2s; }
+.qty-selector button:hover { background: #2e7d32; color: #fff; }
+.qty-selector input { width: 35px; height: 28px; border: none; text-align: center; font-weight: 700; font-size: 13px; font-family: inherit; }
+.btn-add-cart { flex: 1; background: #2e7d32; color: #fff; border: none; border-radius: 4px; padding: 8px; font-weight: 700; font-size: 12px; cursor: pointer; transition: all 0.3s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.btn-add-cart:hover { background: #d32f2f; transform: translateY(-2px); }
+
+/* Support MDA - Compact & Attractive */
+.support-section { background: linear-gradient(135deg, #f1f8e9, #c8e6c9); padding: 60px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+.support-container { max-width: 900px; width: 100%; margin: 0 auto; text-align: center; }
+.support-box { background: #fff; border-radius: 20px; padding: 40px 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); border-top: 8px solid #2e7d32; position: relative; margin-top: 25px; transition: transform 0.3s; }
+.support-box:hover { transform: translateY(-5px); }
+.support-box::before { content: '🤝'; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2e7d32, #1b5e20); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+.support-logo { max-width: 100px; margin: 0 auto 20px auto; display: block; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.founders-section { margin: 30px 0; padding: 25px; background: #f9f9f9; border-radius: 16px; border: 1px solid #c8e6c9; box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
+.founders-section h3 { color: #1b5e20; font-size: 20px; margin-bottom: 20px; font-weight: 700; }
+
+/* Board Members Layout */
+.founders-grid { display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center; }
+.founders-row { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+.founder-card { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); width: 160px; text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; align-items: center; transition: all 0.3s; position: relative; overflow: hidden; }
+.founder-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); border-color: #2e7d32; }
+.founder-card img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 4px solid #ffb300; background-color: #e8f5e9; transition: transform 0.3s; position: relative; z-index: 2; }
+.founder-card:hover img { transform: scale(1.1); border-color: #d32f2f; }
+.founder-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to bottom, #f1f8e9, transparent); z-index: 1; }
+.founder-card p { margin: 0; line-height: 1.4; font-size: 13px; color: #333; font-weight: 600; position: relative; z-index: 2; }
+.founder-card .role { color: #d32f2f; font-size: 12px; margin-bottom: 4px; font-weight: 700; }
+
+.support-box h2 { color: #1b5e20; font-size: 26px; margin-bottom: 15px; }
+.support-box p { color: #555; font-size: 15px; margin-bottom: 20px; line-height: 1.8; }
+.support-box .highlight { color: #d32f2f; font-weight: 700; }
+.support-box .btn { background: #25D366; border-color: #25D366; font-size: 16px; padding: 14px 35px; border-radius: 30px; }
+.support-box .btn:hover { background: #128C7E; border-color: #128C7E; transform: scale(1.05); }
+
+/* HQ */
+.hq-showcase { background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%); padding: 60px 20px; color: #fff; width: 100%; box-sizing: border-box; }
+.hq-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; background-color: transparent; }
+.hq-image { border-radius: 10px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
+.hq-image img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.hq-text h2 { font-size: 24px; margin-bottom: 15px; color: #ffffff !important; }
+.hq-text h2::after { content: ''; display: block; width: 50px; height: 3px; background-color: #ffb300; margin-top: 10px; border-radius: 2px; }
+.hq-text p { font-size: 14px; margin-bottom: 10px; color: #e8f5e9 !important; }
+.hq-text strong { color: #ffb300 !important; font-weight: 700; }
+
+/* Map */
+.map-section { background: #fff; padding: 60px 20px; }
+.map-container { max-width: 1200px; margin: 0 auto; }
+.map-wrapper { border-radius: 10px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.1); margin-top: 30px; height: 300px; position: relative; }
+.map-wrapper iframe { width: 100%; height: 100%; border: none; display: block; }
+.map-location-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
+.location-card { background: linear-gradient(135deg, #f1f8e9, #e8f5e9); border: 1px solid #c8e6c9; border-radius: 8px; padding: 15px; text-align: center; transition: all 0.3s; }
+.location-card:hover { transform: translateY(-3px); border-color: #2e7d32; box-shadow: 0 6px 15px rgba(46, 125, 50, 0.15); }
+.location-card i { font-size: 24px; color: #d32f2f; margin-bottom: 8px; }
+.location-card h4 { color: #1b5e20; font-size: 15px; margin-bottom: 4px; }
+.location-card p { font-size: 12px; color: #555; }
+
+/* Statistics - Single Line */
+.stats-section { background: #fff; padding: 40px 20px; }
+.stats-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; }
+.stat-card { text-align: center; padding: 15px 10px; border-radius: 10px; background: linear-gradient(135deg, #f1f8e9, #e8f5e9); border: 1px solid #c8e6c9; transition: all 0.3s; flex: 1; min-width: 120px; }
+.stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(46, 125, 50, 0.15); border-color: #2e7d32; }
+.stat-card i { font-size: 24px; color: #d32f2f; margin-bottom: 5px; }
+.stat-card h3 { font-size: 20px; color: #1b5e20; font-weight: 700; margin-bottom: 2px; }
+.stat-card p { font-size: 11px; color: #555; font-weight: 600; }
+
+/* Contact */
+.contact-section { background-color: #f1f8e9; padding: 60px 20px; }
+.contact-container { max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 30px; }
+.contact-info { flex: 1; min-width: 280px; }
+.contact-info h2 { color: #1b5e20; margin-bottom: 15px; font-size: 24px; }
+.contact-info > p { margin-bottom: 20px; color: #555; font-size: 14px; }
+.info-link { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; text-decoration: none; color: #333; font-size: 14px; padding: 10px 12px; background: #fff; border-radius: 6px; transition: all 0.3s; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+.info-link:hover { color: #d32f2f; transform: translateX(5px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.info-link i { font-size: 18px; color: #2e7d32; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: #e8f5e9; border-radius: 50%; flex-shrink: 0; }
+.info-link.telegram { background: #e3f2fd; }
+.info-link.telegram i { background: #bbdefb; color: #0088cc; }
+
+/* Footer */
+footer { background-color: #0d2310; color: #fff; text-align: center; padding: 40px 20px 20px; font-size: 14px; }
+.footer-content { max-width: 900px; margin: 0 auto; }
+.footer-logo-img { height: 60px; margin-bottom: 10px; }
+footer p { margin-bottom: 8px; color: #cbdccb; }
+footer span { color: #a5d6a7; display: block; margin-top: 10px; font-size: 13px; }
+footer .footer-divider { width: 50px; height: 2px; background: #2e7d32; margin: 15px auto; }
+.footer-social { display: flex; justify-content: center; gap: 12px; margin: 15px 0; }
+.footer-social a { width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; text-decoration: none; transition: all 0.3s; }
+.footer-social a:hover { background: #2e7d32; transform: translateY(-3px); }
+
+/* Privacy Policy Modal */
+.privacy-content { font-size: 14px; color: #444; line-height: 1.8; }
+.privacy-content h4 { color: #1b5e20; margin-top: 15px; margin-bottom: 5px; font-size: 16px; }
+.privacy-content p { margin-bottom: 10px; }
+
+/* Floating & Modals */
+.float-buttons { position: fixed; bottom: 20px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+.whatsapp-float, .telegram-float { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; transition: all 0.3s; text-decoration: none; }
+.whatsapp-float { background: #25D366; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.5); }
+.whatsapp-float:hover { transform: scale(1.1) rotate(5deg); }
+.telegram-float { background: #0088cc; box-shadow: 0 4px 15px rgba(0, 136, 204, 0.5); }
+.telegram-float:hover { transform: scale(1.1) rotate(5deg); }
+
+.cart-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1999; display: none; opacity: 0; transition: opacity 0.3s; }
+.cart-overlay.active { display: block !important; opacity: 1; }
+.cart-sidebar { position: fixed; top: 0; right: -420px; width: 400px; max-width: 90vw; height: 100vh; background: #fff; box-shadow: -5px 0 30px rgba(0,0,0,0.2); z-index: 2000; transition: right 0.4s ease; display: flex; flex-direction: column; }
+.cart-sidebar.active { right: 0 !important; }
+.cart-header { background: linear-gradient(135deg, #1b5e20, #2e7d32); color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+.cart-header h3 { font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.cart-close { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; }
+.cart-body { flex: 1; overflow-y: auto; padding: 15px; }
+.cart-empty { text-align: center; padding: 40px 20px; color: #999; }
+.cart-empty i { font-size: 50px; color: #ddd; margin-bottom: 15px; display: block; }
+.cart-item { display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid #eee; }
+.cart-item img { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; background: #f5f5f5; }
+.cart-item-info { flex: 1; }
+.cart-item-info h4 { font-size: 14px; color: #1b5e20; margin-bottom: 3px; }
+.cart-item-info .cart-item-price { color: #d32f2f; font-weight: 700; font-size: 14px; }
+.cart-item-qty { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.cart-item-qty button { width: 24px; height: 24px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; font-weight: 700; color: #2e7d32; font-family: inherit; }
+.cart-item-qty span { min-width: 20px; text-align: center; font-weight: 700; font-size: 13px; }
+.cart-item-remove { background: none; border: none; color: #d32f2f; cursor: pointer; font-size: 14px; align-self: flex-start; padding: 5px; }
+.cart-footer { padding: 15px; border-top: 2px solid #eee; background: #f9f9f9; }
+.cart-total { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 16px; font-weight: 700; color: #1b5e20; }
+.cart-total .total-amount { font-size: 20px; color: #d32f2f; }
+.btn-checkout { width: 100%; background: #d32f2f; color: #fff; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-checkout:hover { background: #2e7d32; }
+.btn-checkout:disabled { background: #ccc; cursor: not-allowed; }
+
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+.modal-overlay.active { display: flex !important; }
+.modal-content { background: #fff; border-radius: 10px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; animation: modalIn 0.3s ease; }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+.modal-header { background: linear-gradient(135deg, #1b5e20, #2e7d32); color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 10px 10px 0 0; }
+.modal-header h3 { font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.modal-close { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; }
+.modal-body { padding: 20px; }
+.order-summary { background: #f1f8e9; border-radius: 6px; padding: 12px; margin-bottom: 15px; border-left: 3px solid #2e7d32; }
+.order-summary h4 { color: #1b5e20; margin-bottom: 8px; font-size: 14px; }
+.order-summary-item { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; color: #555; }
+.order-summary-total { display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #c8e6c9; font-weight: 700; color: #d32f2f; font-size: 15px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #1b5e20; }
+.form-group label .required { color: #d32f2f; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; }
+.form-group input:focus, .form-group textarea:focus { outline: none; border-color: #2e7d32; }
+.payment-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.payment-option { border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px; cursor: pointer; text-align: center; transition: all 0.3s; font-size: 12px; font-weight: 600; color: #555; }
+.payment-option.selected { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; }
+.payment-option i { display: block; font-size: 18px; margin-bottom: 4px; color: #2e7d32; }
+.btn-submit-order { width: 100%; background: #d32f2f; color: #fff; border: none; padding: 14px; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 10px; }
+.btn-submit-order:hover { background: #2e7d32; }
+.success-icon { text-align: center; padding: 20px 0; }
+.success-icon i { font-size: 60px; color: #2e7d32; animation: bounceIn 0.6s; }
+@keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+
+@media (max-width: 900px) {
+.prices-grid, .hq-container, .investment-grid, .project-details, .ceo-card { grid-template-columns: 1fr; }
+.stats-container { flex-wrap: wrap; }
+.stat-card { flex: 1 1 30%; }
+}
+@media (max-width: 768px) {
+.menu-toggle { display: block; }
+nav { display: none; border: none; margin: 0; padding: 0; }
+nav.active { display: flex; flex-direction: column; width: 100%; background: #fff; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+nav ul { flex-direction: column; width: 100%; gap: 5px; }
+nav ul li a { display: block; padding: 10px; border-bottom: 1px solid #f0f0f0; text-align: center; }
+.top-bar { justify-content: center; width: 100%; margin-top: 10px; }
+.search-box { width: 100%; max-width: 300px; }
+.hero-content h1 { font-size: 26px; }
+.payment-options { grid-template-columns: 1fr; }
+.float-buttons { bottom: 15px; right: 15px; }
+.whatsapp-float, .telegram-float { width: 45px; height: 45px; font-size: 20px; }
+.chart-bars { height: 250px; padding: 15px 5px; gap: 8px; }
+.chart-bar-value { font-size: 10px; padding: 2px 6px; }
+.ceo-stats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.ceo-stat strong { font-size: 16px; }
+.stat-card { flex: 1 1 45%; }
+.visit-text { font-size: 14px; bottom: 10px; left: 10px; }
 }
 
-/* ለስላሳ የቀለም ሽግግር (Smooth Transition) */
-body {
-    transition: background-color 0.3s ease, color 0.3s ease;
+/* ለስልክ ስክሪን የተዘጋጀ ተጨማሪ ማስተካከያ */
+@media (max-width: 600px) {
+.founders-grid { gap: 15px; }
+.founders-row { gap: 10px; }
+.founder-card { width: 120px; padding: 10px; }
+.founder-card img { width: 70px; height: 70px; margin-bottom: 8px; }
+.founder-card p { font-size: 12px; }
+.founder-card .role { font-size: 11px; }
+.stat-card { flex: 1 1 100%; }
 }
-        .lang-switch {
-            background: var(--dark);
-            padding: 8px 0;
-            text-align: right;
-        }
-        .lang-switch .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        .lang-switch a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 14px;
-            margin-left: 15px;
-            font-weight: bold;
-        }
-        .lang-switch a.active { color: var(--accent-red); }
-        header {
-            background: var(--white);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            flex-wrap: wrap;
-        }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .logo-img {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--secondary-green);
-        }
-        .logo-text {
-            font-size: 22px;
-            font-weight: bold;
-            color: var(--accent-red);
-            line-height: 1.2;
-        }
-        .logo-text span { 
-            color: var(--secondary-green); 
-            font-size: 14px; 
-            display: block;
-            font-weight: 600;
-        }
-        nav ul { display: flex; list-style: none; flex-wrap: wrap; }
-        nav ul li { margin-left: 20px; }
-        nav ul li a {
-            text-decoration: none;
-            color: var(--secondary-green);
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        nav ul li a:hover { color: var(--accent-red); }
-        .hero {
-            height: 60vh;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #fff;
-            padding: 0 20px;
-            background-color: var(--dark);
-        }
-        .hero h1 { font-size: 42px; margin-bottom: 20px; }
-        .hero p { font-size: 20px; max-width: 800px; margin: 0 auto 30px; }
-        .section { padding: 70px 20px; max-width: 1200px; margin: 0 auto; }
-        .section-title {
-            text-align: center;
-            font-size: 30px;
-            color: var(--primary-green);
-            margin-bottom: 40px;
-        }
-        .section-title::after {
-            content: '';
-            display: block; width: 60px; height: 4px; background: var(--accent-red); margin: 10px auto;
-        }
-        .obj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .obj-card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid var(--secondary-green); }
-        .obj-card h3 { font-size: 17px; margin-bottom: 10px; color: var(--primary-green); }
-        .obj-card p { font-size: 14px; color: #666; }
-        .info-bar { background: var(--light-bg); padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 5px solid var(--primary-green); }
-        .info-bar span { font-weight: bold; color: var(--dark); }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-        .gallery-item { height: 200px; border-radius: 8px; overflow: hidden; position: relative; background: #ddd; display: flex; align-items: center; justify-content: center; }
-        .gallery-item .label { position: absolute; bottom: 0; background: rgba(13, 35, 16, 0.85); color: #fff; width: 100%; padding: 10px; font-size: 13px; text-align: center; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
-        .video-card { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .video-card video { width: 100%; height: 200px; border-radius: 8px; background: #000; }
-        .video-card p { text-align: center; font-size: 14px; font-weight: bold; color: var(--primary-green); margin-top: 12px; }
-        .news-container { display: flex; gap: 20px; flex-wrap: wrap; }
-        .news-card { flex: 1; min-width: 280px; background: var(--light-bg); padding: 20px; border-radius: 8px; }
-        .news-card .date { font-size: 12px; color: var(--accent-red); font-weight: bold; }
-        .news-card h4 { margin: 10px 0; color: var(--primary-green); }
-        .share-section { background: var(--dark); color: #fff; padding: 60px 20px; border-radius: 15px; margin: 40px auto; }
-        .share-form { max-width: 700px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .share-form input, .share-form select { padding: 12px; border-radius: 5px; border: none; font-size: 14px; }
-        .share-form button { grid-column: span 2; background: var(--accent-red); color: #fff; border: none; padding: 15px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .share-form button:hover { background: #b71c1c; }
-        .contact-box { display: flex; flex-wrap: wrap; gap: 40px; margin-top: 40px; }
-        .c-info { flex: 1; min-width: 280px; }
-        .c-info div { margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
-        .c-info i { color: var(--secondary-green); font-size: 22px; width: 30px; }
-        .social-links a { font-size: 28px; margin-right: 20px; color: var(--secondary-green); }
-        .contact-form { flex: 1; min-width: 280px; }
-        .contact-form input, .contact-form textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; }
-        .contact-form button { background: var(--secondary-green); color: #fff; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; }
-        footer { background: var(--dark); color: #fff; text-align: center; padding: 30px; margin-top: 50px; }
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--primary-green);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            z-index: 2000;
-            opacity: 0;
-            transition: 0.3s;
-        }
-        .toast.show { opacity: 1; }
-        .toast.error { background: var(--accent-red); }
-        @media (max-width: 768px) {
-            .nav-container { flex-direction: column; gap: 15px; }
-            .hero h1 { font-size: 28px; }
-            .share-form { grid-template-columns: 1fr; }
-            .share-form button { grid-column: span 1; }
-        }
-    </style>
+</style>
 </head>
 <body>
-    <div class="lang-switch">
-        <div class="container">
-            <a href="#" class="active">አማርኛ</a>
-            <a href="#">English</a>
-        </div>
-    </div>
-    <header>
-        <div class="nav-container">
-            <div class="logo-area">
-                <img src="photo_2026-05-20_19-43-13.jpg" alt="GMFC Logo" class="logo-img" onerror="this.style.display='none'">
-                <div class="logo-text">GMFC <span>አክሲዬን ማህበር</span></div>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#objectives">ዓላማዎቻችን</a></li>
-                    <li><a href="#gallery">ሚዲያና ቪዲዮዎች</a></li>
-                    <li><a href="#news">ዜና</a></li>
-                    <li><a href="#shares">አክሲዮን</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <h1 id="hero-title">የጋምቤላ ማጃንግ የጫካ ቡና አምራችና ኤክስፖርተር</h1>
-            <p id="hero-subtitle">ከማጃንግ ጥቅጥቅ ያሉ ደኖች፣ ሜጢ ከተማ - ለዓለም ገበያ የሚቀርብ ንጹህ የኢትዮጵያ የጫካ ቡና!</p>
-            <a href="#shares" class="btn" style="background: var(--accent-red); color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">አባል ይሁኑ / Become a Member</a>
-        </div>
-    </section>
-    <section id="objectives" class="section">
-        <h2 class="section-title">የማህበራችን መሥራች ዓላማዎች</h2>
-        <div class="info-bar" id="profile-info">
-            <p>የማህበሩ ህጋዊ ስም፦ <span id="comp-name">በመጫን ላይ...</span></p>
-            <p>የኢንቨስትመንት ፈቃድ ቁጥር፦ <span id="comp-license">...</span> | ዋና ስራ አስኪያጅ፦ <span id="comp-manager">...</span></p>
-        </div>
-        <div class="obj-grid">
-            <div class="obj-card"><h3>1. ፍትሃዊ የሀብት ክፍፍል</h3><p>በማጃንግ ዞን ላይ የሀብት ክፍፍልን ፍትሃዊ ለማድረግና ማህበረሰቡን ተጠቃሚ ማድረግ።</p></div>
-            <div class="obj-card"><h3>2. ባለሀብቶችን ማደራጀት</h3><p>የሜጢ ከተማ ባለሀብቶችን በአንድ አክሲዬን በማደራጀት ጠንካራ አቅም መፍጠር።</p></div>
-            <div class="obj-card"><h3>3. አካባቢን ማልማት</h3><p>ከሪሶርሱ ያፈራነውን ሀብት መጀመሪያ ለዞኑና ለክልሉ ልማት ቅድሚያ እንዲውል ማድረግ።</p></div>
-            <div class="obj-card"><h3>4. ስጋትን መስበር</h3><p>በሜጢ የመጀመርያውን G+5 ህንፃ በመገንባት የኢንቨስትመንት በራስ መተማመንን መገንባት።</p></div>
-            <div class="obj-card"><h3>5. ክልላዊ ገፅታ መገንባት</h3><p>"የጋምቤላ ማጃንግ የጫካ ቡና" በሚል ስያሜ ክልላችንን ለዓለም ማስተዋወቅ።</p></div>
-            <div class="obj-card"><h3>6. ህጋዊነትና ታክስ</h3><p>ህገወጥ ንግድን ማስቀረትና ለመንግስት የሚገባውን ታክስ በአግባቡ መክፈል።</p></div>
-            <div class="obj-card"><h3>7. የወጣቶች የስራ ዕድል</h3><p>ልዩነቶችን ማጥበብና ለወጣቶች ቋሚና ጊዜያዊ የስራ ዕድሎችን ማመቻቸት።</p></div>
-            <div class="obj-card"><h3>8. የአስተሳሰብ ለውጥ</h3><p>ራስ ወዳድነትን በመስበር ለጋራ ሆስፒታል፣ መንገድና ልማት በጋራ መቆም።</p></div>
-        </div>
-    </section>
-    <section id="gallery" class="section" style="background: #fdfdfd;">
-        <h2 class="section-title">የምስልና ሰነዶች ማዕከል</h2>
-        <div class="gallery-grid">
-            <div class="gallery-item"><div class="label">የG+5 ዋና መስሪያ ቤት ህንፃ ግንባታ ማብሰሪያ መድረክ</div></div>
-            <div class="gallery-item"><div class="label">የማህበሩ አመራሮች እና የባለሀብቶች የምክክር መድረክ</div></div>
-            <div class="gallery-item"><div class="label">የማጃንግ ዞን ጥቅጥቅ ያሉ የተፈጥሮ የጫካ ቡና ደኖች</div></div>
-            <div class="gallery-item"><div class="label">ይፋዊ የኢንቨስትመንት ፈቃድ ሰነድ</div></div>
-        </div>
-        <h3 style="margin-top: 50px; color: var(--primary-green); font-size: 24px; text-align: center;">የማህበራዊ እንቅስቃሴና የልማት ቪዲዮዎች</h3>
-        <div class="video-grid">
-            <div class="video-card"><video controls src="VID_20250620_000532_637.mp4"></video><p>የማጃንግ ዞን ስፖርት ክለብ የትጥቅ አቅርቦት ድጋፍ</p></div>
-            <div class="video-card"><video controls src="VID_20250622_222227_222.mp4"></video><p>የስፖርት ደጋፊዎች እና የወጣቶች ደመቅ ያለ እንቅስቃሴ</p></div>
-            <div class="video-card"><video controls src="VID_20250620_000807_808.mp4"></video><p>የማህበረሰብ ልማትና የውይይት መድረክ - ክፍል 1</p></div>
-            <div class="video-card"><video controls src="VID_20250620_000807_904.mp4"></video><p>የማህበረሰብ ልማትና የውይይት መድረክ - ክፍል 2</p></div>
-            <div class="video-card"><video controls src="20250619_162152.mp4"></video><p>የጫካ ቡና ምርት ዝግጅት እና ክትትል</p></div>
-            <div class="video-card"><video controls src="VID-20260311-WA0012.mp4"></video><p>ይፋዊ የድርጅቱ ስብሰባ እና የባለሀብቶች ውይይት</p></div>
-        </div>
-    </section>
-    <section id="shares" class="section">
-        <div class="share-section">
-            <h2 style="text-align:center; margin-bottom:20px;">የአክሲዮን መግዣ ቅጽ (Share Inquiry)</h2>
-            <p style="text-align:center; margin-bottom:30px;">አባል በመሆን ከእኛ ጋር ማጃንግንና ጋምቤላን ያልሙ።</p>
-            <form class="share-form" id="share-form">
-                <input type="text" id="inquiry-name" placeholder="ሙሉ ስም" required>
-                <input type="tel" id="inquiry-phone" placeholder="ስልክ ቁጥር" required>
-                <select id="inquiry-amount" required>
-                    <option value="">መግዛት የሚፈልጉት የአክሲዮን መጠን</option>
-                    <option value="10,000 - 50,000 ብር">ከ10,000 - 50,000 ብር</option>
-                    <option value="50,000 - 200,000 ብር">ከ50,000 - 200,000 ብር</option>
-                    <option value="200,000+ ብር">ከ200,000 ብር በላይ</option>
-                </select>
-                <input type="text" id="inquiry-city" placeholder="የመኖሪያ ከተማ">
-                <button type="submit" id="submit-btn">ጥያቄዬን ላክ / Submit Inquiry</button>
-            </form>
-        </div>
-    </section>
-    <section id="news" class="section">
-        <h2 class="section-title">የልማትና ማህበራዊ ዜናዎች</h2>
-        <div class="news-container" id="news-box">
-            <p>በመጫን ላይ...</p>
-        </div>
-    </section>
-    <section id="contact" class="section">
-        <h2 class="section-title">ያግኙን</h2>
-        <div class="contact-box">
-            <div class="c-info">
-                <div><i class="fa-solid fa-location-dot"></i> ሜጢ ከተማ፣ ማጃንግ ዞን፣ ጋምቤላ ክልል</div>
-                <div><i class="fa-solid fa-phone"></i> 0911097124 / 0911991614</div>
-                <div><i class="fa-solid fa-envelope"></i> gmfcmanufacturerandexporterplc@gmail.com</div>
-                <div class="social-links">
-                    <a href="#"><i class="fa-brands fa-facebook"></i></a>
-                    <a href="#"><i class="fa-brands fa-tiktok"></i></a>
-                </div>
-            </div>
-            <div class="contact-form">
-                <form id="contact-form">
-                    <input type="text" id="contact-name" placeholder="ስም" required>
-                    <input type="email" id="contact-email" placeholder="ኢሜይል አድራሻ">
-                    <textarea id="contact-msg" placeholder="መልእክትዎትን እዚህ ይጻፉ..." required style="height: 120px;"></textarea>
-                    <button type="submit">መልእክት ላክ</button>
-                </form>
-            </div>
-        </div>
-    </section>
-    <footer>
-        <p>© 2026 የጋምቤላ ማጃንግ የጫካ ቡና አምራችና ኤክስፖርተር አክሲዬን ማህበር። መብቱ በህግ የተጠበቀ ነው።</p>
-    </footer>
-    <div id="toast" class="toast"></div>
-    <script>
-        // API Base URL - uses current domain automatically
-        const API_BASE = window.location.origin + '/api';
-        
-        console.log('API_BASE:', API_BASE);
-        
-        function showToast(message, isError) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast show' + (isError ? ' error' : '');
-            setTimeout(() => toast.classList.remove('show'), 4000);
-        }
-        
-        // Load company profile
-        async function loadCompanyProfile() {
-            try {
-                console.log('Fetching profile...');
-                const response = await fetch(API_BASE + '/profile');
-                const data = await response.json();
-                console.log('Profile data:', data);
-                
-                document.getElementById('comp-name').innerText = data.currentName || 'GMFC';
-                document.getElementById('comp-license').innerText = data.legalRegistration?.investmentLicenseNo || 'GMFC/INV/2024/0123';
-                document.getElementById('comp-manager').innerText = data.generalManager || 'ኢንጂነር ሰይድ';
-                document.getElementById('hero-title').innerText = data.heroTitle || data.currentName;
-                document.getElementById('hero-subtitle').innerText = data.heroSubtitle || '';
-            } catch (err) {
-                console.error('Profile error:', err);
-                showToast('ውሂብ መጫን አልተቻለም', true);
-            }
-        }
-        
-        // Load news
-async function loadNews() {
-    try {
-        console.log('Fetching news...');
-        const response = await fetch(API_BASE + '/news');
-        
-        if (!response.ok) {
-            throw new Error(HTTP error! status: ${response.status});
-        }
-        
-        const data = await response.json();
-        console.log('News data:', data);
 
-        const newsBox = document.getElementById('news-box');
-        
-        // ዳታው ባዶ ከሆነ
-        if (!data || data.length === 0) {
-            newsBox.innerHTML = '<p>በአሁኑ ጊዜ ምንም ዜና የለም።</p>';
-        } else {
-            // ዳታው ካለ ዜናዎቹን ማሳየት
-            newsBox.innerHTML = ''; // መጀመሪያ ሳጥኑን ማጽዳት
-            data.forEach(item => {
-                newsBox.innerHTML += 
-                    <div class="news-card">
-                        <div class="date">${item.year}</div>
-                        <h4>${item.title}</h4>
-                        <p>${item.description}</p>
-                    </div>
-                ;
-            });
-        }
-    } catch (err) {
-        console.error('News error:', err);
-        // ስህተት ካለ ለተጠቃሚው ማሳወቅ
-        document.getElementById('news-box').innerHTML = '<p style="color: red;">ዜናዎችን ማምጣት አልተቻለም። እባክዎ ቆይተው እንደገና ይሞክሩ።</p>';
-        if (typeof showToast === 'function') {
-            showToast('ዜናዎችን ማምጣት አልተቻለም', true);
-        }
-    }
-}
-        // Submit share inquiry
-        document.getElementById('share-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submit-btn');
-            btn.disabled = true;
-            btn.textContent = 'በመላክ ላይ...';
-            
-            const data = {
-                name: document.getElementById('inquiry-name').value,
-                phone: document.getElementById('inquiry-phone').value,
-                amount: document.getElementById('inquiry-amount').value,
-                city: document.getElementById('inquiry-city').value,
-                date: new Date().toLocaleDateString()
-            };
-            
-            try {
-                const response = await fetch(API_BASE + '/applications', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                if (response.ok) {
-                    showToast('ጥያቄዎ በተሳካ ሁኔታ ተልኳል!');
-                    document.getElementById('share-form').reset();
-                } else {
-                    showToast('መላክ አልተቻለም', true);
-                }
-            } catch (err) {
-                showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
-            }
-            
-            btn.disabled = false;
-            btn.textContent = 'ጥያቄዬን ላክ / Submit Inquiry';
-        });
-        
-        // Contact form
-        document.getElementById('contact-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            showToast('መልእክትዎ ተልኳል!');
-            e.target.reset();
-        });
-        
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) target.scrollIntoView({ behavior: 'smooth' });
-            });
-        });
-        
-        // Load everything
-        window.onload = () => {
-            console.log('Page loaded');
-            loadCompanyProfile();
-            loadNews();
-        };
-    </script>
-</body>
-</html>
+<header>
+<div class="nav-container">
+<a href="#home" class="logo-text">
+<img src="logo.png" alt="GMFC Logo">
+<div class="logo-name">
+<strong>GMFC</strong>
+<span class="am-text">አክሲዬን ማህበር</span>
+<span class="en-text">Share Company</span>
+<span class="ar-text">شركة مساهمة</span>
+</div>
+</a>
+<button class="menu-toggle" onclick="document.querySelector('nav').classList.toggle('active')">
+<i class="fa-solid fa-bars"></i> <span style="font-size:14px; font-weight:600; margin-left:5px;">Menu</span>
+</button>
+
+<div class="top-bar">
+<div class="search-box">
+<i class="fa-solid fa-search"></i>
+<input type="text" id="searchInput" placeholder="ፈልግ... / Search..." onkeyup="searchPage()">
+</div>
+<!-- Live Exchange Rate Badge -->
+<div class="live-rate-badge" id="liveRateBadge">
+<i class="fa-solid fa-arrow-right-arrow-left"></i>
+<span id="rateText">1 USD = -- ETB</span>
+</div>
+<button type="button" class="currency-btn" onclick="toggleCurrency()">
+<span id="currencyLabel">ETB</span>
+</button>
+<button type="button" class="lang-btn" onclick="toggleLang()">
+<span id="langLabel">EN</span>
+</button>
+<!-- Dark Mode Toggle Button -->
+<button type="button" id="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+<a href="#" class="cart-btn" onclick="openCart(event); return false;">
+<i class="fa-solid fa-shopping-cart"></i>
+<span class="cart-count" id="cartCount">0</span>
+</a>
+</div>
+
+<nav>
+<ul>
+<li><a href="#home"><span class="am-text">መነሻ</span><span class="en-text">Home</span><span class="ar-text">الرئيسية</span></a></li>
+<li><a href="#benefits"><span class="am-text">ጥቅሞች</span><span class="en-text">Benefits</span><span class="ar-text">الفوائد</span></a></li>
+<li><a href="#prices"><span class="am-text">ዋጋ</span><span class="en-text">Prices</span><span class="ar-text">الأسعار</span></a></li>
+<li><a href="#investment"><span class="am-text">አክሲዬን</span><span class="en-text">Shares</span><span class="ar-text">الأسهم</span></a></li>
+<li><a href="#ceo"><span class="am-text">ስራ አስኪያጅ</span><span class="en-text">CEO</span><span class="ar-text">المدير</span></a></li>
+<li><a href="#support"><span class="am-text">ማልማ</span><span class="en-text">MDA</span><span class="ar-text">MDA</span></a></li>
+<li><a href="#map"><span class="am-text">አካባቢ</span><span class="en-text">Location</span><span class="ar-text">الموقع</span></a></li>
+<li><a href="#products"><span class="am-text">ምርቶች</span><span class="en-text">Products</span><span class="ar-text">المنتجات</span></a></li>
+<li><a href="#news"><span class="am-text">ዜና</span><span class="en-text">News</span><span class="ar-text">الأخبار</span></a></li>
+<li><a href="#faq"><span class="am-text">FAQ</span><span class="en-text">FAQ</span><span class="ar-text">الأسئلة</span></a></li>
+<li><a href="#contact"><span class="am-text">ያግኙን</span><span class="en-text">Contact</span><span class="ar-text">اتصل بنا</span></a></li>
+</ul>
+</nav>
+</div>
+</header>
+
+<section id="home" class="hero">
+<div class="hero-content">
+<div class="hero-badge am-text">🌿 100% ኦርጋኒክ የጫካ ቡና</div>
+<div class="hero-badge en-text">🌿 100% Organic Forest Coffee</div>
+<div class="hero-badge ar-text">🌿 قهوة غابات عضوية 100%</div>
+<h1 class="am-text">የጋምቤላ ማጃንግ የጫካ ቡና አምራችና ኤክስፖርተር አክሲዬን ማህበር</h1>
+<h1 class="en-text">Gambella Majang Forest Coffee Producer, Manufacturer and Exporter Share Company</h1>
+<h1 class="ar-text">شركة غامبيلا ماجانغ للبن الغابات المنتج والمصنع والمصدر</h1>
+<p class="am-text">"ማጃንግን የማይቀይር እና የማያለማ ቡና አይሸጥም!" — ከተፈጥሮ ማሳዎች የተቀጠፈ ኦርጋኒክ የጫካ ቡናን ለዓለም በማቅረብ፤ ማጃንግንና የጋምቤላን ክልል በልማት ከፍ የማድረግ ታላቅ ራዕይ!</p>
+<p class="en-text">"We will not sell coffee that does not change and develop Majang!" — Our great vision: to elevate Majang and the Gambella region through development by delivering organic forest coffee harvested from natural farms to the world!</p>
+<p class="ar-text">"لن نبيع قهوة لا تغير وتطور ماجانغ!" - رؤيتنا العظيمة: رفع ماجانغ ومنطقة غامبيلا من خلال التنمية من خلال تقديم القهوة العضوية للغابات المحصودة من المزارع الطبيعية إلى العالم!</p>
+<div class="hero-buttons">
+<a href="#products" class="btn"><i class="fa-solid fa-shopping-bag"></i> <span class="am-text">ምርቶቻችንን ይመልከቱ</span><span class="en-text">View Products</span><span class="ar-text">عرض المنتجات</span></a>
+<a href="#investment" class="btn btn-outline"><i class="fa-solid fa-chart-line"></i> <span class="am-text">አክሲዬን ይግዙ</span><span class="en-text">Buy Shares</span><span class="ar-text">شراء الأسهم</span></a>
+<a href="https://t.me/gmfc_official" target="_blank" class="btn btn-telegram"><i class="fa-brands fa-telegram"></i> Telegram</a>
+</div>
+</div>
+<!-- Visit Text -->
+<div class="visit-text am-text"><i class="fa-solid fa-location-dot"></i> ጋምቤላ ማጃንግን ይጎብኙ!!</div>
+<div class="visit-text en-text"><i class="fa-solid fa-location-dot"></i> Visit Gambella Majang!!</div>
+<div class="visit-text ar-text"><i class="fa-solid fa-location-dot"></i> قم بزيارة غامبيلا ماجانغ!!</div>
+</section>
+
+<div class="ad-banner">
+<div class="ad-banner-inner">
+<h3 class="am-text">📢 ስለ GMFC አክሲዬን አሁን ያግኙን!</h3>
+<h3 class="en-text">📢 Learn about GMFC Shares — Contact us today!</h3>
+<h3 class="ar-text">📢 تعرف على أسهم GMFC - اتصل بنا اليوم!</h3>
+<p class="am-text">ትርፋማ ኢንቨስትመንት እድል — የአንድ አክሲዬን ዋጋ 10,000 ብር</p>
+<p class="en-text">Profitable investment opportunity — 10,000 ETB per share</p>
+<p class="ar-text">فرصة استثمارية مربحة - 10,000 بر إثيوبي للسهم الواحد</p>
+<a href="#investment" class="btn"><span class="am-text">ተጨማሪ ይወቁ</span><span class="en-text">Learn More</span><span class="ar-text">اعرف المزيد</span></a>
+</div>
+</div>
+<!-- ================= Benefits ================= -->
+<section id="benefits" class="benefits-section">
+<div class="benefits-container">
+<h2 class="section-title am-text">ለምን የማጃንግ የጫካ ቡና?</h2>
+<h2 class="section-title en-text">Why Majang Forest Coffee?</h2>
+<h2 class="section-title ar-text">لماذا قهوة غابات ماجانغ؟</h2>
+<p class="section-subtitle am-text">የማጃንግ ቡናን ልዩ የሚያደርጉ 6 ዋና ዋና ጥቅሞች</p>
+<p class="section-subtitle en-text">6 main reasons that make Majang coffee unique</p>
+<p class="section-subtitle ar-text">6 أسباب رئيسية تجعل قهوة ماجانغ فريدة من نوعها</p>
+
+<div class="benefits-grid">
+<div class="benefit-card"><i class="fa-solid fa-seedling"></i><h3 class="am-text">100% ኦርጋኒክ</h3><h3 class="en-text">100% Organic</h3><h3 class="ar-text">100% عضوي</h3><p class="am-text">በተፈጥሮ ደን ውስጥ ያለ ኬሚካል የሚበቅል — ለጤና በጣም ጠቃሚ</p><p class="en-text">Grown in natural forests without chemicals — very healthy</p><p class="ar-text">ينمو في الغابات الطبيعية بدون مواد كيميائية - صحي للغاية</p></div>
+<div class="benefit-card"><i class="fa-solid fa-tree"></i><h3 class="am-text">የጫካ ቡና</h3><h3 class="en-text">Forest Coffee</h3><h3 class="ar-text">قهوة الغابات</h3><p class="am-text">በጥላ ስር በተፈጥሮ ስነ-ምህዳር ውስጥ የሚበቅል — ልዩ ጣዕም እና መዓዛ</p><p class="en-text">Grown under shade in natural ecosystem — unique taste and aroma</p><p class="ar-text">ينمو في ظل النظام البيئي الطبيعي - طعم ورائحة فريدين</p></div>
+<div class="benefit-card"><i class="fa-solid fa-leaf"></i><h3 class="am-text">ዘላቂ ምርት</h3><h3 class="en-text">Sustainable Production</h3><h3 class="ar-text">إنتاج مستدام</h3><p class="am-text">የደን ጥበቃ እና የአካባቢ ተስማሚ አሰራር — ለአካባቢ ጥበቃ</p><p class="en-text">Forest conservation and environmentally friendly practice</p><p class="ar-text">الحفاظ على الغابات وممارسات صديقة للبيئة</p></div>
+<div class="benefit-card"><i class="fa-solid fa-award"></i><h3 class="am-text">ከፍተኛ ጥራት</h3><h3 class="en-text">Premium Quality</h3><h3 class="ar-text">جودة عالية</h3><p class="am-text">ልዩ የአፈርና የአየር ሁኔታ የሚሰጠው ጣዕም — ለስፔሻሊቲ ተስማሚ</p><p class="en-text">Special soil and climate give unique taste — perfect for specialty</p><p class="ar-text">تربة ومناخ خاصان يمنحان طعماً فريداً - مثالي للقهوة المتخصصة</p></div>
+<div class="benefit-card"><i class="fa-solid fa-hand-holding-heart"></i><h3 class="am-text">ማህበረሰብ ተጠቃሚ</h3><h3 class="en-text">Community Benefit</h3><h3 class="ar-text">منفعة المجتمع</h3><p class="am-text">ከትርፉ 1% ለማህበረሰብ ልማት — ትምህርት፣ ጤና፣ መንገድ</p><p class="en-text">1% of profit for community development — education, health, roads</p><p class="ar-text">1% من الأرباح لتنمية المجتمع - التعليم والصحة والطرق</p></div>
+<div class="benefit-card"><i class="fa-solid fa-bullseye"></i><h3 class="am-text">ልዩ ጣዕም</h3><h3 class="en-text">Unique Flavor</h3><h3 class="ar-text">طعم فريد</h3><p class="am-text">የማጃንግ ቡና በዓለም አቀፍ ደረጃ በልዩ ጣዕሙ ይታወቃል</p><p class="en-text">Majang coffee is known internationally for its unique flavor</p><p class="ar-text">قهوة ماجانغ معروفة دولياً بطعمها الفريد</p></div>
+</div>
+</div>
+</section>
+
+<!-- ================= Prices ================= -->
+<section id="prices" class="prices-section">
+<div class="prices-container">
+<h2 class="section-title am-text">የቡና ዋጋ መረጃ</h2>
+<h2 class="section-title en-text">Coffee Price Information</h2>
+<h2 class="section-title ar-text">معلومات أسعار القهوة</h2>
+<p class="section-subtitle am-text">የዓለም አቀፍና የኢትዮጵያ የቡና ዋጋ — በየሳምንቱ ይዘመናል</p>
+<p class="section-subtitle en-text">International and Ethiopian coffee prices — updated weekly</p>
+<p class="section-subtitle ar-text">أسعار القهوة الدولية والإثيوبية - يتم تحديثها أسبوعياً</p>
+
+<div class="prices-grid">
+<div class="price-widget-card">
+<div class="widget-header">
+<i class="fa-solid fa-globe"></i>
+<h3 class="am-text">የዓለም አቀፍ የቡና ዋጋ (Arabica)</h3>
+<h3 class="en-text">International Coffee Price (Arabica)</h3>
+<h3 class="ar-text">سعر القهوة الدولية (أرابيكا)</h3>
+<span class="live-badge"><span class="pulse"></span> Live</span>
+</div>
+<div class="tradingview-widget-container">
+<div id="tradingview_coffee"></div>
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script type="text/javascript">
+new TradingView.widget({
+"width": "100%", "height": 250, "symbol": "COFFEE", "interval": "D",
+"timezone": "Africa/Addis_Ababa", "theme": "light", "style": "1", "locale": "en",
+"toolbar_bg": "#f1f3f6", "enable_publishing": false, "hide_side_toolbar": true,
+"allow_symbol_change": false, "save_image": false, "container_id": "tradingview_coffee"
+});
+</script>
+</div>
+<p class="widget-note"><i class="fa-solid fa-info-circle"></i> <span class="am-text">ዋጋው በTradingView ይዘመናል — የCOFFEE Commodity CFD ነው</span><span class="en-text">Price updates via TradingView — COFFEE Commodity CFD</span><span class="ar-text">يتم تحديث السعر عبر TradingView - عقود فروقات القهوة</span></p>
+</div>
+
+<div class="price-widget-card">
+<div class="widget-header">
+<i class="fa-solid fa-flag"></i>
+<h3 class="am-text">የኢትዮጵያ የቡና ዝቅተኛ ዋጋ</h3>
+<h3 class="en-text">Ethiopian Coffee Minimum Price</h3>
+<h3 class="ar-text">الحد الأدنى لسعر القهوة الإثيوبية</h3>
+<span class="update-badge"><i class="fa-solid fa-clock"></i> <span class="am-text">ጥቅምት 13, 2026</span><span class="en-text">Oct 13, 2026</span><span class="ar-text">13 أكتوبر 2026</span></span>
+</div>
+<div class="eth-price-list">
+<div class="eth-price-item"><span class="grade">Grade 1</span><span class="price">3.94 <small>USC/lb</small></span><span class="change no-change">—</span></div>
+<div class="eth-price-item"><span class="grade">Grade 2</span><span class="price">3.81 <small>USC/lb</small></span><span class="change no-change">—</span></div>
+<div class="eth-price-item"><span class="grade">Grade 3</span><span class="price">2.47 <small>USC/lb</small></span><span class="change down">▼ 0.50%</span></div>
+<div class="eth-price-item"><span class="grade">Grade 4</span><span class="price">2.74 <small>USC/lb</small></span><span class="change down">▼ 0.50%</span></div>
+<div class="eth-price-item"><span class="grade">Grade 5</span><span class="price">3.50 <small>USC/lb</small></span><span class="change no-change">—</span></div>
+</div>
+<p class="widget-note"><i class="fa-solid fa-info-circle"></i> <span class="am-text">በኢትዮጵያ ቡናና ሻይ ባለስልጣን በየሳምንቱ ማክሰኞ ይወጣል</span><span class="en-text">Issued weekly on Tuesday by the Ethiopian Coffee and Tea Authority</span><span class="ar-text">تصدر أسبوعياً يوم الثلاثاء من هيئة القهوة والشاي الإثيوبية</span></p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ================= Investment ================= -->
+<section id="investment" class="investment-section">
+<div class="investment-container">
+<h2 class="section-title am-text">ለምን GMFC አክሲዬን ይግዙ?</h2>
+<h2 class="section-title en-text">Why buy GMFC shares?</h2>
+<h2 class="section-title ar-text">لماذا تشتري أسهم GMFC؟</h2>
+<p class="section-subtitle am-text">ትርፋማ የኢንቨስትመንት እድል — የማጃንግን ልማት ይደግፉ</p>
+<p class="section-subtitle en-text">Profitable investment opportunity — Support Majang's development</p>
+<p class="section-subtitle ar-text">فرصة استثمارية مربحة - ادعم تنمية ماجانغ</p>
+
+<div class="investment-grid">
+<div class="investment-text">
+<h3 class="am-text">የGMFC አክሲዬን ጥቅሞች</h3>
+<h3 class="en-text">Benefits of GMFC Shares</h3>
+<h3 class="ar-text">فوائد أسهم GMFC</h3>
+<ul>
+<li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>ትርፋማ ኢንቨስትመንት</strong> — ዓመታዊ ትርፍ ከ1.56 ቢሊዮን ብር በላይ</span><span class="en-text"><strong>Profitable investment</strong> — annual profit over 1.56 billion ETB</span><span class="ar-text"><strong>استثمار مربح</strong> - ربح سنوي يزيد عن 1.56 مليار بر</span></li>
+<li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>የተረጋገጠ ገበያ</strong> — የዓለም አቀፍ የቡና ፍላጎት</span><span class="en-text"><strong>Proven market</strong> — global coffee demand</span><span class="ar-text"><strong>سوق مثبت</strong> - الطلب العالمي على القهوة</span></li>
+[10/18/2026 10:29 PM] Mrxx: <li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>የማህበረሰብ ተጠቃሚነት</strong> — 1% ለማህበረሰብ ልማት</span><span class="en-text"><strong>Community benefit</strong> — 1% for community development</span><span class="ar-text"><strong>منفعة المجتمع</strong> - 1٪ لتنمية المجتمع</span></li>
+<li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>350+ ቀጥተኛ የስራ ዕድል</strong> — ለማጃንግ ተወላጆች ቅድሚያ</span><span class="en-text"><strong>350+ direct jobs</strong> — priority for Majang natives</span><span class="ar-text"><strong>350+ وظيفة مباشرة</strong> - الأولوية لمواطني ماجانغ</span></li>
+<li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>የመሥራች አባላት ልዩ ጥቅም</strong> — ለመጀመሪያዎቹ 5 ዓመታት 20%</span><span class="en-text"><strong>Special founder benefit</strong> — 20% for first 5 years</span><span class="ar-text"><strong>ميزة المؤسسين الخاصة</strong> - 20٪ لأول 5 سنوات</span></li>
+<li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>የህጋዊ ዋስትና</strong> — በህግ የተጠበቀ</span><span class="en-text"><strong>Legal guarantee</strong> — legally protected</span><span class="ar-text"><strong>ضمان قانوني</strong> - محمي قانونياً</span></li>
+</ul>
+
+<div class="invest-features">
+<div class="invest-feature"><i class="fa-solid fa-users"></i><h5>12,500</h5><p class="am-text">የመሥራች አክሲዬን</p><p class="en-text">Founder Shares</p><p class="ar-text">أسهم المؤسسين</p></div>
+<div class="invest-feature"><i class="fa-solid fa-globe"></i><h5>10,000</h5><p class="am-text">ለህዝብ ክፍት</p><p class="en-text">Public Shares</p><p class="ar-text">الأسهم العامة</p></div>
+<div class="invest-feature"><i class="fa-solid fa-user-tie"></i><h5>2,500</h5><p class="am-text">ለሠራተኞች</p><p class="en-text">Employee Shares</p><p class="ar-text">أسهم الموظفين</p></div>
+</div>
+</div>
+
+<div class="investment-card">
+<h4 class="am-text">💰 የአክሲዬን መረጃ</h4>
+<h4 class="en-text">💰 Share Information</h4>
+<h4 class="ar-text">💰 معلومات الأسهم</h4>
+<div class="share-info-item"><span class="am-text">የአንድ አክሲዬን ዋጋ</span><span class="en-text">Price per share</span><span class="ar-text">سعر السهم</span><strong class="price-big">10,000 ETB</strong></div>
+<!-- Added Live Exchange Rate here -->
+<div style="text-align: center; margin-bottom: 15px; font-size: 13px; color: #666;">
+<i class="fa-solid fa-arrow-right-arrow-left"></i> 1 USD = <span id="rateTextShare">--</span> ETB
+</div>
+<div class="share-info-item"><span class="am-text">ጠቅላላ አክሲዬን</span><span class="en-text">Total shares</span><span class="ar-text">إجمالي الأسهم</span><strong>25,000</strong></div>
+<div class="share-info-item"><span class="am-text">የመሥራች አባላት</span><span class="en-text">Founders</span><span class="ar-text">المؤسسون</span><strong>51</strong></div>
+<div class="share-info-item"><span class="am-text">የትርፍ ድርሻ</span><span class="en-text">Dividend</span><span class="ar-text">توزيعات الأرباح</span><strong>80%</strong></div>
+<div class="share-info-item"><span class="am-text">የመሥራች ልዩ ጥቅም</span><span class="en-text">Founder benefit</span><span class="ar-text">ميزة المؤسسين</span><strong>20%</strong></div>
+<div class="share-info-item"><span class="am-text">ለማህበረሰብ ልማት</span><span class="en-text">Community development</span><span class="ar-text">تنمية المجتمع</span><strong>1%</strong></div>
+<div class="share-info-item"><span class="am-text">የፕሮጀክቱ ጠቅላላ በጀት</span><span class="en-text">Total project budget</span><span class="ar-text">إجمالي ميزانية المشروع</span><strong>250M ETB</strong></div>
+
+<a href="https://wa.me/251911097124?text=ሰላም!%20ስለ%20GMFC%20አክሲዬን%20ኢንቨስትመንት%20ፍላጎት%20አለኝ።%20ተጨማሪ%20መረጃ%20እፈልጋለሁ።" target="_blank" class="btn-invest">
+<i class="fa-brands fa-whatsapp"></i>
+<span class="am-text">አሁን ይመዝገቡ</span>
+<span class="en-text">Register Now</span>
+<span class="ar-text">سجل الآن</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= CEO Section ================= -->
+<section id="ceo" class="ceo-section">
+<div class="ceo-container">
+<h2 class="section-title am-text">የስራ አስኪያጅ መልእክት</h2>
+<h2 class="section-title en-text">Message from the General Manager</h2>
+<h2 class="section-title ar-text">رسالة من المدير العام</h2>
+<p class="section-subtitle am-text">የGMFC ዋና ስራ አስኪያጅ መልእክት</p>
+<p class="section-subtitle en-text">Message from GMFC's Chief Executive Officer</p>
+<p class="section-subtitle ar-text">رسالة من الرئيس التنفيذي لشركة GMFC</p>
+
+<div class="ceo-card">
+<div class="ceo-photo">
+<img src="ceo.jpg" alt="General Manager">
+<div class="ceo-badge"><i class="fa-solid fa-user-tie"></i></div>
+</div>
+<div class="ceo-info">
+<h3 class="am-text">ሰይድ ይማም አሸብር</h3>
+<h3 class="en-text">Seid Yimam Ashebir</h3>
+<h3 class="ar-text">سيد يمام أشبير</h3>
+<p class="ceo-title am-text">ዋና ስራ አስኪያጅ</p>
+<p class="ceo-title en-text">Chief Executive Officer (CEO)</p>
+<p class="ceo-title ar-text">الرئيس التنفيذي</p>
+
+<div class="ceo-stats">
+<div class="ceo-stat"><i class="fa-solid fa-briefcase"></i><strong>4+</strong><span class="am-text">ዓመት ልምድ</span><span class="en-text">Years Experience</span><span class="ar-text">سنوات الخبرة</span></div>
+<div class="ceo-stat"><i class="fa-solid fa-graduation-cap"></i><strong>MBA</strong><span class="am-text">የትምህርት ደረጃ</span><span class="en-text">Education</span><span class="ar-text">التعليم</span></div>
+<div class="ceo-stat"><i class="fa-solid fa-award"></i><strong>10+</strong><span class="am-text">ሽልማቶች</span><span class="en-text">Awards</span><span class="ar-text">الجوائز</span></div>
+</div>
+
+<blockquote class="ceo-message am-text">"ማጃንግን የማይቀይር እና የማያለማ ቡና አይሸጥም!" — ይህ ቃል የእኛ የስራ መርህ ነው። GMFC የተቋቋመው ማጃንግ ዞንንና የጋምቤላን ክልል በልማት ከፍ ለማድረግ ነው። እኛ ቡና ብቻ አንሸጥም — ለውጥ እንሸጣለን።</blockquote>
+<blockquote class="ceo-message en-text">"We will not sell coffee that does not change and develop Majang!" — This is our working principle. GMFC was founded to elevate Majang Zone and the Gambella region through development. We don't just sell coffee — we sell change.</blockquote>
+<blockquote class="ceo-message ar-text">"لن نبيع قهوة لا تغير وتطور ماجانغ!" - هذا هو مبدأ عملنا. تأسست GMFC لرفع منطقة ماجانغ وغامبيلا من خلال التنمية. نحن لا نبيع القهوة فقط - نحن نبيع التغيير.</blockquote>
+
+<div class="ceo-contact">
+<a href="tel:0911097124" class="ceo-contact-btn"><i class="fa-solid fa-phone"></i> <span class="am-text">ያግኙን</span><span class="en-text">Contact</span><span class="ar-text">اتصل بنا</span></a>
+<a href="https://wa.me/251911097124" target="_blank" class="ceo-contact-btn whatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ================= Support MDA ================= -->
+<section id="support" class="support-section">
+<div class="support-container">
+<div class="support-box">
+<img src="mda-logo.png" alt="MDA Logo" class="support-logo">
+
+<h2 class="am-text">🤝 የማጃንግ ልማት ማህበር (ማልማ) ይደግፉ!</h2>
+<h2 class="en-text">🤝 Support Majang Development Association (MDA)!</h2>
+<h2 class="ar-text">🤝 ادعم جمعية تنمية ماجانغ (MDA)!</h2>
+
+<p class="am-text">የማጃንግ ልማት ማህበር (ማልማ) ማጃንግ ዞንን ለማልማት፣ ለወጣቶች የስራ ዕድል ለመፍጠርና የአካባቢውን ማህበረሰብ ህይወት ለማሻሻል የሚሰራ ማህበር ነው።</p>
+<p class="en-text">The Majang Development Association (MDA) is an organization working to develop Majang Zone, create job opportunities for youth, and improve the lives of the local community.</p>
+<p class="ar-text">جمعية تنمية ماجانغ (MDA) هي منظمة تعمل على تطوير منطقة ماجانغ وخلق فرص عمل للشباب وتحسين حياة المجتمع المحلي.</p>
+
+<div class="founders-section">
+<h3 class="am-text">የቦርድ አባላት እና የስራ ኃላፊነታቸው</h3>
+<h3 class="en-text">Board Members and their Roles</h3>
+<h3 class="ar-text">أعضاء مجلس الإدارة وأدوارهم</h3>
+<div class="founders-grid">
+<!-- Top Row: Chairperson, Vice, Secretary -->
+<div class="founders-row">
+<div class="founder-card">
+<img src="chairperson.jpg" alt="Chairperson of the Board">
+<p class="role am-text">የቦርድ ሰብሳቢ</p>
+<p class="role en-text">Board Chairperson</p>
+<p class="role ar-text">رئيس مجلس الإدارة</p>
+<p class="am-text">አቶ አሸኔ አስቲን</p><p class="en-text">Mr. Ashinie Astin</p><p class="ar-text">السيد أشيني أستين</p>
+</div>
+<div class="founder-card">
+<img src="vice.jpg" alt="Vice Chairperson of the Board">
+<p class="role am-text">ምክትል ሰብሳቢ</p>
+<p class="role en-text">Vice Chairperson</p>
+<p class="role ar-text">نائب الرئيس</p>
+<p class="am-text">አቶ ቶማስ የማሎ</p><p class="en-text">Mr. Tomas Yemalo</p><p class="ar-text">السيد توماس يمالو</p>
+</div>
+<div class="founder-card">
+<img src="secretary.jpg" alt="Secretary of the Board">
+<p class="role am-text">ጸሐፊ</p>
+<p class="role en-text">Secretary</p>
+<p class="role ar-text">السكرتير</p>
+<p class="am-text">ዶ/ር. አቤል አሰፋ</p><p class="en-text">Dr. Abel Asefa</p><p class="ar-text">د. أبيل أسيفا</p>
+</div>
+</div>
+<!-- Bottom Row: Members -->
+<div class="founders-row">
+<div class="founder-card">
+<img src="member1.jpg" alt="Board Member">
+<p class="role am-text">አባል</p>
+<p class="role en-text">Member</p>
+<p class="role ar-text">عضو</p>
+<p class="am-text">አቶ ላክዴር ላክባክ</p><p class="en-text">Mr. Lakder Lakbak</p><p class="ar-text">السيد لاكدر لاك巴克</p>
+</div>
+<div class="founder-card">
+<img src="member2.jpg" alt="Board Member">
+<p class="role am-text">አባል</p>
+<p class="role en-text">Member</p>
+<p class="role ar-text">عضو</p>
+<p class="am-text">ወ/ሮ. ትሁት ሀዋሪያት</p><p class="en-text">Mrs. Tihut Hawariat</p><p class="ar-text">السيدة تيهوت هاواريات</p>
+</div>
+</div>
+</div>
+</div>
+
+<p class="am-text"><span class="highlight">GMFC</span> ማልማን ሙሉ በሙሉ ይደግፋል! እርስዎም ይደግፉ!</p>
+<p class="en-text"><span class="highlight">GMFC</span> fully supports MDA! You too can support!</p>
+<p class="ar-text"><span class="highlight">GMFC</span> تدعم MDA بالكامل! يمكنك أن تدعم أيضاً!</p>
+
+<a href="https://wa.me/251911097124?text=ሰላም!%20የማጃንግ%20ልማት%20ማህበር%20(ማልማ)%20ን%20ለመደገፍ%20ፈልጋለሁ።" target="_blank" class="btn">
+<i class="fa-brands fa-whatsapp"></i>
+<span class="am-text">ለመደገፍ ያግኙን</span>
+<span class="en-text">Contact to Support</span>
+<span class="ar-text">اتصل للدعم</span>
+</a>
+</div>
+</div>
+</section>
+
+<!-- ================= HQ ================= -->
+<section id="hq" class="hq-showcase">
+<div class="hq-container">
+<div class="hq-image"><img src="hq-building.jpg" alt="GMFC G+5 Headquarters"></div>
+<div class="hq-text">
+<h2 class="am-text"><i class="fa-solid fa-building-columns"></i> ዘመናዊው የሜጢ ከተማ መለያ ህንጻችን</h2>
+<h2 class="en-text"><i class="fa-solid fa-building-columns"></i> Our Modern Meti Town Headquarters</h2>
+<h2 class="ar-text"><i class="fa-solid fa-building-columns"></i> مقرنا الحديث في مدينة ميتي</h2>
+<p class="am-text">በሜጢ ከተማ የሚገነባው <strong>ባለ 5 ፎቅ (G+5) ዘመናዊ ህንፃ</strong> — 2,000 ካሬ ሜትር መሬት ላይ፣ ጠቅላላ ስፋቱ 12,000-14,000 ካሬ ሜትር፣ 2 ፓኖራሚክ ሊፍቶች።</p>
+<p class="en-text">The <strong>5-story (G+5) modern building</strong> in Meti Town — on 2,000 sq meters of land, total area 12,000-14,000 sq meters, 2 panoramic elevators.</p>
+<p class="ar-text">المبنى الحديث المكون من 5 طوابق (G+5) في مدينة ميتي - على مساحة 2000 متر مربع من الأرض، بمساحة إجمالية 12000-14000 متر مربع، مصعدان بانوراميان.</p>
+<p class="am-text"><strong>ቤዝመንት (Basement)</strong>፦ የቡና ጥራት ላብራቶሪ፣ የደረጃ ማውጫ ክፍል፣ የቡና ማከማቻ መጋዘኖች፣ የጭነት መጫኛ ቦታ።</p>
+<p class="en-text"><strong>Basement:</strong> Coffee quality laboratory, grading center, coffee storage warehouses, loading bay.</p>
+<p class="ar-text"><strong>الطابق السفلي:</strong> مختبر جودة القهوة، مركز الدرجات، مستودعات تخزين القهوة، منطقة التحميل.</p>
+<p class="am-text"><strong>ከመሬት በላይ</strong>፦ ባንኮች፣ የችርቻር ሱቆች፣ የቢሮዎች፣ የመዝናኛ ማዕከል፣ ካፌዎች፣ የድርጅቱ ዋና ቢሮዎች።</p>
+<p class="en-text"><strong>Above ground:</strong> Banks, retail shops, offices, recreation center, cafes, company headquarters.</p>
+<p class="ar-text"><strong>فوق الأرض:</strong> البنوك، متاجر التجزئة، المكاتب، مركز الترفيه، المقاهي، المقر الرئيسي للشركة.</p>
+</div>
+</div>
+</section>
+<!-- ================= Map ================= -->
+<section id="map" class="map-section">
+<div class="map-container">
+<h2 class="section-title am-text">የሚገኙበት አካባቢ</h2>
+<h2 class="section-title en-text">Our Location</h2>
+<h2 class="section-title ar-text">موقعنا</h2>
+<p class="section-subtitle am-text">በሜጢ ከተማ፣ ማጃንግ ዞን፣ ጋምቤላ ክልል</p>
+<p class="section-subtitle en-text">Meti Town, Majang Zone, Gambella Region, Ethiopia</p>
+<p class="section-subtitle ar-text">مدينة ميتي، منطقة ماجانغ، منطقة غامبيلا، إثيوبيا</p>
+
+<div class="map-wrapper">
+<iframe src="https://www.google.com/maps?q=Meti+Town,+Majang+Zone,+Gambella,+Ethiopia&hl=am&output=embed" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+</div>
+
+<div class="map-location-cards">
+<div class="location-card"><i class="fa-solid fa-location-dot"></i><h4 class="am-text">ዋና መስሪያ ቤት</h4><h4 class="en-text">Head Office</h4><h4 class="ar-text">المكتب الرئيسي</h4><p class="am-text">ጂኤምኤፍሲ ህንጻ (G+5)፣ ሜጢ ከተማ</p><p class="en-text">GMFC Building (G+5), Meti Town</p><p class="ar-text">مبنى GMFC (G+5)، مدينة ميتي</p></div>
+<div class="location-card"><i class="fa-solid fa-map-location-dot"></i><h4 class="am-text">ወረዳ</h4><h4 class="en-text">Woreda</h4><h4 class="ar-text">المقاطعة</h4><p class="am-text">ጎደሬ ወረዳ</p><p class="en-text">Godere Woreda</p><p class="ar-text">مقاطعة غوديري</p></div>
+<div class="location-card"><i class="fa-solid fa-map"></i><h4 class="am-text">ዞን</h4><h4 class="en-text">Zone</h4><h4 class="ar-text">المنطقة</h4><p class="am-text">ማጃንግ ዞን</p><p class="en-text">Majang Zone</p><p class="ar-text">منطقة ماجانغ</p></div>
+<div class="location-card"><i class="fa-solid fa-earth-africa"></i><h4 class="am-text">ክልል</h4><h4 class="en-text">Region</h4><h4 class="ar-text">المنطقة</h4><p class="am-text">ጋምቤላ ክልል፣ ኢትዮጵያ</p><p class="en-text">Gambella Region, Ethiopia</p><p class="ar-text">منطقة غامبيلا، إثيوبيا</p></div>
+</div>
+</div>
+</section>
+
+<!-- ================= Statistics ================= -->
+<section class="stats-section">
+<div class="stats-container">
+<div class="stat-card"><i class="fa-solid fa-users"></i><h3>51</h3><p class="am-text">የመሥራች አባላት</p><p class="en-text">Founders</p><p class="ar-text">المؤسسون</p></div>
+<div class="stat-card"><i class="fa-solid fa-tree"></i><h3>100</h3><p class="am-text">ሄክታር ማሳ</p><p class="en-text">Hectares</p><p class="ar-text">هكتار</p></div>
+<div class="stat-card"><i class="fa-solid fa-mug-hot"></i><h3>52.9K+</h3><p class="am-text">ቶን/ዓመት</p><p class="en-text">Tons/Year</p><p class="ar-text">طن/سنة</p></div>
+<div class="stat-card"><i class="fa-solid fa-users-line"></i><h3>120K+</h3><p class="am-text">ተጠቃሚዎች</p><p class="en-text">Beneficiaries</p><p class="ar-text">المستفيدون</p></div>
+<div class="stat-card"><i class="fa-solid fa-briefcase"></i><h3>350+</h3><p class="am-text">የስራ ዕድል</p><p class="en-text">Jobs</p><p class="ar-text">وظائف</p></div>
+<div class="stat-card"><i class="fa-solid fa-coins"></i><h3>1.56B</h3><p class="am-text">ብር/ዓመት</p><p class="en-text">ETB/Year</p><p class="ar-text">بر/سنة</p></div>
+</div>
+</section>
+
+<!-- ================= Products ================= -->
+<section id="products" class="products-section">
+<div class="products-container">
+<h2 class="section-title am-text">የምርቶቻችን ዋጋ</h2>
+<h2 class="section-title en-text">Our Product Prices</h2>
+<h2 class="section-title ar-text">أسعار منتجاتنا</h2>
+<p class="section-subtitle am-text">የጋምቤላ ማጃንግ የጫካ ቡና — ጥራት የተመረጠ</p>
+<p class="section-subtitle en-text">Gambella Majang Forest Coffee — Premium quality</p>
+<p class="section-subtitle ar-text">قهوة غابات ماجانغ غامبيلا - جودة ممتازة</p>
+
+<div class="products-grid">
+<div class="product-card">
+<div class="product-image"><img src="coffee-cherry.jpg" alt="Coffee Cherry"><span class="product-badge am-text">አዲስ</span><span class="product-badge en-text">New</span><span class="product-badge ar-text">جديد</span></div>
+[10/18/2026 10:29 PM] Mrxx: <div class="product-info">
+<h3 class="am-text">የጫካ ቡና ፍሬ (ጥሬ)</h3><h3 class="en-text">Forest Coffee Cherry (Raw)</h3><h3 class="ar-text">حبوب قهوة الغابات (خام)</h3>
+<p class="am-text">ከተፈጥሮ የተሰበሰበ ኦርጋኒክ የቡና ፍሬ — Grade 1</p>
+<p class="en-text">Naturally harvested organic coffee cherry — Grade 1</p>
+<p class="ar-text">حبوب قهوة عضوية محصودة طبيعياً - الدرجة 1</p>
+<div class="product-price" data-price="450">450 <small class="am-text">ብር/ኪሎ</small><small class="en-text">ETB/kg</small><small class="ar-text">بر/كجم</small></div>
+<div class="product-actions">
+<div class="qty-selector"><button type="button" onclick="changeQty(this, -1)">−</button><input type="number" value="1" min="1" id="qty-1"><button type="button" onclick="changeQty(this, 1)">+</button></div>
+<button type="button" class="btn-add-cart" onclick="addToCart('Forest Coffee Cherry', 450, 'coffee-cherry.jpg', 'qty-1')"><i class="fa-solid fa-cart-plus"></i> <span class="am-text">ጨምር</span><span class="en-text">Add</span><span class="ar-text">أضف</span></button>
+</div>
+</div>
+</div>
+
+<div class="product-card">
+<div class="product-image"><img src="green-beans.jpg" alt="Green Beans"><span class="product-badge featured am-text">ተመራጭ</span><span class="product-badge featured en-text">Featured</span><span class="product-badge featured ar-text">مميز</span></div>
+<div class="product-info">
+<h3 class="am-text">አረንጓዴ የቡና ባቄላ</h3><h3 class="en-text">Green Coffee Beans</h3><h3 class="ar-text">حبوب القهوة الخضراء</h3>
+<p class="am-text">ያልተቆላ የቡና ባቄላ — ለኤክስፖርትና ለጅምላ</p>
+<p class="en-text">Unroasted coffee beans — for export and wholesale</p>
+<p class="ar-text">حبوب قهوة غير محمصة - للتصدير والبيع بالجملة</p>
+<div class="product-price" data-price="520">520 <small class="am-text">ብር/ኪሎ</small><small class="en-text">ETB/kg</small><small class="ar-text">بر/كجم</small></div>
+<div class="product-actions">
+<div class="qty-selector"><button type="button" onclick="changeQty(this, -1)">−</button><input type="number" value="1" min="1" id="qty-2"><button type="button" onclick="changeQty(this, 1)">+</button></div>
+<button type="button" class="btn-add-cart" onclick="addToCart('Green Coffee Beans', 520, 'green-beans.jpg', 'qty-2')"><i class="fa-solid fa-cart-plus"></i> <span class="am-text">ጨምር</span><span class="en-text">Add</span><span class="ar-text">أضف</span></button>
+</div>
+</div>
+</div>
+
+<div class="product-card">
+<div class="product-image"><img src="coffee-farm.jpg" alt="Roasted Coffee"><span class="product-badge am-text">ልዩ</span><span class="product-badge en-text">Special</span><span class="product-badge ar-text">خاص</span></div>
+<div class="product-info">
+<h3 class="am-text">የተቆላ ቡና</h3><h3 class="en-text">Roasted Coffee</h3><h3 class="ar-text">قهوة محمصة</h3>
+<p class="am-text">በአካባቢው የተቆላ ጥራት ያለው ቡና — ለቤት ፍጆታ</p>
+<p class="en-text">Locally roasted premium coffee — for home consumption</p>
+<p class="ar-text">قهوة محمصة محلياً بجودة عالية - للاستهلاك المنزلي</p>
+<div class="product-price" data-price="600">600 <small class="am-text">ብር/ኪሎ</small><small class="en-text">ETB/kg</small><small class="ar-text">بر/كجم</small></div>
+<div class="product-actions">
+<div class="qty-selector"><button type="button" onclick="changeQty(this, -1)">−</button><input type="number" value="1" min="1" id="qty-3"><button type="button" onclick="changeQty(this, 1)">+</button></div>
+<button type="button" class="btn-add-cart" onclick="addToCart('Roasted Coffee', 600, 'coffee-farm.jpg', 'qty-3')"><i class="fa-solid fa-cart-plus"></i> <span class="am-text">ጨምር</span><span class="en-text">Add</span><span class="ar-text">أضف</span></button>
+</div>
+</div>
+</div>
+
+<div class="product-card">
+<div class="product-image"><img src="hero-forest.jpg" alt="Wholesale"><span class="product-badge am-text">ጅምላ</span><span class="product-badge en-text">Wholesale</span><span class="product-badge ar-text">جملة</span></div>
+<div class="product-info">
+<h3 class="am-text">ጅምላ (ኩንታል)</h3><h3 class="en-text">Wholesale (Quintal)</h3><h3 class="ar-text">بيع بالجملة (قنطار)</h3>
+<p class="am-text">ለኤክስፖርትና ለጅምላ ንግድ — ዝቅተኛ ዋጋ</p>
+<p class="en-text">For export and wholesale trade — best price</p>
+<p class="ar-text">للتصدير والتجارة بالجملة - أفضل سعر</p>
+<div class="product-price" data-price="42000">42,000 <small class="am-text">ብር/ኩንታል</small><small class="en-text">ETB/quintal</small><small class="ar-text">بر/قنطار</small></div>
+<div class="product-actions">
+<div class="qty-selector"><button type="button" onclick="changeQty(this, -1)">−</button><input type="number" value="1" min="1" id="qty-4"><button type="button" onclick="changeQty(this, 1)">+</button></div>
+<button type="button" class="btn-add-cart" onclick="addToCart('Wholesale (Quintal)', 42000, 'hero-forest.jpg', 'qty-4')"><i class="fa-solid fa-cart-plus"></i> <span class="am-text">ጨምር</span><span class="en-text">Add</span><span class="ar-text">أضف</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ================= News ================= -->
+<section id="news" class="news-section">
+<div class="news-container">
+<h2 class="section-title am-text">የቅርብ ጊዜ ዜናዎች</h2>
+<h2 class="section-title en-text">Latest News</h2>
+<h2 class="section-title ar-text">آخر الأخبار</h2>
+<p class="section-subtitle am-text">ከማጃንግ ዞንና ከጋምቤላ ክልል የቅርብ ጊዜ ዜናዎች</p>
+<p class="section-subtitle en-text">Latest news from Majang Zone and Gambella Region</p>
+<p class="section-subtitle ar-text">آخر الأخبار من منطقة ماجانغ ومنطقة غامبيلا</p>
+
+<div class="news-grid" id="news-box">
+<!-- Dynamic News will be inserted here -->
+</div>
+
+<h3 class="sources-title am-text"><i class="fa-solid fa-newspaper"></i> የዜና ምንጮች</h3>
+<h3 class="sources-title en-text"><i class="fa-solid fa-newspaper"></i> News Sources</h3>
+<h3 class="sources-title ar-text"><i class="fa-solid fa-newspaper"></i> مصادر الأخبار</h3>
+
+<div class="sources-grid">
+<a href="https://www.facebook.com/profile.php?id=61586700076284" target="_blank" class="source-card">
+<i class="fa-brands fa-facebook"></i>
+<h4 class="am-text">የሜጢ ከተማ አስተዳደር መንግስት ኮሙኒኬሽን</h4>
+<h4 class="en-text">Meti Town Administration Govt Communication</h4>
+<h4 class="ar-text">اتصالات حكومة مدينة ميتي</h4>
+<p class="am-text">የከተማ አስተዳደር ኮሙኒኬሽን</p>
+<p class="en-text">Town Administration Communication</p>
+<p class="ar-text">اتصالات إدارة المدينة</p>
+</a>
+<a href="https://www.facebook.com/profile.php?id=100075830559569" target="_blank" class="source-card">
+<i class="fa-brands fa-facebook"></i>
+<h4 class="am-text">የማጃንግ ብሔረሰብ ዞን የመንግስት ኮምኒኬሽን ጉዳዮች ጽ/ቤት</h4>
+<h4 class="en-text">Majang Zone Government Communication Office</h4>
+<h4 class="ar-text">مكتب اتصالات حكومة منطقة ماجانغ</h4>
+<p class="am-text">የዞን ኮምኒኬሽን ጽ/ቤት</p>
+<p class="en-text">Zone Communication Office</p>
+<p class="ar-text">مكتب اتصالات المنطقة</p>
+</a>
+<a href="https://www.facebook.com/profile.php?id=100080719189206" target="_blank" class="source-card">
+<i class="fa-brands fa-facebook"></i>
+<h4 class="am-text">ጋምቤላ ማስ ሚዲያ ሰርቪስ</h4>
+<h4 class="en-text">Gambella Mass Media Service</h4>
+<h4 class="ar-text">خدمة إعلام غامبيلا</h4>
+<p class="am-text">የክልል ሚዲያ አገልግሎት</p>
+<p class="en-text">Regional Media Service</p>
+<p class="ar-text">خدمة الإعلام الإقليمية</p>
+</a>
+<a href="https://www.facebook.com/alemante.werku" target="_blank" class="source-card">
+<i class="fa-brands fa-facebook"></i>
+<h4 class="am-text">ጎደሬ ወረዳ መንግስት ኮሙኒኬሽን</h4>
+<h4 class="en-text">Godere Woreda Govt Communication</h4>
+<h4 class="ar-text">اتصالات حكومة مقاطعة غوديري</h4>
+<p class="am-text">የወረዳ ኮሙኒኬሽን ጽ/ቤት</p>
+<p class="en-text">Woreda Communication Office</p>
+<p class="ar-text">مكتب اتصالات المقاطعة</p>
+</a>
+<a href="https://www.facebook.com/Gambpp" target="_blank" class="source-card">
