@@ -20,11 +20,33 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        body {
-            color: #333;
-            line-height: 1.6;
-            background-color: #fafafa;
-        }
+        /* Dark Mode Styles */
+body.dark-mode {
+    --light-bg: #1a1a1a;
+    --dark: #f1f8e9;
+    --white: #2d2d2d;
+    background-color: var(--light-bg);
+    color: var(--dark);
+}
+
+body.dark-mode .news-card,
+body.dark-mode header,
+body.dark-mode nav,
+body.dark-mode section,
+body.dark-mode .lang-switch {
+    background-color: #2d2d2d;
+    color: #f1f8e9;
+    border-color: #444;
+}
+
+body.dark-mode .news-card h4 {
+    color: var(--primary-green);
+}
+
+/* ለስላሳ የቀለም ሽግግር (Smooth Transition) */
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
         .lang-switch {
             background: var(--dark);
             padding: 8px 0;
