@@ -1444,10 +1444,72 @@ function loadNews() {
         });
 }
 
-window.onload = function () {
-    updateCartUI();
-    loadNews();
-};
+// --- Fetch and Update Prices from Backend ---
+async function loadPricesFromDB() {
+    try {
+        const response = await fetch(API_BASE + '/settings');
+        if (!response.ok) return;
+
+        const settings = await response.json();
+
+        // Update product prices based on data-price attribute
+        const priceElements = document.querySelectorAll('.product-price');
+        priceElements.forEach(el => {
+            const priceValue = el.getAttribute('data-price');
+
+            if (priceValue === '450' && settings.coffee_price_grade1) {
+                el.setAttribute('data-price', settings.coffee_price_grade1);
+                updateSinglePriceDisplay(el, settings.coffee_price_grade1, false);
+            } else if (priceValue === '520' && settings.coffee_price_grade2) {
+                el.setAttribute('data-price', settings.coffee_price_grade2);
+                updateSinglePriceDisplay(el, settings.coffee_price_grade2, false);
+            } else if (priceValue === '600' && settings.coffee_price_grade3) {
+                el.setAttribute('data-price', settings.coffee_price_grade3);
+                updateSinglePriceDisplay(el, settings.coffee_price_grade3, false);
+            } else if (priceValue === '42000' && settings.wholesale_price) {
+                el.setAttribute('data-price', settings.wholesale_price);
+                updateSinglePriceDisplay(el, settings.wholesale_price, true);
+            } else if (priceValue === '650' && settings.coffee_price_ground) {
+                el.setAttribute('data-price', settings.coffee_price_ground);
+                updateSinglePriceDisplay(el, settings.coffee_price_ground, false);
+            }
+        });
+
+        // Update Ethiopian Grades 1-5
+        const gradeElements = document.querySelectorAll('.eth-price-item');
+        const gradeKeys = ['grade1_price', 'grade2_price', 'grade3_price', 'grade4_price', 'grade5_price'];
+
+        gradeElements.forEach((item, index) => {
+            if (settings[gradeKeys[index]]) {
+                const priceSpan = item.querySelector('.price');
+                if (priceSpan) {
+                    priceSpan.innerHTML = settings[gradeKeys[index]] + ' <small>USC/lb</small>';
+                }
+            }
+        });
+
+    } catch (err) {
+        console.error('Error loading prices from DB:', err);
+    }
+}
+
+// Update a single price element while keeping both <small> unit labels
+function updateSinglePriceDisplay(el, newPrice, isQuintal) {
+    const amUnit = isQuintal ? 'ብር/ኩንታል' : 'ብር/ኪሎ';
+    const enUnit = isQuintal ? 'ETB/quintal' : 'ETB/kg';
+    el.innerHTML = newPrice +
+        ' <small class="am-text">' + amUnit + '</small>' +
+        '<small class="en-text">' + enUnit + '</small>';
+}
+    window.addEventListener('load', function () {
+    console.log('Page loaded');
+
+    // Each call is guarded, so if any function isn't defined, the rest still run
+    if (typeof loadCompanyProfile === 'function') loadCompanyProfile();
+    if (typeof loadNews === 'function')           loadNews();
+    if (typeof loadPricesFromDB === 'function')   loadPricesFromDB();
+    if (typeof updateCartUI === 'function')       updateCartUI();
+});
 </script>
 
 <!--Start of Tawk.to Script-->
