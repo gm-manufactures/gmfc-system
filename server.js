@@ -26,7 +26,7 @@ db.serialize(() => {
         status TEXT DEFAULT 'pending',
         date TEXT NOT NULL,
         submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    ); 
+    )); 
 
     // Company profile table
     db.run(CREATE TABLE IF NOT EXISTS company_profile (
@@ -48,7 +48,7 @@ db.serialize(() => {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )); 
 
-    // Settings table (አዲስ የተጨመረ)
+    // Settings table
     db.run(CREATE TABLE IF NOT EXISTS settings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         key TEXT UNIQUE NOT NULL,
@@ -104,8 +104,8 @@ app.get('/api/profile', (req, res) => {
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
         if (err) {
             res.status(500).json({ error: err.message });
-return;
-        }
+            return;
+}
         res.json({
             currentName: row.company_name,
             legalRegistration: { investmentLicenseNo: row.license_number },
@@ -241,14 +241,13 @@ app.delete('/api/news/:id', (req, res) => {
     });
 }); 
 
-// Get Settings (አዲስ የተጨመረ)
+// Get Settings
 app.get('/api/settings', (req, res) => {
     db.all("SELECT * FROM settings", (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
         }
-        // Convert array to object for easier use in frontend
         const settingsObj = {};
         rows.forEach(row => {
             settingsObj[row.key] = row.value;
@@ -257,9 +256,9 @@ app.get('/api/settings', (req, res) => {
     });
 });
 
-// Update Settings (አዲስ የተጨመረ)
+// Update Settings
 app.put('/api/settings', (req, res) => {
-    const updates = req.body; // Expecting { key1: value1, key2: value2 }
+    const updates = req.body; 
     
     const queries = Object.keys(updates).map(key => {
         return new Promise((resolve, reject) => {
