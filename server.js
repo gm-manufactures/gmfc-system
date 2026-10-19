@@ -88,15 +88,14 @@ db.serialize(() => {
     });
 
     // Insert default settings if not exists
-    db.get("SELECT * FROM settings WHERE key = 'exchange_rate'", (err, row) => {
-        if (err) return console.error(err.message);
-        if (!row) {
-            db.run(`INSERT INTO settings (key, value) VALUES ('exchange_rate', '161.72')`);
-            db.run(`INSERT INTO settings (key, value) VALUES ('coffee_price_grade1', '450')`);
-            db.run(`INSERT INTO settings (key, value) VALUES ('coffee_price_grade2', '520')`);
-            db.run(`INSERT INTO settings (key, value) VALUES ('coffee_price_grade3', '600')`);
-        }
-    });
+   db.get("SELECT * FROM settings WHERE key = 'exchange_rate'", (err, row) => {
+    if (!row) {
+        db.run(INSERT INTO settings (key, value) VALUES ('exchange_rate', '161.72'));
+        db.run(INSERT INTO settings (key, value) VALUES ('coffee_price_grade1', '450'));
+        db.run(INSERT INTO settings (key, value) VALUES ('coffee_price_grade2', '520'));
+        db.run(INSERT INTO settings (key, value) VALUES ('coffee_price_grade3', '600'));
+        db.run(INSERT INTO settings (key, value) VALUES ('coffee_price_ground', '650')); // አዲስ የተጨመረ
+    }
 });
 
 // ============= API ROUTES =============
