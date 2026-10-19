@@ -88,27 +88,38 @@ db.serialize(() => {
     });
 
     // Insert default settings if not exists
-    db.get("SELECT * FROM settings WHERE key = 'exchange_rate'", (err, row) => {
-        if (err) return console.error(err.message);
-        if (!row) {
-            const defaults = [
-                ['exchange_rate', '161.72'],
-                ['coffee_price_grade1', '450'],
-                ['coffee_price_grade2', '520'],
-                ['coffee_price_grade3', '600'],
-                ['coffee_price_ground', '650'] // አዲስ የተጨመረ
-            ];
-            defaults.forEach(([key, value]) => {
-                db.run(
-                    `INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`,
-                    [key, value],
-                    function (e) {
-                        if (e) console.error(e.message);
-                    }
-                );
-            });
-        }
-    });
+db.get("SELECT * FROM settings WHERE key = 'exchange_rate'", (err, row) => {
+    if (err) return console.error(err.message);
+
+    if (!row) {
+        const defaults = [
+            ['exchange_rate', '161.72'],
+            ['coffee_price_grade1', '450'],
+            ['coffee_price_grade2', '520'],
+            ['coffee_price_grade3', '600'],
+            ['coffee_price_ground', '650'],
+
+            // የደረጃ ዋጋዎች (Grade 1 - 5)
+            ['grade1_price', '3.94'],
+            ['grade2_price', '3.81'],
+            ['grade3_price', '2.47'],
+            ['grade4_price', '2.74'],
+            ['grade5_price', '3.50'],
+
+            // ጅምላ (ኩንታል)
+            ['wholesale_price', '42000']
+        ];
+
+        defaults.forEach(([key, value]) => {
+            db.run(
+                `INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`,
+                [key, value],
+                function (e) {
+                    if (e) console.error(e.message);
+                }
+            );
+        });
+    }
 });
 
 // ============= API ROUTES =============
