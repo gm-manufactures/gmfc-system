@@ -261,32 +261,29 @@
     </div>
 
     <!-- SETTINGS -->
-    <div id="settings-section" style="display:none;">
-        <div class="dashboard-section">
-            <div class="section-heading"><i class="fa-solid fa-gear"></i> የቡና ዋጋ እና የዶላር ምንዛሬ ማስተካከያ</div>
-            <form id="settings-form" class="form-grid">
-                <div class="form-group">
-                    <label>1 ዶላር በብር (Exchange Rate)</label>
-                    <input type="number" step="0.01" id="setting-exchange" required>
-                </div>
-                <div class="form-group">
-                    <label>የጫካ ቡና ፍሬ (ጥሬ) - በኪሎ</label>
-                    <input type="number" id="setting-price1" required>
-                </div>
-                <div class="form-group">
-                    <label>አረንጓዴ የቡና ባቄላ - በኪሎ</label>
-                    <input type="number" id="setting-price2" required>
-                </div>
-                <div class="form-group">
-                    <label>የተቆላ ቡና - በኪሎ</label>
-                    <input type="number" id="setting-price3" required>
-                </div>
-                <button type="submit" class="btn-submit">አዳዲስ ዋጋዎችን አስቀምጥ</button>
-            </form>
-        </div>
+    <form id="settings-form" class="form-grid">
+    <div class="form-group">
+        <label>1 ዶላር በብር (Exchange Rate)</label>
+        <input type="number" step="0.01" id="setting-exchange" required>
     </div>
-</div>
-<div id="toast" class="toast"></div>
+    <div class="form-group">
+        <label>የጫካ ቡና ፍሬ (ጥሬ) - በኪሎ</label>
+        <input type="number" id="setting-price1" required>
+    </div>
+    <div class="form-group">
+        <label>አረንጓዴ የቡና ባቄላ - በኪሎ</label>
+        <input type="number" id="setting-price2" required>
+    </div>
+    <div class="form-group">
+        <label>የተቆላ ቡና - በኪሎ</label>
+        <input type="number" id="setting-price3" required>
+    </div>
+    <div class="form-group">
+        <label>የተፈጨ ቡና - በኪሎ</label>
+        <input type="number" id="setting-price4" required>
+    </div>
+    <button type="submit" class="btn-submit" style="grid-column: span 2;">አዳዲስ ዋጋዎችን አስቀምጥ</button>
+</form>
 
 <script>
     const API_BASE = window.location.origin + '/api';
@@ -507,43 +504,45 @@
     });
 
     async function loadSettings() {
-        try {
-            const response = await fetch(`${API_BASE}/settings`);
-            const settings = await response.json();
-
-            document.getElementById('setting-exchange').value = settings.exchange_rate || '161.72';
-            document.getElementById('setting-price1').value = settings.coffee_price_grade1 || '450';
-            document.getElementById('setting-price2').value = settings.coffee_price_grade2 || '520';
-            document.getElementById('setting-price3').value = settings.coffee_price_grade3 || '600';
-        } catch (err) {
-            console.error('Error loading settings:', err);
-            showToast('ቅንብሮችን መጫን አልተቻለም', true);
-        }
+    try {
+        const response = await fetch(${API_BASE}/settings);
+        const settings = await response.json();
+        
+        document.getElementById('setting-exchange').value = settings.exchange_rate || '161.72';
+        document.getElementById('setting-price1').value = settings.coffee_price_grade1 || '450';
+        document.getElementById('setting-price2').value = settings.coffee_price_grade2 || '520';
+        document.getElementById('setting-price3').value = settings.coffee_price_grade3 || '600';
+        document.getElementById('setting-price4').value = settings.coffee_price_ground || '650'; // አዲስ የተጨመረ
+    } catch (err) {
+        console.error('Error loading settings:', err);
+        showToast('ቅንብሮችን መጫን አልተቻለም', true);
     }
+}
 
-    document.getElementById('settings-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const payload = {
-            exchange_rate: document.getElementById('setting-exchange').value,
-            coffee_price_grade1: document.getElementById('setting-price1').value,
-            coffee_price_grade2: document.getElementById('setting-price2').value,
-            coffee_price_grade3: document.getElementById('setting-price3').value
-        };
-        try {
-            const response = await fetch(`${API_BASE}/settings`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (response.ok) {
-                showToast('ዋጋዎች በተሳካ ሁኔታ ተዘምነዋል!');
-            } else {
-                showToast('ስህተት ተከስቷል', true);
-            }
-        } catch (err) {
-            showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+document.getElementById('settings-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = {
+        exchange_rate: document.getElementById('setting-exchange').value,
+        coffee_price_grade1: document.getElementById('setting-price1').value,
+        coffee_price_grade2: document.getElementById('setting-price2').value,
+        coffee_price_grade3: document.getElementById('setting-price3').value,
+        coffee_price_ground: document.getElementById('setting-price4').value // አዲስ የተጨመረ
+    };
+    try {
+        const response = await fetch(${API_BASE}/settings, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (response.ok) {
+            showToast('ዋጋዎች በተሳካ ሁኔታ ተዘምነዋል!');
+        } else {
+            showToast('ስህተት ተከስቷል', true);
         }
-    });
+    } catch (err) {
+        showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+    }
+});
 
     window.onload = () => {
         loadDashboard();
