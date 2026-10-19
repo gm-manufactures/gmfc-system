@@ -490,6 +490,80 @@ nav ul li a { display: block; padding: 10px; border-bottom: 1px solid #f0f0f0; t
 .founder-card .role { font-size: 11px; }
 .stat-card { flex: 1 1 100%; }
 }
+    .benefit-card, 
+.product-card, 
+.news-card, 
+.testimonial-card, 
+.investment-card, 
+.faq-item {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.benefit-card:hover, 
+.product-card:hover, 
+.news-card:hover, 
+.testimonial-card:hover {
+    transform: translateY(-10px) scale(1.02) !important;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important;
+}
+
+.btn, 
+.btn-invest, 
+.btn-add-cart, 
+.btn-checkout, 
+.cart-btn, 
+.lang-btn, 
+.currency-btn {
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:hover, 
+.btn-invest:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+
+.hero {
+    animation: zoomIn 20s infinite alternate ease-in-out !important;
+}
+
+nav ul li a {
+    transition: all 0.3s ease !important;
+}
+
+nav ul li a:hover {
+    transform: translateY(-2px);
+    background-color: #d32f2f;
+    color: #fff !important;
+    padding: 6px 15px !important;
+    border-radius: 20px !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.product-image img, 
+.news-image img, 
+.founder-card img {
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+.cart-sidebar {
+    transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.modal-content {
+    animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
 </style>
 </head>
 <body>
