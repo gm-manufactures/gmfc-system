@@ -24,6 +24,7 @@
             padding: 25px;
             position: fixed;
             height: 100vh;
+            overflow-y: auto;
         }
         .sidebar-brand {
             display: flex;
@@ -109,7 +110,7 @@
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
         th { background: #f8f9f8; color: var(--dark-green); }
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
-        .status-pending { background: #fff3e0; color: #ff9800; }
+        .status-pending { background: #fff3e0; color: #ff9800; } 
         .status-approved { background: #e8f5e9; color: #2e7d32; }
         .btn {
             padding: 6px 12px;
@@ -180,33 +181,39 @@
 <body>
 <div class="sidebar">
     <div class="sidebar-brand">
-        <img src="photo_2026-05-20_19-43-13.jpg" alt="Logo" onerror="this.src='https://via.placeholder.com/45'">
+        <img src="logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/45'">
         <span>GMFC Admin</span>
     </div>
     <ul class="sidebar-menu">
-        <li><a class="active" onclick="showSection('dashboard')"><i class="fa-solid fa-chart-line"></i> <span>ዴሽቦርድ</span></a></li>
-        <li><a onclick="showSection('members')"><i class="fa-solid fa-users"></i> <span>አባላት</span></a></li>
-        <li><a onclick="showSection('profile')"><i class="fa-solid fa-building"></i> <span>ድርጅት መረጃ</span></a></li>
-        <li><a onclick="showSection('news')"><i class="fa-solid fa-newspaper"></i> <span>ዜና አስተዳደር</span></a></li>
+        <li><a class="active" onclick="showSection('dashboard', this)"><i class="fa-solid fa-chart-line"></i> <span>ዴሽቦርድ</span></a></li>
+        <li><a onclick="showSection('members', this)"><i class="fa-solid fa-users"></i> <span>አባላት</span></a></li>
+        <li><a onclick="showSection('profile', this)"><i class="fa-solid fa-building"></i> <span>ድርጅት መረጃ</span></a></li>
+        <li><a onclick="showSection('news', this)"><i class="fa-solid fa-newspaper"></i> <span>ዜና አስተዳደር</span></a></li>
+        <!-- አዲስ የተጨመረ ሜኑ -->
+        <li><a onclick="showSection('settings', this)"><i class="fa-solid fa-gear"></i> <span>ዋጋ እና ቅንብሮች</span></a></li>
         <li><a href="index.html" target="_blank"><i class="fa-solid fa-globe"></i> <span>ወደ ገጽ</span></a></li>
     </ul>
 </div>
 <div class="main-content">
     <div class="header-title">
         <h1>የአስተዳዳሪ መቆጣጠሪያ ማዕከል</h1>
-        <div>እንኳን ደህና መጡ!</div>
+<div>እንኳን ደህና መጡ!</div>
     </div>
+    
+    <!-- DASHBOARD -->
     <div id="dashboard-section">
         <div class="stats-grid">
             <div class="stat-card"><div><h3 id="total-approved">0</h3><p>የጸደቁ አባላት</p></div><div class="stat-icon"><i class="fa-solid fa-users-check"></i></div></div>
             <div class="stat-card"><div><h3 id="total-pending">0</h3><p>በመጠባበቅ ላይ</p></div><div class="stat-icon"><i class="fa-solid fa-clock"></i></div></div>
             <div class="stat-card"><div><h3 id="total-news">0</h3><p>ዜናዎች</p></div><div class="stat-icon"><i class="fa-solid fa-newspaper"></i></div></div>
         </div>
-        <div class="dashboard-section">
+        <div class="dashboard-section"> 
             <div class="section-heading"><i class="fa-solid fa-bell"></i> የቅርብ ጊዜ ጥያቄዎች</div>
             <div id="recent-applications"></div>
         </div>
     </div>
+
+    <!-- MEMBERS -->
     <div id="members-section" style="display:none;">
         <div class="dashboard-section">
             <div class="section-heading"><i class="fa-solid fa-users"></i> ሁሉም የአክሲዮን ጥያቄዎች</div>
@@ -218,6 +225,8 @@
             </div>
         </div>
     </div>
+
+    <!-- PROFILE -->
     <div id="profile-section" style="display:none;">
         <div class="dashboard-section">
             <div class="section-heading"><i class="fa-solid fa-building"></i> የድርጅት መረጃ ማስተካከያ</div>
@@ -231,6 +240,8 @@
             </form>
         </div>
     </div>
+
+    <!-- NEWS -->
     <div id="news-section" style="display:none;">
         <div class="dashboard-section">
             <div class="section-heading"><i class="fa-solid fa-plus"></i> አዲስ ዜና መጨመሪያ</div>
@@ -246,86 +257,129 @@
             <div id="news-list"></div>
         </div>
     </div>
+
+    <!-- SETTINGS (አዲስ የተጨመረ) -->
+    <div id="settings-section" style="display:none;">
+        <div class="dashboard-section">
+            <div class="section-heading"><i class="fa-solid fa-gear"></i> የቡና ዋጋ እና የዶላር ምንዛሬ ማስተካከያ</div>
+            <form id="settings-form" class="form-grid">
+                <div class="form-group">
+                    <label>1 ዶላር በብር (Exchange Rate)</label>
+                    <input type="number" step="0.01" id="setting-exchange" required>
+</div>
+                <div class="form-group">
+                    <label>የጫካ ቡና ፍሬ (ጥሬ) - በኪሎ</label>
+                    <input type="number" id="setting-price1" required>
+                </div>
+                <div class="form-group">
+                    <label>አረንጓዴ የቡና ባቄላ - በኪሎ</label>
+                    <input type="number" id="setting-price2" required>
+                </div>
+                <div class="form-group">
+                    <label>የተቆላ ቡና - በኪሎ</label>
+                    <input type="number" id="setting-price3" required>
+                </div>
+                <button type="submit" class="btn-submit full-width">አዳዲስ ዋጋዎችን አስቀምጥ</button>
+            </form>
+        </div>
+    </div>
 </div>
 <div id="toast" class="toast"></div>
+
 <script>
-    const API_BASE = window.location.origin + '/api';
-    
+    const API_BASE = window.location.origin + '/api'; 
+
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
         toast.className = 'toast show' + (isError ? ' error' : '');
         setTimeout(() => toast.classList.remove('show'), 3000);
-    }
+    } 
 
-    function showSection(section) {
-        document.getElementById('dashboard-section').style.display = section === 'dashboard' ? 'block' : 'none';
-        document.getElementById('members-section').style.display = section === 'members' ? 'block' : 'none';
-        document.getElementById('profile-section').style.display = section === 'profile' ? 'block' : 'none';
-        document.getElementById('news-section').style.display = section === 'news' ? 'block' : 'none';
+    function showSection(section, element) {
+        // Hide all sections
+        document.getElementById('dashboard-section').style.display = 'none';
+        document.getElementById('members-section').style.display = 'none';
+        document.getElementById('profile-section').style.display = 'none';
+        document.getElementById('news-section').style.display = 'none';
+        document.getElementById('settings-section').style.display = 'none';
+
+        // Remove active class from all links
+        const links = document.querySelectorAll('.sidebar-menu li a');
+        links.forEach(link => link.classList.remove('active'));
         
+        // Show selected section
+        document.getElementById(section + '-section').style.display = 'block';
+        
+        // Add active class to clicked link
+        if (element) element.classList.add('active');
+
+        // Load data based on section
         if (section === 'dashboard') loadDashboard();
         if (section === 'members') loadApplications();
         if (section === 'profile') loadProfile();
         if (section === 'news') loadNewsList();
-    }
+        if (section === 'settings') loadSettings();
+    } 
 
     async function loadDashboard() {
         try {
-            const statsRes = await fetch(`${API_BASE}/stats`);
+            const statsRes = await fetch(${API_BASE}/stats);
             const stats = await statsRes.json();
             document.getElementById('total-approved').innerText = stats.totalApproved || 0;
-            document.getElementById('total-pending').innerText = stats.totalPending || 0;
-            
-            const appsRes = await fetch(`${API_BASE}/applications`);
+            document.getElementById('total-pending').innerText = stats.totalPending || 0; 
+
+            const appsRes = await fetch(${API_BASE}/applications);
             const apps = await appsRes.json();
-            document.getElementById('total-news').innerText = apps.length || 0;
             
+            const newsRes = await fetch(${API_BASE}/news);
+            const news = await newsRes.json();
+            document.getElementById('total-news').innerText = news.length || 0; 
+
             const recent = apps.slice(0, 5);
             const container = document.getElementById('recent-applications');
             if (recent.length === 0) {
                 container.innerHTML = '<p>ምንም ጥያቄዎች የሉም</p>';
             } else {
                 container.innerHTML = '<table style="width:100%"><tr><th>ስም</th><th>ስልክ</th><th>ሁኔታ</th></tr>' + 
-                    recent.map(app => `<tr><td>${app.name}</td><td>${app.phone}</td><td><span class="status-badge status-${app.status}">${app.status === 'pending' ? 'በመጠባበቅ' : 'የጸደቀ'}</span></td></tr>`).join('') + 
+                    recent.map(app => <tr><td>${app.name}</td><td>${app.phone}</td><td><span class="status-badge status-${app.status}">${app.status === 'pending' ? 'በመጠባበቅ' : 'የጸደቀ'}</span></td></tr>).join('') + 
                     '</table>';
             }
         } catch (err) {
             console.error('Error loading dashboard:', err);
         }
-    }
+    } 
 
     async function loadApplications() {
         try {
-            const response = await fetch(`${API_BASE}/applications`);
+            const response = await fetch(${API_BASE}/applications);
             const apps = await response.json();
             const tbody = document.getElementById('members-tbody');
             tbody.innerHTML = '';
-            
-            apps.forEach(app => {
+apps.forEach(app => {
                 const row = tbody.insertRow();
                 row.insertCell(0).innerText = app.name;
                 row.insertCell(1).innerText = app.phone;
                 row.insertCell(2).innerText = app.amount;
                 row.insertCell(3).innerText = app.city || '-';
-                row.insertCell(4).innerHTML = `<span class="status-badge status-${app.status}">${app.status === 'pending' ? 'በመጠባበቅ' : 'የጸደቀ'}</span>`;
+                row.insertCell(4).innerHTML = <span class="status-badge status-${app.status}">${app.status === 'pending' ? 'በመጠባበቅ' : 'የጸደቀ'}</span>;
                 const actions = row.insertCell(5);
                 if (app.status === 'pending') {
-                    actions.innerHTML = `<button class="btn btn-approve" onclick="updateStatus(${app.id}, 'approved')">አጽድቅ</button>
-                                        <button class="btn btn-reject" onclick="updateStatus(${app.id}, 'rejected')">ሰርዝ</button>`;
+                    actions.innerHTML = <button class="btn btn-approve" onclick="updateStatus(${app.id}, 'approved')">አጽድቅ</button>
+                                        <button class="btn btn-reject" onclick="updateStatus(${app.id}, 'rejected')">ሰርዝ</button>;
                 } else {
-                    actions.innerHTML = `<button class="btn btn-delete" onclick="deleteApplication(${app.id})">ሰርዝ</button>`;
+                    actions.innerHTML = <button class="btn btn-delete" onclick="deleteApplication(${app.id})">ሰርዝ</button>;
                 }
             });
         } catch (err) {
             console.error('Error loading applications:', err);
             showToast('የአባላት መረጃ መጫን አልተቻለም', true);
         }
-    }
+    } 
 
     async function updateStatus(id, status) {
         try {
-            const response = await fetch(`${API_BASE}/applications/${id}`, {
+            const response = await fetch(${API_BASE}/applications/${id}, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: status })
@@ -340,12 +394,12 @@
         } catch (err) {
             showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
         }
-    }
+    } 
 
     async function deleteApplication(id) {
         if (confirm('እርግጠኛ ነዎት?')) {
             try {
-                await fetch(`${API_BASE}/applications/${id}`, { method: 'DELETE' });
+                await fetch(${API_BASE}/applications/${id}, { method: 'DELETE' });
                 showToast('ተሰርዟል');
                 loadApplications();
                 loadDashboard();
@@ -353,11 +407,11 @@
                 showToast('ስህተት', true);
             }
         }
-    }
+    } 
 
     async function loadProfile() {
         try {
-            const response = await fetch(`${API_BASE}/profile`);
+            const response = await fetch(${API_BASE}/profile);
             const data = await response.json();
             document.getElementById('company-name').value = data.currentName || '';
             document.getElementById('license-number').value = data.legalRegistration?.investmentLicenseNo || '';
@@ -367,7 +421,7 @@
         } catch (err) {
             console.error('Error loading profile:', err);
         }
-    }
+    } 
 
     document.getElementById('profile-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -379,7 +433,7 @@
             heroSubtitle: document.getElementById('hero-subtitle').value
         };
         try {
-            const response = await fetch(`${API_BASE}/profile`, {
+            const response = await fetch(${API_BASE}/profile, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -393,31 +447,30 @@
             showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
         }
     });
-
-    async function loadNewsList() {
+async function loadNewsList() {
         try {
-            const response = await fetch(`${API_BASE}/news`);
+            const response = await fetch(${API_BASE}/news);
             const news = await response.json();
             const container = document.getElementById('news-list');
             if (news.length === 0) {
                 container.innerHTML = '<p>ምንም ዜና የለም</p>';
             } else {
-                container.innerHTML = news.map(item => `
+                container.innerHTML = news.map(item => 
                     <div class="news-item">
                         <div><strong>${item.year}</strong><br><small>${item.title}</small></div>
                         <button class="btn btn-delete" onclick="deleteNews(${item.id})">ሰርዝ</button>
                     </div>
-                `).join('');
+                ).join('');
             }
         } catch (err) {
             console.error('Error loading news:', err);
         }
-    }
+    } 
 
     async function deleteNews(id) {
         if (confirm('ይህን ዜና መሰረዝ ይፈልጋሉ?')) {
             try {
-                await fetch(`${API_BASE}/news/${id}`, { method: 'DELETE' });
+                await fetch(${API_BASE}/news/${id}, { method: 'DELETE' });
                 showToast('ዜና ተሰርዟል');
                 loadNewsList();
                 loadDashboard();
@@ -425,7 +478,7 @@
                 showToast('ስህተት', true);
             }
         }
-    }
+    } 
 
     document.getElementById('news-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -435,7 +488,7 @@
             description: document.getElementById('news-desc').value
         };
         try {
-            const response = await fetch(`${API_BASE}/news`, {
+            const response = await fetch(${API_BASE}/news, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -447,6 +500,46 @@
                 loadDashboard();
             } else {
                 showToast('ስህተት', true);
+            }
+        } catch (err) {
+            showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+        }
+    }); 
+
+    // --- Settings Logic (አዲስ የተጨመረ) ---
+    async function loadSettings() {
+        try {
+            const response = await fetch(${API_BASE}/settings);
+            const settings = await response.json();
+            
+            document.getElementById('setting-exchange').value = settings.exchange_rate || '161.72';
+            document.getElementById('setting-price1').value = settings.coffee_price_grade1 || '450';
+            document.getElementById('setting-price2').value = settings.coffee_price_grade2 || '520';
+            document.getElementById('setting-price3').value = settings.coffee_price_grade3 || '600';
+        } catch (err) {
+            console.error('Error loading settings:', err);
+            showToast('ቅንብሮችን መጫን አልተቻለም', true);
+        }
+    }
+
+    document.getElementById('settings-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            exchange_rate: document.getElementById('setting-exchange').value,
+            coffee_price_grade1: document.getElementById('setting-price1').value,
+            coffee_price_grade2: document.getElementById('setting-price2').value,
+            coffee_price_grade3: document.getElementById('setting-price3').value
+        };
+        try {
+            const response = await fetch(${API_BASE}/settings, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                showToast('ዋጋዎች በተሳካ ሁኔታ ተዘምነዋል!');
+            } else {
+                showToast('ስህተት ተከስቷል', true);
             }
         } catch (err) {
             showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
