@@ -17,7 +17,7 @@ const db = new sqlite3.Database('./gmfc_database.db');
 // Create tables and insert default data
 db.serialize(() => {
     // Applications table
-    db.run(CREATE TABLE IF NOT EXISTS applications (
+    db.run(`CREATE TABLE IF NOT EXISTS applications (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         phone TEXT NOT NULL,
