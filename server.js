@@ -49,13 +49,12 @@ db.serialize(() => {
     )`);
 
     // Settings table
-    // Settings table
-db.run(CREATE TABLE IF NOT EXISTS settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    key TEXT UNIQUE NOT NULL,
-    value TEXT NOT NULL,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-));
+    db.run(`CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE NOT NULL,
+        value TEXT NOT NULL,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
 
     // Insert default company profile if not exists
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
@@ -89,14 +88,27 @@ db.run(CREATE TABLE IF NOT EXISTS settings (
     });
 
     // Insert default settings if not exists
-   db.get("SELECT * FROM settings WHERE key = 'exchange_rate'", (err, row) => {
-    if (!row) {
-        db.run(INSERT INTO settings (key, value) VALUES ('exchange_rate', '161.72'));
-        db.run(INSERT INTO settings (key, value) VALUES ('coffee_price_grade1', '450'));
-        db.run(INSERT INTO settings (key, value) VALUES ('coffee_price_grade2', '520'));
-        db.run(INSERT INTO settings (key, value) VALUES ('coffee_price_grade3', '600'));
-        db.run(INSERT INTO settings (key, value) VALUES ('coffee_price_ground', '650')); // አዲስ የተጨመረ
-    }
+    db.get("SELECT * FROM settings WHERE key = 'exchange_rate'", (err, row) => {
+        if (err) return console.error(err.message);
+        if (!row) {
+            const defaults = [
+                ['exchange_rate', '161.72'],
+                ['coffee_price_grade1', '450'],
+                ['coffee_price_grade2', '520'],
+                ['coffee_price_grade3', '600'],
+                ['coffee_price_ground', '650'] // አዲስ የተጨመረ
+            ];
+            defaults.forEach(([key, value]) => {
+                db.run(
+                    `INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`,
+                    [key, value],
+                    function (e) {
+                        if (e) console.error(e.message);
+                    }
+                );
+            });
+        }
+    });
 });
 
 // ============= API ROUTES =============
