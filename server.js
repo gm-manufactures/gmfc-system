@@ -26,7 +26,7 @@ db.serialize(() => {
         status TEXT DEFAULT 'pending',
         date TEXT NOT NULL,
         submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )); 
+    ); 
 
     // Company profile table
     db.run(CREATE TABLE IF NOT EXISTS company_profile (
