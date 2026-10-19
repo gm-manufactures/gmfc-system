@@ -88,38 +88,34 @@ db.serialize(() => {
     });
 
     // Insert default settings if not exists
-db.get("SELECT * FROM settings WHERE key = 'exchange_rate'", (err, row) => {
-    if (err) return console.error(err.message);
+    db.get("SELECT * FROM settings WHERE key = 'exchange_rate'", (err, row) => {
+        if (err) return console.error(err.message);
+        if (!row) {
+            const defaults = [
+                ['exchange_rate', '161.72'],
+                ['coffee_price_grade1', '450'],
+                ['coffee_price_grade2', '520'],
+                ['coffee_price_grade3', '600'],
+                ['coffee_price_ground', '650'],
+                ['wholesale_price', '42000'],
+                ['grade1_price', '3.94'],
+                ['grade2_price', '3.81'],
+                ['grade3_price', '2.47'],
+                ['grade4_price', '2.74'],
+                ['grade5_price', '3.50']
+            ];
 
-    if (!row) {
-        const defaults = [
-            ['exchange_rate', '161.72'],
-            ['coffee_price_grade1', '450'],
-            ['coffee_price_grade2', '520'],
-            ['coffee_price_grade3', '600'],
-            ['coffee_price_ground', '650'],
-
-            // የደረጃ ዋጋዎች (Grade 1 - 5)
-            ['grade1_price', '3.94'],
-            ['grade2_price', '3.81'],
-            ['grade3_price', '2.47'],
-            ['grade4_price', '2.74'],
-            ['grade5_price', '3.50'],
-
-            // ጅምላ (ኩንታል)
-            ['wholesale_price', '42000']
-        ];
-
-        defaults.forEach(([key, value]) => {
-            db.run(
-                `INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`,
-                [key, value],
-                function (e) {
-                    if (e) console.error(e.message);
-                }
-            );
-        });
-    }
+            defaults.forEach(([key, value]) => {
+                db.run(
+                    `INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`,
+                    [key, value],
+                    function (e) {
+                        if (e) console.error(e.message);
+                    }
+                );
+            });
+        }
+    });
 });
 
 // ============= API ROUTES =============
@@ -279,15 +275,16 @@ app.get('/api/settings', (req, res) => {
     });
 });
 
-// Update Settings
+// Update Settings (UPSERT — inserts if key doesn't exist)
 app.put('/api/settings', (req, res) => {
     const updates = req.body;
 
     const queries = Object.keys(updates).map(key => {
         return new Promise((resolve, reject) => {
             db.run(
-                `UPDATE settings SET value = ?, updated_at = CURRENT_TIMESTAMP WHERE key = ?`,
-                [updates[key], key],
+                `INSERT INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)
+                 ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`,
+                [key, updates[key]],
                 function (err) {
                     if (err) reject(err);
                     else resolve();
