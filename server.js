@@ -49,12 +49,13 @@ db.serialize(() => {
     )`);
 
     // Settings table
-    db.run(`CREATE TABLE IF NOT EXISTS settings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        key TEXT UNIQUE NOT NULL,
-        value TEXT NOT NULL,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
+    // Settings table
+db.run(CREATE TABLE IF NOT EXISTS settings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    key TEXT UNIQUE NOT NULL,
+    value TEXT NOT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+));
 
     // Insert default company profile if not exists
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
