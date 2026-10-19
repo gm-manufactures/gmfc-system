@@ -264,29 +264,29 @@
     <div id="settings-section" style="display:none;">
         <div class="dashboard-section">
             <div class="section-heading"><i class="fa-solid fa-gear"></i> የቡና ዋጋ እና የዶላር ምንዛሬ ማስተካከያ</div>
-           <form id="settings-form" class="form-grid">
-    <div class="form-group full-width">
-        <label>1 ዶላር በብር (Exchange Rate)</label>
-        <input type="number" step="0.01" id="setting-exchange" required>
-    </div>
-    
-    <div class="form-group"><label>የጫካ ቡና ፍሬ (ጥሬ) - በኪሎ</label><input type="number" id="setting-price1" required></div>
-    <div class="form-group"><label>አረንጓዴ የቡና ባቄላ - በኪሎ</label><input type="number" id="setting-price2" required></div>
-    <div class="form-group"><label>የተቆላ ቡና - በኪሎ</label><input type="number" id="setting-price3" required></div>
-    <div class="form-group"><label>የተፈጨ ቡና - በኪሎ</label><input type="number" id="setting-price4" required></div>
+            <form id="settings-form" class="form-grid">
+                <div class="form-group full-width">
+                    <label>1 ዶላር በብር (Exchange Rate)</label>
+                    <input type="number" step="0.01" id="setting-exchange" required>
+                </div>
 
-    <div class="form-group full-width" style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
-        <h4 style="color: var(--primary-green); margin-bottom: 10px;">የኢትዮጵያ የቡና ደረጃዎች (Grade) ዋጋ</h4>
-    </div>
+                <div class="form-group"><label>የጫካ ቡና ፍሬ (ጥሬ) - በኪሎ</label><input type="number" id="setting-price1" required></div>
+                <div class="form-group"><label>አረንጓዴ የቡና ባቄላ - በኪሎ</label><input type="number" id="setting-price2" required></div>
+                <div class="form-group"><label>የተቆላ ቡና - በኪሎ</label><input type="number" id="setting-price3" required></div>
+                <div class="form-group"><label>የተፈጨ ቡና - በኪሎ</label><input type="number" id="setting-price4" required></div>
 
-    <div class="form-group"><label>ደረጃ 1 (Grade 1)</label><input type="number" step="0.01" id="setting-grade1" required></div>
-    <div class="form-group"><label>ደረጃ 2 (Grade 2)</label><input type="number" step="0.01" id="setting-grade2" required></div>
-    <div class="form-group"><label>ደረጃ 3 (Grade 3)</label><input type="number" step="0.01" id="setting-grade3" required></div>
-    <div class="form-group"><label>ደረጃ 4 (Grade 4)</label><input type="number" step="0.01" id="setting-grade4" required></div>
-    <div class="form-group"><label>ደረጃ 5 (Grade 5)</label><input type="number" step="0.01" id="setting-grade5" required></div>
+                <div class="form-group full-width" style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
+                    <h4 style="color: var(--primary-green); margin-bottom: 10px;">የኢትዮጵያ የቡና ደረጃዎች (Grade) ዋጋ</h4>
+                </div>
 
-    <button type="submit" class="btn-submit full-width" style="margin-top: 20px;">አዳዲስ ዋጋዎችን አስቀምጥ</button>
-</form>
+                <div class="form-group"><label>ደረጃ 1 (Grade 1)</label><input type="number" step="0.01" id="setting-grade1" required></div>
+                <div class="form-group"><label>ደረጃ 2 (Grade 2)</label><input type="number" step="0.01" id="setting-grade2" required></div>
+                <div class="form-group"><label>ደረጃ 3 (Grade 3)</label><input type="number" step="0.01" id="setting-grade3" required></div>
+                <div class="form-group"><label>ደረጃ 4 (Grade 4)</label><input type="number" step="0.01" id="setting-grade4" required></div>
+                <div class="form-group"><label>ደረጃ 5 (Grade 5)</label><input type="number" step="0.01" id="setting-grade5" required></div>
+
+                <button type="submit" class="btn-submit" style="margin-top: 20px;">አዳዲስ ዋጋዎችን አስቀምጥ</button>
+            </form>
         </div>
     </div>
 </div>
@@ -510,60 +510,60 @@
         }
     });
 
-   async function loadSettings() {
-    try {
-        const response = await fetch(${API_BASE}/settings);
-        const settings = await response.json();
-        
-        document.getElementById('setting-exchange').value = settings.exchange_rate || '161.72';
-        document.getElementById('setting-price1').value = settings.coffee_price_grade1 || '450';
-        document.getElementById('setting-price2').value = settings.coffee_price_grade2 || '520';
-        document.getElementById('setting-price3').value = settings.coffee_price_grade3 || '600';
-        document.getElementById('setting-price4').value = settings.coffee_price_ground || '650';
-        
-        // አዲስ የተጨመሩ የደረጃ ዋጋዎች
-        document.getElementById('setting-grade1').value = settings.grade1_price || '3.94';
-        document.getElementById('setting-grade2').value = settings.grade2_price || '3.81';
-        document.getElementById('setting-grade3').value = settings.grade3_price || '2.47';
-        document.getElementById('setting-grade4').value = settings.grade4_price || '2.74';
-        document.getElementById('setting-grade5').value = settings.grade5_price || '3.50';
-    } catch (err) {
-        console.error('Error loading settings:', err);
-        showToast('ቅንብሮችን መጫን አልተቻለም', true);
-    }
-}
+    async function loadSettings() {
+        try {
+            const response = await fetch(`${API_BASE}/settings`);
+            const settings = await response.json();
 
-document.getElementById('settings-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const payload = {
-        exchange_rate: document.getElementById('setting-exchange').value,
-        coffee_price_grade1: document.getElementById('setting-price1').value,
-        coffee_price_grade2: document.getElementById('setting-price2').value,
-        coffee_price_grade3: document.getElementById('setting-price3').value,
-        coffee_price_ground: document.getElementById('setting-price4').value,
-        
-        // አዲስ የተጨመሩ የደረጃ ዋጋዎች
-        grade1_price: document.getElementById('setting-grade1').value,
-        grade2_price: document.getElementById('setting-grade2').value,
-        grade3_price: document.getElementById('setting-grade3').value,
-        grade4_price: document.getElementById('setting-grade4').value,
-        grade5_price: document.getElementById('setting-grade5').value
-    };
-    try {
-        const response = await fetch(${API_BASE}/settings, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (response.ok) {
-            showToast('ዋጋዎች በተሳካ ሁኔታ ተዘምነዋል!');
-        } else {
-            showToast('ስህተት ተከስቷል', true);
+            document.getElementById('setting-exchange').value = settings.exchange_rate || '161.72';
+            document.getElementById('setting-price1').value = settings.coffee_price_grade1 || '450';
+            document.getElementById('setting-price2').value = settings.coffee_price_grade2 || '520';
+            document.getElementById('setting-price3').value = settings.coffee_price_grade3 || '600';
+            document.getElementById('setting-price4').value = settings.coffee_price_ground || '650';
+
+            // አዲስ የተጨመሩ የደረጃ ዋጋዎች
+            document.getElementById('setting-grade1').value = settings.grade1_price || '3.94';
+            document.getElementById('setting-grade2').value = settings.grade2_price || '3.81';
+            document.getElementById('setting-grade3').value = settings.grade3_price || '2.47';
+            document.getElementById('setting-grade4').value = settings.grade4_price || '2.74';
+            document.getElementById('setting-grade5').value = settings.grade5_price || '3.50';
+        } catch (err) {
+            console.error('Error loading settings:', err);
+            showToast('ቅንብሮችን መጫን አልተቻለም', true);
         }
-    } catch (err) {
-        showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
     }
-});
+
+    document.getElementById('settings-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            exchange_rate: document.getElementById('setting-exchange').value,
+            coffee_price_grade1: document.getElementById('setting-price1').value,
+            coffee_price_grade2: document.getElementById('setting-price2').value,
+            coffee_price_grade3: document.getElementById('setting-price3').value,
+            coffee_price_ground: document.getElementById('setting-price4').value,
+
+            // አዲስ የተጨመሩ የደረጃ ዋጋዎች
+            grade1_price: document.getElementById('setting-grade1').value,
+            grade2_price: document.getElementById('setting-grade2').value,
+            grade3_price: document.getElementById('setting-grade3').value,
+            grade4_price: document.getElementById('setting-grade4').value,
+            grade5_price: document.getElementById('setting-grade5').value
+        };
+        try {
+            const response = await fetch(`${API_BASE}/settings`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                showToast('ዋጋዎች በተሳካ ሁኔታ ተዘምነዋል!');
+            } else {
+                showToast('ስህተት ተከስቷል', true);
+            }
+        } catch (err) {
+            showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+        }
+    });
 
     window.onload = () => {
         loadDashboard();
