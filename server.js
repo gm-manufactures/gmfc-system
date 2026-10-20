@@ -31,6 +31,9 @@ db.serialize(() => {
     // Members table
     db.run(`CREATE TABLE IF NOT EXISTS members ( id INTEGER PRIMARY KEY AUTOINCREMENT, member_id TEXT UNIQUE NOT NULL, full_name TEXT NOT NULL, password TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
 
+    // ✅ NEW: Messages table
+    db.run(`CREATE TABLE IF NOT EXISTS messages ( id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, content TEXT NOT NULL, sender TEXT DEFAULT 'Admin', created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
+
     // Insert default company profile if not exists
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
         if (err) return console.error(err.message);
@@ -370,6 +373,49 @@ app.post('/api/login', (req, res) => {
             });
         }
     );
+});
+
+// ============= MESSAGES ROUTES (አዲስ) =============
+
+// Get all messages
+app.get('/api/messages', (req, res) => {
+    db.all("SELECT * FROM messages ORDER BY created_at DESC", (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
+});
+
+// Add new message (Admin)
+app.post('/api/messages', (req, res) => {
+    const { title, content, sender } = req.body;
+
+    if (!title || !content) {
+        return res.status(400).json({ error: "Title and content are required" });
+    }
+
+    db.run(
+        `INSERT INTO messages (title, content, sender) VALUES (?, ?, ?)`,
+        [title, content, sender || 'Admin'],
+        function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ success: true, message: "Message sent successfully", id: this.lastID });
+        }
+    );
+});
+
+// Delete message
+app.delete('/api/messages/:id', (req, res) => {
+    const { id } = req.params;
+    db.run(`DELETE FROM messages WHERE id = ?`, [id], function (err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ success: true });
+    });
 });
 
 // Get statistics
