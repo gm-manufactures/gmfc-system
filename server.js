@@ -34,16 +34,12 @@ db.serialize(() => {
         submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    // Company profile table
-    db.run(`CREATE TABLE IF NOT EXISTS company_profile (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        company_name TEXT NOT NULL,
-        license_number TEXT NOT NULL,
-        general_manager TEXT NOT NULL,
-        hero_title TEXT,
-        hero_subtitle TEXT,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
+    db.run(`CREATE TABLE IF NOT EXISTS settings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    "key" TEXT UNIQUE NOT NULL,
+    value TEXT NOT NULL,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`);
 
     // News table
     db.run(`CREATE TABLE IF NOT EXISTS news (
