@@ -482,7 +482,6 @@ nav ul li a { display: block; padding: 10px; border-bottom: 1px solid #f0f0f0; t
 </button>
 <button type="button" id="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
 
-<!-- ============ MEMBER BUTTON ============ -->
 <a href="#" class="member-btn" onclick="openMemberLogin(event); return false;" title="Member Login">
     <i class="fa-solid fa-user-lock"></i>
     <span class="am-text">አባል</span>
@@ -548,7 +547,6 @@ nav ul li a { display: block; padding: 10px; border-bottom: 1px solid #f0f0f0; t
             </p>
         </div>
 
-        <!-- ============ ✅ አዲስ: የተላኩ መልእክቶች ክፍል ============ -->
         <div style="background: #fff; padding: 25px; border-radius: 10px; border-left: 5px solid #1976d2; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
             <h3 style="color: #1976d2; margin-bottom: 15px;">
                 ✉️
@@ -782,7 +780,7 @@ new TradingView.widget({
 <li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>የማህበረሰብ ተጠቃሚነት</strong> — 1% ለማህበረሰብ ልማት</span><span class="en-text"><strong>Community benefit</strong> — 1% for community development</span><span class="ar-text"><strong>منفعة المجتمع</strong> - 1٪ لتنمية المجتمع</span></li>
 <li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>350+ ቀጥተኛ የስራ ዕድል</strong> — ለማጃንግ ተወላጆች ቅድሚያ</span><span class="en-text"><strong>350+ direct jobs</strong> — priority for Majang natives</span><span class="ar-text"><strong>350+ وظيفة مباشرة</strong> - الأولوية لمواطني ماجانغ</span></li>
 <li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>የመሥራች አባላት ልዩ ጥቅም</strong> — ለመጀመሪያዎቹ 5 ዓመታት 20%</span><span class="en-text"><strong>Special founder benefit</strong> — 20% for first 5 years</span><span class="ar-text"><strong>ميزة المؤسسين الخاصة</strong> - 20٪ لأول 5 سنوات</span></li>
-<li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>የህጋዊ ዋስትና</strong> — በህግ የተጠበቀ</span><span class="en-text"><strong>Legal guarantee</strong> — legally protected</span><span class="ar-text"><strong>ضمان قانوني</strong> - محمي قانونياً</span></li>
+<li><i class="fa-solid fa-circle-check"></i> <span class="am-text"><strong>የህጋዊ ዋስትና</strong> — በህግ የተጠበቀ</span><span class="en-text"><strong>Legal guarantee</strong> — legally protected</span><span class="ar-text"><strong>ضمان قانوني</strong> — محمي قانونياً</span></li>
 </ul>
 
 <div class="invest-features">
@@ -1354,8 +1352,53 @@ new TradingView.widget({
 
 <script>
 var API_BASE = window.location.origin + '/api';
-var exchangeRate = 163.59;
-var currentCurrency = 'ETB';
+
+/* ================= ✅ LIVE CURRENCY CONVERTER API (Real-time Fetch) ================= */
+let exchangeRate = 163.59; // Default fallback rate
+let currentCurrency = 'ETB';
+let rateInterval;
+
+async function fetchExchangeRate() {
+    try {
+        const response = await fetch('https://open.er-api.com/v6/latest/USD');
+        const data = await response.json();
+
+        if (data && data.rates && data.rates.ETB) {
+            exchangeRate = data.rates.ETB;
+
+            // በላይኛው አሞሌ ላይ ያለውን ጽሑፍ ማሳየት
+            const rateText = document.getElementById('rateText');
+            if (rateText) {
+                rateText.textContent = `1 USD = ${exchangeRate.toFixed(2)} ETB`;
+            }
+
+            // በአክሲዮን ክፍል ላይ ያለውን ጽሑፍ ማሳየት
+            const rateShareText = document.getElementById('rateTextShare');
+            if (rateShareText) {
+                rateShareText.textContent = exchangeRate.toFixed(2);
+            }
+
+            // ✅ ወቅታዊ ዋጋዎችን እንደገና አሳይ
+            renderAllPrices();
+
+            console.log("Live exchange rate updated: 1 USD = " + exchangeRate + " ETB");
+        }
+    } catch (error) {
+        console.error("Error fetching exchange rate:", error);
+        // ስህተት ካጋጠመ የመጨረሻውን ያወቀውን ዋጋ አሳይ
+        const rateText = document.getElementById('rateText');
+        if (rateText) rateText.textContent = `1 USD = ${exchangeRate.toFixed(2)} ETB`;
+        const rateShareText = document.getElementById('rateTextShare');
+        if (rateShareText) rateShareText.textContent = exchangeRate.toFixed(2);
+    }
+}
+
+// ገጹ ሲከፈት ዋጋውን አምጣ
+document.addEventListener('DOMContentLoaded', () => {
+    fetchExchangeRate();
+    // በየ 5 ደቂቃው (300,000 ms) ዋጋውን አዘምን
+    rateInterval = setInterval(fetchExchangeRate, 300000);
+});
 
 /* ================= DARK MODE ================= */
 function toggleDarkMode() {
@@ -1509,29 +1552,6 @@ window.addEventListener('load', function () {
     loadNews();
     loadPricesFromDB();
     loadCompanyProfile();
-});
-
-/* ================= EXCHANGE RATE ================= */
-document.addEventListener('DOMContentLoaded', function () {
-    function setRate(r) {
-        exchangeRate = r;
-        var rt = document.getElementById('rateText');
-        var rs = document.getElementById('rateTextShare');
-        if (rt) rt.textContent = '1 USD = ' + r.toFixed(2) + ' ETB';
-        if (rs) rs.textContent = r.toFixed(2);
-        renderAllPrices();
-    }
-    setRate(exchangeRate);
-
-    var controller = new AbortController();
-    var timeout = setTimeout(function () { controller.abort(); }, 6000);
-
-    fetch('https://open.er-api.com/v6/latest/USD', { signal: controller.signal })
-        .then(function (r) { clearTimeout(timeout); return r.json(); })
-        .then(function (data) {
-            if (data && data.rates && data.rates.ETB) setRate(data.rates.ETB);
-        })
-        .catch(function (err) { clearTimeout(timeout); console.warn('FX fallback:', err.message); });
 });
 
 /* ================= SEARCH ================= */
@@ -1836,15 +1856,18 @@ function showMemberArea(user) {
     // Hide main website content
     const mainContent = document.getElementById('mainContent');
     if (mainContent) mainContent.style.display = 'none';
-    
+
     const adBanner = document.querySelector('.ad-banner');
     if (adBanner) adBanner.style.display = 'none';
-    
+
     const testimonials = document.querySelector('.testimonials-section');
     if (testimonials) testimonials.style.display = 'none';
-    
+
     const newsletter = document.querySelector('.newsletter-section');
     if (newsletter) newsletter.style.display = 'none';
+
+    const footer = document.querySelector('footer');
+    if (footer) footer.style.display = 'none';
 
     // Show member area
     document.getElementById('memberArea').style.display = 'block';
@@ -1863,15 +1886,18 @@ function logoutMember() {
     // Show main content again
     const mainContent = document.getElementById('mainContent');
     if (mainContent) mainContent.style.display = 'block';
-    
+
     const adBanner = document.querySelector('.ad-banner');
     if (adBanner) adBanner.style.display = '';
-    
+
     const testimonials = document.querySelector('.testimonials-section');
     if (testimonials) testimonials.style.display = '';
-    
+
     const newsletter = document.querySelector('.newsletter-section');
     if (newsletter) newsletter.style.display = '';
+
+    const footer = document.querySelector('footer');
+    if (footer) footer.style.display = '';
 
     // Reset form
     document.getElementById('memberIdInput').value = '';
