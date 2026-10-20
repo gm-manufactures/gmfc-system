@@ -12,12 +12,18 @@ app.use(express.json());
 app.use(express.static('.'));
 
 // SQLite Database
-const db = new sqlite3.Database('./gmfc_database.db');
+const db = new sqlite3.Database('./gmfc_database.db', (err) => {
+    if (err) {
+        console.error('❌ Failed to open database:', err.message);
+    } else {
+        console.log('✅ Connected to SQLite database.');
+    }
+});
 
 // Create tables and insert default data
 db.serialize(() => {
     // Applications table
-    db.run(CREATE TABLE IF NOT EXISTS applications (
+    db.run(`CREATE TABLE IF NOT EXISTS applications (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         phone TEXT NOT NULL,
@@ -26,10 +32,10 @@ db.serialize(() => {
         status TEXT DEFAULT 'pending',
         date TEXT NOT NULL,
         submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    ));
+    )`);
 
     // Company profile table
-    db.run(CREATE TABLE IF NOT EXISTS company_profile (
+    db.run(`CREATE TABLE IF NOT EXISTS company_profile (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         company_name TEXT NOT NULL,
         license_number TEXT NOT NULL,
@@ -37,48 +43,49 @@ db.serialize(() => {
         hero_title TEXT,
         hero_subtitle TEXT,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    ));
+    )`);
 
     // News table
-    db.run(CREATE TABLE IF NOT EXISTS news (
+    db.run(`CREATE TABLE IF NOT EXISTS news (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         year TEXT NOT NULL,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    ));
+    )`);
 
     // Settings table
-    db.run(CREATE TABLE IF NOT EXISTS settings (
+    db.run(`CREATE TABLE IF NOT EXISTS settings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         key TEXT UNIQUE NOT NULL,
         value TEXT NOT NULL,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    ));
+    )`);
 
     // Members table
-    db.run(CREATE TABLE IF NOT EXISTS members (
+    db.run(`CREATE TABLE IF NOT EXISTS members (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         member_id TEXT UNIQUE NOT NULL,
         full_name TEXT NOT NULL,
         password TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    ));
+    )`);
 
     // Insert default company profile if not exists
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
         if (err) return console.error(err.message);
         if (!row) {
             db.run(
-                INSERT INTO company_profile (id, company_name, license_number, general_manager, hero_title, hero_subtitle)
-                 VALUES (1, ?, ?, ?, ?, ?),
+                `INSERT INTO company_profile (id, company_name, license_number, general_manager, hero_title, hero_subtitle)
+                 VALUES (1, ?, ?, ?, ?, ?)`,
                 [
                     'የጋምቤላ ማጃንግ የጫካ ቡና አምራችና ኤክስፖርተር አክሲዬን ማህበር',
                     'GMFC/INV/2024/0123',
                     'ኢንጂነር ሰይድ ይማም አሸብር',
                     'የጋምቤላ ማጃንግ የጫካ ቡና አምራችና ኤክስፖርተር',
                     'ከማጃንግ ጥቅጥቅ ያሉ ደኖች፣ ሜጢ ከተማ - ለዓለም ገበያ የሚቀርብ ንጹህ የኢትዮጵያ የጫካ ቡና!'
-                ]
+                ],
+                (e) => { if (e) console.error(e.message); }
             );
         }
     });
@@ -88,10 +95,11 @@ db.serialize(() => {
         if (err) return console.error(err.message);
         if (!row) {
             db.run(
-                INSERT INTO news (year, title, description) VALUES 
+                `INSERT INTO news (year, title, description) VALUES 
                 ('መስከረም 2025', 'የጂ+5 ህንፃ ግንባታ ሥራ መጀመሩ ተገለጸ', 'በሜጢ ከተማ የመጀመሪያው የG+5 የንግድ ማዕከል ግንባታ በይፋ ተጀመረ።'),
                 ('ታህሳስ 2025', 'የጫካ ቡና ምርት ወደ ዓለም አቀፍ ገበያ ለመላክ ዝግጅት', 'ከማጃንግ ደኖች የሚገኘው ኦርጋኒክ ቡና በአውሮፓ ገበያ ተቀባይነት አግኝቷል።'),
-                ('ጥር 2026', 'ለወጣቶች የስራ ዕድል ፕሮግራም ተጀመረ', 'ከ50 በላይ ወጣቶች በጫካ ቡና ምርት እና ማቀነባበሪያ ስልጠና እንዲሰጡ ተደረገ።')
+                ('ጥር 2026', 'ለወጣቶች የስራ ዕድል ፕሮግራም ተጀመረ', 'ከ50 በላይ ወጣቶች በጫካ ቡና ምርት እና ማቀነባበሪያ ስልጠና እንዲሰጡ ተደረገ።')`,
+                (e) => { if (e) console.error(e.message); }
             );
         }
     });
@@ -115,7 +123,7 @@ db.serialize(() => {
             ];
             defaults.forEach(([key, value]) => {
                 db.run(
-                    INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?),
+                    `INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`,
                     [key, value],
                     function (e) {
                         if (e) console.error(e.message);
@@ -127,8 +135,12 @@ db.serialize(() => {
 
     // Insert default member for testing
     db.get("SELECT * FROM members WHERE member_id = 'GMFC001'", (err, row) => {
+        if (err) return console.error(err.message);
         if (!row) {
-            db.run(INSERT INTO members (member_id, full_name, password) VALUES ('GMFC001', 'Test Member', 'pass123'));
+            db.run(
+                `INSERT INTO members (member_id, full_name, password) VALUES ('GMFC001', 'Test Member', 'pass123')`,
+                (e) => { if (e) console.error(e.message); }
+            );
         }
     });
 });
@@ -163,14 +175,14 @@ app.get('/api/profile', (req, res) => {
 app.put('/api/profile', (req, res) => {
     const { currentName, generalManager, legalRegistration, heroTitle, heroSubtitle } = req.body;
     db.run(
-        UPDATE company_profile SET 
+        `UPDATE company_profile SET 
             company_name = COALESCE(?, company_name),
             general_manager = COALESCE(?, general_manager),
             license_number = COALESCE(?, license_number),
             hero_title = COALESCE(?, hero_title),
             hero_subtitle = COALESCE(?, hero_subtitle),
             updated_at = CURRENT_TIMESTAMP 
-         WHERE id = 1,
+         WHERE id = 1`,
         [currentName, generalManager, legalRegistration?.investmentLicenseNo, heroTitle, heroSubtitle],
         function (err) {
             if (err) {
@@ -195,13 +207,13 @@ app.get('/api/applications', (req, res) => {
 app.post('/api/applications', (req, res) => {
     const { name, phone, amount, city, date } = req.body;
 
-    if (!name  !phone  !amount) {
+    if (!name || !phone || !amount) {
         return res.status(400).json({ error: "Name, phone and amount are required" });
     }
 
     db.run(
-        INSERT INTO applications (name, phone, amount, city, date, status) VALUES (?, ?, ?, ?, ?, 'pending'),
-        [name, phone, amount, city  '', date  new Date().toLocaleDateString()],
+        `INSERT INTO applications (name, phone, amount, city, date, status) VALUES (?, ?, ?, ?, ?, 'pending')`,
+        [name, phone, amount, city || '', date || new Date().toLocaleDateString()],
         function (err) {
             if (err) {
                 return res.status(500).json({ error: err.message });
@@ -220,18 +232,18 @@ app.put('/api/applications/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    db.run(UPDATE applications SET status = ? WHERE id = ?, [status, id], function (err) {
+    db.run(`UPDATE applications SET status = ? WHERE id = ?`, [status, id], function (err) {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
-        res.json({ success: true, message: Application ${status} });
+        res.json({ success: true, message: `Application ${status}` });
     });
 });
 
 // Delete application
 app.delete('/api/applications/:id', (req, res) => {
     const { id } = req.params;
-    db.run(DELETE FROM applications WHERE id = ?, [id], function (err) {
+    db.run(`DELETE FROM applications WHERE id = ?`, [id], function (err) {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
@@ -253,11 +265,11 @@ app.get('/api/news', (req, res) => {
 app.post('/api/news', (req, res) => {
     const { year, title, description } = req.body;
 
-    if (!year  !title  !description) {
+    if (!year || !title || !description) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    db.run(INSERT INTO news (year, title, description) VALUES (?, ?, ?), [year, title, description], function (err) {
+    db.run(`INSERT INTO news (year, title, description) VALUES (?, ?, ?)`, [year, title, description], function (err) {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
@@ -268,7 +280,7 @@ app.post('/api/news', (req, res) => {
 // Delete news
 app.delete('/api/news/:id', (req, res) => {
     const { id } = req.params;
-    db.run(DELETE FROM news WHERE id = ?, [id], function (err) {
+    db.run(`DELETE FROM news WHERE id = ?`, [id], function (err) {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
@@ -297,8 +309,8 @@ app.put('/api/settings', (req, res) => {
     const queries = Object.keys(updates).map(key => {
         return new Promise((resolve, reject) => {
             db.run(
-                INSERT INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)
-                 ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP,
+                `INSERT INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)
+                 ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`,
                 [key, updates[key]],
                 function (err) {
                     if (err) reject(err);
@@ -319,12 +331,12 @@ app.put('/api/settings', (req, res) => {
 app.post('/api/members', (req, res) => {
     const { member_id, full_name, password } = req.body;
 
-    if (!member_id  !full_name  !password) {
+    if (!member_id || !full_name || !password) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
     db.run(
-        INSERT INTO members (member_id, full_name, password) VALUES (?, ?, ?),
+        `INSERT INTO members (member_id, full_name, password) VALUES (?, ?, ?)`,
         [member_id, full_name, password],
         function (err) {
             if (err) {
@@ -347,7 +359,7 @@ app.post('/api/login', (req, res) => {
     }
 
     db.get(
-        SELECT * FROM members WHERE member_id = ? AND password = ?,
+        `SELECT * FROM members WHERE member_id = ? AND password = ?`,
         [member_id, password],
         (err, row) => {
             if (err) {
@@ -356,7 +368,7 @@ app.post('/api/login', (req, res) => {
             if (!row) {
                 return res.status(401).json({ error: "Invalid Member ID or Password" });
             }
-            
+
             // Success
             res.json({
                 success: true,
@@ -396,7 +408,7 @@ app.get('/api/health', (req, res) => {
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(✅ GMFC Server running on port ${PORT});
-    console.log(📍 URL: http://localhost:${PORT});
-    console.log(🩺 Health: http://localhost:${PORT}/api/health);
+    console.log(`✅ GMFC Server running on port ${PORT}`);
+    console.log(`📍 URL: http://localhost:${PORT}`);
+    console.log(`🩺 Health: http://localhost:${PORT}/api/health`);
 });
