@@ -112,6 +112,7 @@
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
         .status-pending { background: #fff3e0; color: #ff9800; }
         .status-approved { background: #e8f5e9; color: #2e7d32; }
+        .status-rejected { background: #ffebee; color: #d32f2f; }
         .btn {
             padding: 6px 12px;
             border: none;
@@ -125,6 +126,7 @@
         .btn-approve:hover { background: var(--primary-green); }
         .btn-reject { background: var(--accent-red); color: white; }
         .btn-delete { background: #666; color: white; }
+        .btn-edit { background: #1976d2; color: white; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group.full-width { grid-column: span 2; }
@@ -156,6 +158,18 @@
             justify-content: space-between;
             align-items: center;
         }
+        .member-item {
+            background: var(--light-bg);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--secondary-green);
+        }
+        .member-info strong { display: block; color: var(--dark-green); margin-bottom: 4px; }
+        .member-info small { color: var(--gray); }
         .toast {
             position: fixed;
             bottom: 30px;
@@ -171,6 +185,49 @@
         }
         .toast.show { opacity: 1; }
         .toast.error { background: var(--accent-red); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .modal-header h3 { font-size: 18px; }
+        .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .modal-body { padding: 20px; }
+
         @media (max-width: 768px) {
             .sidebar { width: 80px; padding: 15px; }
             .sidebar-brand span, .sidebar-menu li a span { display: none; }
@@ -189,7 +246,8 @@
     </div>
     <ul class="sidebar-menu">
         <li><a class="active" onclick="showSection('dashboard', this)"><i class="fa-solid fa-chart-line"></i> <span>ዴሽቦርድ</span></a></li>
-        <li><a onclick="showSection('members', this)"><i class="fa-solid fa-users"></i> <span>አባላት</span></a></li>
+        <li><a onclick="showSection('applications', this)"><i class="fa-solid fa-clipboard-list"></i> <span>የአክሲዮን ጥያቄዎች</span></a></li>
+        <li><a onclick="showSection('members', this)"><i class="fa-solid fa-users"></i> <span>የአባላት አስተዳደር</span></a></li>
         <li><a onclick="showSection('profile', this)"><i class="fa-solid fa-building"></i> <span>ድርጅት መረጃ</span></a></li>
         <li><a onclick="showSection('news', this)"><i class="fa-solid fa-newspaper"></i> <span>ዜና አስተዳደር</span></a></li>
         <li><a onclick="showSection('settings', this)"><i class="fa-solid fa-gear"></i> <span>ዋጋ እና ቅንብሮች</span></a></li>
@@ -205,8 +263,9 @@
     <!-- DASHBOARD -->
     <div id="dashboard-section">
         <div class="stats-grid">
-            <div class="stat-card"><div><h3 id="total-approved">0</h3><p>የጸደቁ አባላት</p></div><div class="stat-icon"><i class="fa-solid fa-users-check"></i></div></div>
+            <div class="stat-card"><div><h3 id="total-approved">0</h3><p>የጸደቁ ጥያቄዎች</p></div><div class="stat-icon"><i class="fa-solid fa-user-check"></i></div></div>
             <div class="stat-card"><div><h3 id="total-pending">0</h3><p>በመጠባበቅ ላይ</p></div><div class="stat-icon"><i class="fa-solid fa-clock"></i></div></div>
+            <div class="stat-card"><div><h3 id="total-members">0</h3><p>የተመዘገቡ አባላት</p></div><div class="stat-icon"><i class="fa-solid fa-users"></i></div></div>
             <div class="stat-card"><div><h3 id="total-news">0</h3><p>ዜናዎች</p></div><div class="stat-icon"><i class="fa-solid fa-newspaper"></i></div></div>
         </div>
         <div class="dashboard-section">
@@ -215,15 +274,46 @@
         </div>
     </div>
 
-    <!-- MEMBERS -->
-    <div id="members-section" style="display:none;">
+    <!-- APPLICATIONS -->
+    <div id="applications-section" style="display:none;">
         <div class="dashboard-section">
-            <div class="section-heading"><i class="fa-solid fa-users"></i> ሁሉም የአክሲዮን ጥያቄዎች</div>
+            <div class="section-heading"><i class="fa-solid fa-clipboard-list"></i> ሁሉም የአክሲዮን ጥያቄዎች</div>
             <div class="table-container">
                 <table>
                     <thead><tr><th>ስም</th><th>ስልክ</th><th>አክሲዮን</th><th>ከተማ</th><th>ሁኔታ</th><th>ድርጊት</th></tr></thead>
-                    <tbody id="members-tbody"></tbody>
+                    <tbody id="applications-tbody"></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEMBERS MANAGEMENT -->
+    <div id="members-section" style="display:none;">
+        <div class="dashboard-section">
+            <div class="section-heading"><i class="fa-solid fa-user-plus"></i> አዲስ አባል መመዝገቢያ</div>
+            <form id="member-form" class="form-grid">
+                <div class="form-group">
+                    <label>የአባልነት መለያ ቁጥር (Member ID)</label>
+                    <input type="text" id="member-id" placeholder="ለምሳሌ: GMFC002" required>
+                </div>
+                <div class="form-group">
+                    <label>ሙሉ ስም</label>
+                    <input type="text" id="member-fullname" placeholder="ለምሳሌ: አበበ ከበደ" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>የይለፍ ቃል (Password)</label>
+                    <input type="text" id="member-password" placeholder="የይለፍ ቃል ያስገቡ" required>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-user-plus"></i> አባል መዝግብ
+                </button>
+            </form>
+        </div>
+
+        <div class="dashboard-section">
+            <div class="section-heading"><i class="fa-solid fa-users"></i> የተመዘገቡ አባላት</div>
+            <div id="members-list">
+                <p style="text-align: center; color: #999;">በመጫን ላይ...</p>
             </div>
         </div>
     </div>
@@ -291,6 +381,35 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Member Modal -->
+<div class="modal-overlay" id="editMemberModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-user-edit"></i> አባል ማስተካከያ</h3>
+            <button class="modal-close" onclick="closeEditMember()"><i class="fa-solid fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="edit-member-form" class="form-grid">
+                <input type="hidden" id="edit-member-id">
+                <div class="form-group full-width">
+                    <label>የአባልነት መለያ</label>
+                    <input type="text" id="edit-member-id-display" disabled>
+                </div>
+                <div class="form-group full-width">
+                    <label>ሙሉ ስም</label>
+                    <input type="text" id="edit-member-fullname" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>አዲስ የይለፍ ቃል (ባዶ ከሆነ አይቀየርም)</label>
+                    <input type="text" id="edit-member-password" placeholder="አዲስ የይለፍ ቃል">
+                </div>
+                <button type="submit" class="btn-submit">ለውጦችን አስቀምጥ</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -304,7 +423,7 @@
     }
 
     function showSection(section, element) {
-        const sections = ['dashboard', 'members', 'profile', 'news', 'settings'];
+        const sections = ['dashboard', 'applications', 'members', 'profile', 'news', 'settings'];
         sections.forEach(sec => {
             const el = document.getElementById(sec + '-section');
             if (el) el.style.display = 'none';
@@ -319,12 +438,14 @@
         if (element) element.classList.add('active');
 
         if (section === 'dashboard') loadDashboard();
-        if (section === 'members') loadApplications();
+        if (section === 'applications') loadApplications();
+        if (section === 'members') loadMembers();
         if (section === 'profile') loadProfile();
         if (section === 'news') loadNewsList();
         if (section === 'settings') loadSettings();
     }
 
+    /* ================= DASHBOARD ================= */
     async function loadDashboard() {
         try {
             const statsRes = await fetch(`${API_BASE}/stats`);
@@ -338,6 +459,14 @@
             const newsRes = await fetch(`${API_BASE}/news`);
             const news = await newsRes.json();
             document.getElementById('total-news').innerText = news.length || 0;
+
+            try {
+                const membersRes = await fetch(`${API_BASE}/members`);
+                const members = await membersRes.json();
+                document.getElementById('total-members').innerText = members.length || 0;
+            } catch (e) {
+                document.getElementById('total-members').innerText = '0';
+            }
 
             const recent = apps.slice(0, 5);
             const container = document.getElementById('recent-applications');
@@ -353,11 +482,12 @@
         }
     }
 
+    /* ================= APPLICATIONS ================= */
     async function loadApplications() {
         try {
             const response = await fetch(`${API_BASE}/applications`);
             const apps = await response.json();
-            const tbody = document.getElementById('members-tbody');
+            const tbody = document.getElementById('applications-tbody');
             tbody.innerHTML = '';
 
             apps.forEach(app => {
@@ -366,7 +496,7 @@
                 row.insertCell(1).innerText = app.phone;
                 row.insertCell(2).innerText = app.amount;
                 row.insertCell(3).innerText = app.city || '-';
-                row.insertCell(4).innerHTML = `<span class="status-badge status-${app.status}">${app.status === 'pending' ? 'በመጠባበቅ' : 'የጸደቀ'}</span>`;
+                row.insertCell(4).innerHTML = `<span class="status-badge status-${app.status}">${app.status === 'pending' ? 'በመጠባበቅ' : app.status === 'approved' ? 'የጸደቀ' : 'ውድቅ'}</span>`;
                 const actions = row.insertCell(5);
                 if (app.status === 'pending') {
                     actions.innerHTML = `<button class="btn btn-approve" onclick="updateStatus(${app.id}, 'approved')">አጽድቅ</button>
@@ -389,7 +519,7 @@
                 body: JSON.stringify({ status: status })
             });
             if (response.ok) {
-                showToast(status === 'approved' ? 'አባል ጸድቋል!' : 'ጥያቄ ውድቅ ተደርጓል');
+                showToast(status === 'approved' ? 'ተቀባይነት አግኝቷል!' : 'ጥያቄ ውድቅ ተደርጓል');
                 loadApplications();
                 loadDashboard();
             } else {
@@ -413,6 +543,129 @@
         }
     }
 
+    /* ================= MEMBERS MANAGEMENT ================= */
+    async function loadMembers() {
+        const container = document.getElementById('members-list');
+        container.innerHTML = '<p style="text-align:center;color:#999;">በመጫን ላይ...</p>';
+
+        try {
+            const response = await fetch(`${API_BASE}/members`);
+            if (!response.ok) throw new Error('Failed to load');
+            const members = await response.json();
+
+            if (!members || members.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;">ምንም አባላት አልተመዘገቡም።</p>';
+                return;
+            }
+
+            container.innerHTML = members.map(m => `
+                <div class="member-item">
+                    <div class="member-info">
+                        <strong>👤 ${m.full_name}</strong>
+                        <small>🆔 ${m.member_id}</small>
+                        <small>📅 ${new Date(m.created_at).toLocaleDateString()}</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-edit" onclick='openEditMember(${JSON.stringify(m).replace(/'/g, "\\'")})'>
+                            <i class="fa-solid fa-edit"></i> አስተካክል
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteMember(${m.id}, '${m.member_id}')">
+                            <i class="fa-solid fa-trash"></i> ሰርዝ
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (err) {
+            console.error('Error loading members:', err);
+            container.innerHTML = '<p style="text-align:center;color:#d32f2f;">አባላትን መጫን አልተቻለም። እባክዎ ሰርቨሩ መስራቱን ያረጋግጡ።</p>';
+        }
+    }
+
+    document.getElementById('member-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            member_id: document.getElementById('member-id').value.trim(),
+            full_name: document.getElementById('member-fullname').value.trim(),
+            password: document.getElementById('member-password').value
+        };
+
+        try {
+            const response = await fetch(`${API_BASE}/members`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                showToast('✅ አዲስ አባል በተሳካ ሁኔታ ተመዝግቧል!');
+                document.getElementById('member-form').reset();
+                loadMembers();
+                loadDashboard();
+            } else {
+                showToast('❌ ' + (data.error || 'ስህተት ተከስቷል'), true);
+            }
+        } catch (err) {
+            showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+        }
+    });
+
+    async function deleteMember(id, memberId) {
+        if (!confirm(`አባል "${memberId}" ን መሰረዝ ይፈልጋሉ?`)) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/members/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                showToast('✅ አባል ተሰርዟል');
+                loadMembers();
+                loadDashboard();
+            } else {
+                showToast('❌ ስህተት ተከስቷል', true);
+            }
+        } catch (err) {
+            showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+        }
+    }
+
+    function openEditMember(member) {
+        document.getElementById('edit-member-id').value = member.id;
+        document.getElementById('edit-member-id-display').value = member.member_id;
+        document.getElementById('edit-member-fullname').value = member.full_name;
+        document.getElementById('edit-member-password').value = '';
+        document.getElementById('editMemberModal').classList.add('active');
+    }
+
+    function closeEditMember() {
+        document.getElementById('editMemberModal').classList.remove('active');
+    }
+
+    document.getElementById('edit-member-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-member-id').value;
+        const payload = {
+            full_name: document.getElementById('edit-member-fullname').value.trim(),
+            password: document.getElementById('edit-member-password').value || null
+        };
+
+        try {
+            const response = await fetch(`${API_BASE}/members/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                showToast('✅ አባል ተስተካክሏል');
+                closeEditMember();
+                loadMembers();
+            } else {
+                showToast('❌ ስህተት ተከስቷል', true);
+            }
+        } catch (err) {
+            showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+        }
+    });
+
+    /* ================= PROFILE ================= */
     async function loadProfile() {
         try {
             const response = await fetch(`${API_BASE}/profile`);
@@ -443,15 +696,16 @@
                 body: JSON.stringify(payload)
             });
             if (response.ok) {
-                showToast('የድርጅት መረጃ ተዘምኗል!');
+                showToast('✅ የድርጅት መረጃ ተዘምኗል!');
             } else {
-                showToast('ስህተት ተከስቷል', true);
+                showToast('❌ ስህተት ተከስቷል', true);
             }
         } catch (err) {
             showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
         }
     });
 
+    /* ================= NEWS ================= */
     async function loadNewsList() {
         try {
             const response = await fetch(`${API_BASE}/news`);
@@ -476,7 +730,7 @@
         if (confirm('ይህን ዜና መሰረዝ ይፈልጋሉ?')) {
             try {
                 await fetch(`${API_BASE}/news/${id}`, { method: 'DELETE' });
-                showToast('ዜና ተሰርዟል');
+                showToast('✅ ዜና ተሰርዟል');
                 loadNewsList();
                 loadDashboard();
             } catch (err) {
@@ -499,18 +753,19 @@
                 body: JSON.stringify(payload)
             });
             if (response.ok) {
-                showToast('ዜና ተጨምሯል!');
+                showToast('✅ ዜና ተጨምሯል!');
                 document.getElementById('news-form').reset();
                 loadNewsList();
                 loadDashboard();
             } else {
-                showToast('ስህተት', true);
+                showToast('❌ ስህተት', true);
             }
         } catch (err) {
             showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
         }
     });
 
+    /* ================= SETTINGS ================= */
     async function loadSettings() {
         try {
             const response = await fetch(`${API_BASE}/settings`);
@@ -543,7 +798,6 @@
             coffee_price_grade3: document.getElementById('setting-price3').value,
             coffee_price_ground: document.getElementById('setting-price4').value,
             wholesale_price: document.getElementById('setting-price5').value,
-
             grade1_price: document.getElementById('setting-grade1').value,
             grade2_price: document.getElementById('setting-grade2').value,
             grade3_price: document.getElementById('setting-grade3').value,
@@ -557,9 +811,9 @@
                 body: JSON.stringify(payload)
             });
             if (response.ok) {
-                showToast('ዋጋዎች በተሳካ ሁኔታ ተዘምነዋል!');
+                showToast('✅ ዋጋዎች በተሳካ ሁኔታ ተዘምነዋል!');
             } else {
-                showToast('ስህተት ተከስቷል', true);
+                showToast('❌ ስህተት ተከስቷል', true);
             }
         } catch (err) {
             showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
