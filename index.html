@@ -414,8 +414,8 @@ footer .footer-divider { width: 50px; height: 2px; background: #2e7d32; margin: 
 .dashboard-section { max-width: 900px; margin: 0 auto; }
 .member-card { background: linear-gradient(135deg, #f1f8e9, #e8f5e9); padding: 20px; border-radius: 10px; border-left: 5px solid #2e7d32; margin-bottom: 20px; }
 body.dark-mode .member-card { background: #2d2d2d; }
-#memberArea > .dashboard-section > div:not(.member-card) { background: #fff; }
-body.dark-mode #memberArea > .dashboard-section > div:not(.member-card) { background: #2d2d2d; color: #eee; }
+.member-notice { background: #fff; padding: 25px; border-radius: 10px; border-left: 5px solid #d32f2f; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+body.dark-mode .member-notice { background: #2d2d2d; color: #eee; }
 
 @media (max-width: 900px) {
 .prices-grid, .hq-container, .investment-grid, .ceo-card { grid-template-columns: 1fr; }
@@ -482,7 +482,6 @@ nav ul li a { display: block; padding: 10px; border-bottom: 1px solid #f0f0f0; t
 </button>
 <button type="button" id="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
 
-<!-- ============ MEMBER BUTTON ============ -->
 <a href="#" class="member-btn" onclick="openMemberLogin(event); return false;" title="Member Login">
     <i class="fa-solid fa-user-lock"></i>
     <span class="am-text">አባል</span>
@@ -534,7 +533,7 @@ nav ul li a { display: block; padding: 10px; border-bottom: 1px solid #f0f0f0; t
             </p>
         </div>
 
-        <div style="background: #fff; padding: 25px; border-radius: 10px; border-left: 5px solid #d32f2f; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div class="member-notice">
             <h3 style="color: #1b5e20; margin-bottom: 15px;">
                 📢
                 <span class="am-text">ልዩ ማስታወሻ ለአባላት</span>
@@ -1717,7 +1716,7 @@ document.getElementById('checkoutModal').addEventListener('click', function (e) 
 document.getElementById('successModal').addEventListener('click', function (e) { if (e.target.id === 'successModal') closeSuccess(); });
 document.getElementById('privacyModal').addEventListener('click', function (e) { if (e.target.id === 'privacyModal') closePrivacy(); });
 
-/* ================= MEMBER AUTH ================= */
+/* ================= MEMBER AUTH — የተስተካከለ ================= */
 
 function openMemberLogin(e) {
     if (e) e.preventDefault();
@@ -1779,36 +1778,56 @@ async function handleMemberLogin(e) {
     }
 }
 
+/* ===== የተስተካከለ showMemberArea ===== */
 function showMemberArea(user) {
     document.getElementById('displayMemberName').textContent = user.full_name || '';
     document.getElementById('displayMemberId').textContent = user.member_id || '';
 
-    // Hide main website content
+    // ዋና ይዘቶችን ደብቅ (null check ያለው)
     const mainContent = document.getElementById('mainContent');
     if (mainContent) mainContent.style.display = 'none';
-    document.querySelector('.ad-banner').style.display = 'none';
-    document.querySelector('.testimonials-section').style.display = 'none';
-    document.querySelector('.newsletter-section').style.display = 'none';
 
-    // Show member area
-    document.getElementById('memberArea').style.display = 'block';
+    const adBanner = document.querySelector('.ad-banner');
+    if (adBanner) adBanner.style.display = 'none';
 
-    // Scroll to top
+    const testimonials = document.querySelector('.testimonials-section');
+    if (testimonials) testimonials.style.display = 'none';
+
+    const newsletter = document.querySelector('.newsletter-section');
+    if (newsletter) newsletter.style.display = 'none';
+
+    const footer = document.querySelector('footer');
+    if (footer) footer.style.display = 'none';
+
+    // የአባል አካባቢ አሳይ
+    const memberArea = document.getElementById('memberArea');
+    if (memberArea) memberArea.style.display = 'block';
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/* ===== የተስተካከለ logoutMember ===== */
 function logoutMember() {
     localStorage.removeItem('gmfc_member');
-    document.getElementById('memberArea').style.display = 'none';
 
-    // Show main content again
+    const memberArea = document.getElementById('memberArea');
+    if (memberArea) memberArea.style.display = 'none';
+
     const mainContent = document.getElementById('mainContent');
     if (mainContent) mainContent.style.display = 'block';
-    document.querySelector('.ad-banner').style.display = '';
-    document.querySelector('.testimonials-section').style.display = '';
-    document.querySelector('.newsletter-section').style.display = '';
 
-    // Reset form
+    const adBanner = document.querySelector('.ad-banner');
+    if (adBanner) adBanner.style.display = '';
+
+    const testimonials = document.querySelector('.testimonials-section');
+    if (testimonials) testimonials.style.display = '';
+
+    const newsletter = document.querySelector('.newsletter-section');
+    if (newsletter) newsletter.style.display = '';
+
+    const footer = document.querySelector('footer');
+    if (footer) footer.style.display = '';
+
     document.getElementById('memberIdInput').value = '';
     document.getElementById('memberPasswordInput').value = '';
     document.getElementById('memberLoginMsg').textContent = '';
