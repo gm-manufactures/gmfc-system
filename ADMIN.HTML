@@ -14,6 +14,7 @@
             --light-bg: #f4f6f4;
             --white: #ffffff;
             --gray: #666;
+            --blue: #1976d2;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--light-bg); display: flex; min-height: 100vh; }
@@ -126,7 +127,7 @@
         .btn-approve:hover { background: var(--primary-green); }
         .btn-reject { background: var(--accent-red); color: white; }
         .btn-delete { background: #666; color: white; }
-        .btn-edit { background: #1976d2; color: white; }
+        .btn-edit { background: var(--blue); color: white; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group.full-width { grid-column: span 2; }
@@ -157,6 +158,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 15px;
         }
         .member-item {
             background: var(--light-bg);
@@ -169,7 +171,7 @@
             border-left: 4px solid var(--secondary-green);
         }
         .member-info strong { display: block; color: var(--dark-green); margin-bottom: 4px; }
-        .member-info small { color: var(--gray); }
+        .member-info small { color: var(--gray); margin-right: 10px; }
         .toast {
             position: fixed;
             bottom: 30px;
@@ -178,7 +180,7 @@
             color: white;
             padding: 12px 20px;
             border-radius: 8px;
-            z-index: 2000;
+            z-index: 4000;
             opacity: 0;
             pointer-events: none;
             transition: 0.3s;
@@ -248,6 +250,7 @@
         <li><a class="active" onclick="showSection('dashboard', this)"><i class="fa-solid fa-chart-line"></i> <span>ዴሽቦርድ</span></a></li>
         <li><a onclick="showSection('applications', this)"><i class="fa-solid fa-clipboard-list"></i> <span>የአክሲዮን ጥያቄዎች</span></a></li>
         <li><a onclick="showSection('members', this)"><i class="fa-solid fa-users"></i> <span>የአባላት አስተዳደር</span></a></li>
+        <li><a onclick="showSection('messages', this)"><i class="fa-solid fa-envelope"></i> <span>መልእክቶች</span></a></li>
         <li><a onclick="showSection('profile', this)"><i class="fa-solid fa-building"></i> <span>ድርጅት መረጃ</span></a></li>
         <li><a onclick="showSection('news', this)"><i class="fa-solid fa-newspaper"></i> <span>ዜና አስተዳደር</span></a></li>
         <li><a onclick="showSection('settings', this)"><i class="fa-solid fa-gear"></i> <span>ዋጋ እና ቅንብሮች</span></a></li>
@@ -266,7 +269,7 @@
             <div class="stat-card"><div><h3 id="total-approved">0</h3><p>የጸደቁ ጥያቄዎች</p></div><div class="stat-icon"><i class="fa-solid fa-user-check"></i></div></div>
             <div class="stat-card"><div><h3 id="total-pending">0</h3><p>በመጠባበቅ ላይ</p></div><div class="stat-icon"><i class="fa-solid fa-clock"></i></div></div>
             <div class="stat-card"><div><h3 id="total-members">0</h3><p>የተመዘገቡ አባላት</p></div><div class="stat-icon"><i class="fa-solid fa-users"></i></div></div>
-            <div class="stat-card"><div><h3 id="total-news">0</h3><p>ዜናዎች</p></div><div class="stat-icon"><i class="fa-solid fa-newspaper"></i></div></div>
+            <div class="stat-card"><div><h3 id="total-messages">0</h3><p>መልእክቶች</p></div><div class="stat-icon"><i class="fa-solid fa-envelope"></i></div></div>
         </div>
         <div class="dashboard-section">
             <div class="section-heading"><i class="fa-solid fa-bell"></i> የቅርብ ጊዜ ጥያቄዎች</div>
@@ -313,6 +316,33 @@
         <div class="dashboard-section">
             <div class="section-heading"><i class="fa-solid fa-users"></i> የተመዘገቡ አባላት</div>
             <div id="members-list">
+                <p style="text-align: center; color: #999;">በመጫን ላይ...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ MESSAGES (አዲስ) -->
+    <div id="messages-section" style="display:none;">
+        <div class="dashboard-section">
+            <div class="section-heading"><i class="fa-solid fa-paper-plane"></i> አዲስ መልእክት መላኪያ</div>
+            <form id="message-form" class="form-grid">
+                <div class="form-group full-width">
+                    <label>የመልእክቱ ርዕስ</label>
+                    <input type="text" id="message-title" placeholder="ለምሳሌ: የጠቅላላ ጉባኤ ማስታወቂያ" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>የመልእክቱ ይዘት</label>
+                    <textarea id="message-content" rows="6" placeholder="መልእክቱን እዚህ ይጻፉ..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-paper-plane"></i> መልእክት ላክ
+                </button>
+            </form>
+        </div>
+
+        <div class="dashboard-section">
+            <div class="section-heading"><i class="fa-solid fa-inbox"></i> የተላኩ መልእክቶች</div>
+            <div id="messages-list">
                 <p style="text-align: center; color: #999;">በመጫን ላይ...</p>
             </div>
         </div>
@@ -423,7 +453,7 @@
     }
 
     function showSection(section, element) {
-        const sections = ['dashboard', 'applications', 'members', 'profile', 'news', 'settings'];
+        const sections = ['dashboard', 'applications', 'members', 'messages', 'profile', 'news', 'settings'];
         sections.forEach(sec => {
             const el = document.getElementById(sec + '-section');
             if (el) el.style.display = 'none';
@@ -440,6 +470,7 @@
         if (section === 'dashboard') loadDashboard();
         if (section === 'applications') loadApplications();
         if (section === 'members') loadMembers();
+        if (section === 'messages') loadMessages();
         if (section === 'profile') loadProfile();
         if (section === 'news') loadNewsList();
         if (section === 'settings') loadSettings();
@@ -458,7 +489,7 @@
 
             const newsRes = await fetch(`${API_BASE}/news`);
             const news = await newsRes.json();
-            document.getElementById('total-news').innerText = news.length || 0;
+            document.getElementById('total-news') && (document.getElementById('total-news').innerText = news.length || 0);
 
             try {
                 const membersRes = await fetch(`${API_BASE}/members`);
@@ -466,6 +497,16 @@
                 document.getElementById('total-members').innerText = members.length || 0;
             } catch (e) {
                 document.getElementById('total-members').innerText = '0';
+            }
+
+            try {
+                const msgRes = await fetch(`${API_BASE}/messages`);
+                const messages = await msgRes.json();
+                const msgEl = document.getElementById('total-messages');
+                if (msgEl) msgEl.innerText = messages.length || 0;
+            } catch (e) {
+                const msgEl = document.getElementById('total-messages');
+                if (msgEl) msgEl.innerText = '0';
             }
 
             const recent = apps.slice(0, 5);
@@ -664,6 +705,95 @@
             showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
         }
     });
+
+    /* ================= MESSAGES (አዲስ) ================= */
+    async function loadMessages() {
+        const container = document.getElementById('messages-list');
+        container.innerHTML = '<p style="text-align:center;color:#999;">በመጫን ላይ...</p>';
+
+        try {
+            const response = await fetch(`${API_BASE}/messages`);
+            if (!response.ok) throw new Error('Failed to load');
+            const messages = await response.json();
+
+            if (!messages || messages.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;">ምንም መልእክቶች የሉም። አዲስ መልእክት ይላኩ።</p>';
+                return;
+            }
+
+            container.innerHTML = messages.map(m => `
+                <div class="news-item" style="border-left: 4px solid var(--blue); align-items: flex-start;">
+                    <div style="flex:1;">
+                        <strong style="color: var(--primary-green); display:block; margin-bottom:8px; font-size:15px;">
+                            📌 ${m.title}
+                        </strong>
+                        <p style="color:#555; margin-bottom:8px; line-height:1.6; white-space:pre-wrap;">${m.content}</p>
+                        <small style="color:#999;">
+                            👤 ${m.sender || 'Admin'} &nbsp;•&nbsp;
+                            📅 ${new Date(m.created_at).toLocaleString()}
+                        </small>
+                    </div>
+                    <button class="btn btn-delete" onclick="deleteMessage(${m.id})" title="ሰርዝ">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        } catch (err) {
+            console.error('Error loading messages:', err);
+            container.innerHTML = '<p style="text-align:center;color:#d32f2f;">መልእክቶችን መጫን አልተቻለም። ሰርቨሩ መስራቱን ያረጋግጡ።</p>';
+        }
+    }
+
+    document.getElementById('message-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            title: document.getElementById('message-title').value.trim(),
+            content: document.getElementById('message-content').value.trim(),
+            sender: 'Admin'
+        };
+
+        if (!payload.title || !payload.content) {
+            showToast('❌ ርዕስ እና ይዘት ያስፈልጋሉ', true);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                showToast('✅ መልእክት በተሳካ ሁኔታ ተልኳል!');
+                document.getElementById('message-form').reset();
+                loadMessages();
+                loadDashboard();
+            } else {
+                showToast('❌ ' + (data.error || 'ስህተት ተከስቷል'), true);
+            }
+        } catch (err) {
+            showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+        }
+    });
+
+    async function deleteMessage(id) {
+        if (!confirm('ይህን መልእክት መሰረዝ ይፈልጋሉ?')) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/messages/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                showToast('✅ መልእክት ተሰርዟል');
+                loadMessages();
+                loadDashboard();
+            } else {
+                showToast('❌ ስህተት ተከስቷል', true);
+            }
+        } catch (err) {
+            showToast('ከሰርቨሩ ጋር መገናኘት አልተቻለም', true);
+        }
+    }
 
     /* ================= PROFILE ================= */
     async function loadProfile() {
