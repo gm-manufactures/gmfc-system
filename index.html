@@ -548,6 +548,23 @@ nav ul li a { display: block; padding: 10px; border-bottom: 1px solid #f0f0f0; t
             </p>
         </div>
 
+        <!-- ============ ✅ አዲስ: የተላኩ መልእክቶች ክፍል ============ -->
+        <div style="background: #fff; padding: 25px; border-radius: 10px; border-left: 5px solid #1976d2; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3 style="color: #1976d2; margin-bottom: 15px;">
+                ✉️
+                <span class="am-text">የተላኩ መልእክቶች</span>
+                <span class="en-text">Received Messages</span>
+                <span class="ar-text">الرسائل الواردة</span>
+            </h3>
+            <div id="member-messages-list">
+                <p style="text-align: center; color: #999; margin: 15px 0;">
+                    <span class="am-text">በመጫን ላይ...</span>
+                    <span class="en-text">Loading...</span>
+                    <span class="ar-text">جار التحميل...</span>
+                </p>
+            </div>
+        </div>
+
         <button class="btn" style="margin-top: 25px; background: #d32f2f; border-color: #d32f2f;" onclick="logoutMember()">
             <i class="fa-solid fa-sign-out-alt"></i>
             <span class="am-text">ውጣ</span>
@@ -1779,6 +1796,39 @@ async function handleMemberLogin(e) {
     }
 }
 
+/* ================= ✅ MEMBER MESSAGES ================= */
+async function loadMemberMessages() {
+    const container = document.getElementById('member-messages-list');
+    if (!container) return;
+
+    container.innerHTML = '<p style="text-align:center;color:#999;">በመጫን ላይ...</p>';
+
+    try {
+        const response = await fetch(API_BASE + '/messages');
+        const messages = await response.json();
+
+        if (!messages || messages.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#999;">📭 እስካሁን ምንም መልእክት አልተላከም።</p>';
+            return;
+        }
+
+        container.innerHTML = messages.map(m => `
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #1976d2;">
+                <strong style="color:#1b5e20; display:block; margin-bottom:8px; font-size:15px;">
+                    📌 ${m.title}
+                </strong>
+                <p style="color:#444; margin-bottom:8px; line-height:1.7; white-space:pre-wrap;">${m.content}</p>
+                <small style="color:#999; font-size:12px;">
+                    👤 ${m.sender || 'Admin'} &nbsp;•&nbsp; 📅 ${new Date(m.created_at).toLocaleString()}
+                </small>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error('Error loading member messages:', err);
+        container.innerHTML = '<p style="text-align:center;color:#d32f2f;">❌ መልእክቶችን መጫን አልተቻለም።</p>';
+    }
+}
+
 function showMemberArea(user) {
     document.getElementById('displayMemberName').textContent = user.full_name || '';
     document.getElementById('displayMemberId').textContent = user.member_id || '';
@@ -1786,12 +1836,21 @@ function showMemberArea(user) {
     // Hide main website content
     const mainContent = document.getElementById('mainContent');
     if (mainContent) mainContent.style.display = 'none';
-    document.querySelector('.ad-banner').style.display = 'none';
-    document.querySelector('.testimonials-section').style.display = 'none';
-    document.querySelector('.newsletter-section').style.display = 'none';
+    
+    const adBanner = document.querySelector('.ad-banner');
+    if (adBanner) adBanner.style.display = 'none';
+    
+    const testimonials = document.querySelector('.testimonials-section');
+    if (testimonials) testimonials.style.display = 'none';
+    
+    const newsletter = document.querySelector('.newsletter-section');
+    if (newsletter) newsletter.style.display = 'none';
 
     // Show member area
     document.getElementById('memberArea').style.display = 'block';
+
+    // ✅ መልእክቶችን ጫን
+    loadMemberMessages();
 
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1804,9 +1863,15 @@ function logoutMember() {
     // Show main content again
     const mainContent = document.getElementById('mainContent');
     if (mainContent) mainContent.style.display = 'block';
-    document.querySelector('.ad-banner').style.display = '';
-    document.querySelector('.testimonials-section').style.display = '';
-    document.querySelector('.newsletter-section').style.display = '';
+    
+    const adBanner = document.querySelector('.ad-banner');
+    if (adBanner) adBanner.style.display = '';
+    
+    const testimonials = document.querySelector('.testimonials-section');
+    if (testimonials) testimonials.style.display = '';
+    
+    const newsletter = document.querySelector('.newsletter-section');
+    if (newsletter) newsletter.style.display = '';
 
     // Reset form
     document.getElementById('memberIdInput').value = '';
