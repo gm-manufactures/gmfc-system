@@ -103,6 +103,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Admin route - serve admin.html
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
 // Get company profile
 app.get('/api/profile', (req, res) => {
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
@@ -270,6 +275,16 @@ app.put('/api/settings', (req, res) => {
 
 // ============= MEMBER AUTH ROUTES =============
 
+// Get all registered members (For Admin)
+app.get('/api/members', (req, res) => {
+    db.all("SELECT id, member_id, full_name, created_at FROM members ORDER BY created_at DESC", (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
+});
+
 // Register a new member (For admin use)
 app.post('/api/members', (req, res) => {
     const { member_id, full_name, password } = req.body;
@@ -291,6 +306,37 @@ app.post('/api/members', (req, res) => {
             res.json({ success: true, message: "Member registered successfully", id: this.lastID });
         }
     );
+});
+
+// Update member (For Admin)
+app.put('/api/members/:id', (req, res) => {
+    const { id } = req.params;
+    const { full_name, password } = req.body;
+
+    db.run(
+        `UPDATE members SET 
+            full_name = COALESCE(?, full_name),
+            password = COALESCE(?, password)
+         WHERE id = ?`,
+        [full_name, password, id],
+        function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ success: true, message: "Member updated successfully" });
+        }
+    );
+});
+
+// Delete member (For Admin)
+app.delete('/api/members/:id', (req, res) => {
+    const { id } = req.params;
+    db.run(`DELETE FROM members WHERE id = ?`, [id], function (err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ success: true });
+    });
 });
 
 // Login member
@@ -336,9 +382,15 @@ app.get('/api/stats', (req, res) => {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
-            res.json({
-                totalApproved: approved?.total || 0,
-                totalPending: pending?.total || 0
+            db.get("SELECT COUNT(*) as total FROM members", (err, members) => {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+                res.json({
+                    totalApproved: approved?.total || 0,
+                    totalPending: pending?.total || 0,
+                    totalMembers: members?.total || 0
+                });
             });
         });
     });
@@ -353,5 +405,6 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ GMFC Server running on port ${PORT}`);
     console.log(`📍 URL: http://localhost:${PORT}`);
+    console.log(`🔐 Admin: http://localhost:${PORT}/admin`);
     console.log(`🩺 Health: http://localhost:${PORT}/api/health`);
 });
