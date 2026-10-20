@@ -56,6 +56,15 @@ db.serialize(() => {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
+    // Members table
+    db.run(`CREATE TABLE IF NOT EXISTS members (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        member_id TEXT UNIQUE NOT NULL,
+        full_name TEXT NOT NULL,
+        password TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
     // Insert default company profile if not exists
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
         if (err) return console.error(err.message);
@@ -104,7 +113,6 @@ db.serialize(() => {
                 ['grade4_price', '2.74'],
                 ['grade5_price', '3.50']
             ];
-
             defaults.forEach(([key, value]) => {
                 db.run(
                     `INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`,
@@ -114,6 +122,14 @@ db.serialize(() => {
                     }
                 );
             });
+        }
+    });
+
+    // Insert default member for testing
+    db.get("SELECT * FROM members WHERE member_id = 'GMFC001'", (err, row) => {
+        if (err) return console.error(err.message);
+        if (!row) {
+            db.run(`INSERT INTO members (member_id, full_name, password) VALUES ('GMFC001', 'Test Member', 'pass123')`);
         }
     });
 });
@@ -275,7 +291,7 @@ app.get('/api/settings', (req, res) => {
     });
 });
 
-// Update Settings (UPSERT — inserts if key doesn't exist)
+// Update Settings (UPSERT)
 app.put('/api/settings', (req, res) => {
     const updates = req.body;
 
@@ -296,6 +312,64 @@ app.put('/api/settings', (req, res) => {
     Promise.all(queries)
         .then(() => res.json({ success: true, message: "Settings updated successfully" }))
         .catch(err => res.status(500).json({ error: err.message }));
+});
+
+// ============= MEMBER AUTH ROUTES =============
+
+// Register a new member (For admin use)
+app.post('/api/members', (req, res) => {
+    const { member_id, full_name, password } = req.body;
+
+    if (!member_id || !full_name || !password) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    db.run(
+        `INSERT INTO members (member_id, full_name, password) VALUES (?, ?, ?)`,
+        [member_id, full_name, password],
+        function (err) {
+            if (err) {
+                if (err.message.includes('UNIQUE')) {
+                    return res.status(400).json({ error: "Member ID already exists" });
+                }
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ success: true, message: "Member registered successfully", id: this.lastID });
+        }
+    );
+});
+
+// Login member
+app.post('/api/login', (req, res) => {
+    const { member_id, password } = req.body;
+
+    if (!member_id || !password) {
+        return res.status(400).json({ error: "Member ID and Password are required" });
+    }
+
+    db.get(
+        `SELECT * FROM members WHERE member_id = ? AND password = ?`,
+        [member_id, password],
+        (err, row) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            if (!row) {
+                return res.status(401).json({ error: "Invalid Member ID or Password" });
+            }
+
+            // Success
+            res.json({
+                success: true,
+                message: "Login successful",
+                user: {
+                    id: row.id,
+                    member_id: row.member_id,
+                    full_name: row.full_name
+                }
+            });
+        }
+    );
 });
 
 // Get statistics
