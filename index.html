@@ -76,6 +76,25 @@ header { background-color: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.08); pos
 .cart-btn:hover { background: #d32f2f !important; }
 .cart-count { position: absolute; top: -6px; right: -6px; background: #ffb300; color: #1b5e20; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
 
+/* ============ MEMBER BUTTON ============ */
+.member-btn {
+    background: #1b5e20;
+    color: #fff !important;
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px !important;
+    text-decoration: none;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s;
+}
+.member-btn:hover { background: #d32f2f !important; }
+body.dark-mode .member-btn { background: #a5d6a7; color: #1b5e20 !important; }
+
 .live-rate-badge { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
 .live-rate-badge i { color: #2e7d32; }
 
@@ -391,6 +410,13 @@ footer .footer-divider { width: 50px; height: 2px; background: #2e7d32; margin: 
 .success-icon i { font-size: 60px; color: #2e7d32; animation: bounceIn 0.6s; }
 @keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
 
+/* ============ MEMBER AREA STYLES ============ */
+.dashboard-section { max-width: 900px; margin: 0 auto; }
+.member-card { background: linear-gradient(135deg, #f1f8e9, #e8f5e9); padding: 20px; border-radius: 10px; border-left: 5px solid #2e7d32; margin-bottom: 20px; }
+body.dark-mode .member-card { background: #2d2d2d; }
+#memberArea > .dashboard-section > div:not(.member-card) { background: #fff; }
+body.dark-mode #memberArea > .dashboard-section > div:not(.member-card) { background: #2d2d2d; color: #eee; }
+
 @media (max-width: 900px) {
 .prices-grid, .hq-container, .investment-grid, .ceo-card { grid-template-columns: 1fr; }
 .stats-container { flex-wrap: wrap; }
@@ -455,6 +481,15 @@ nav ul li a { display: block; padding: 10px; border-bottom: 1px solid #f0f0f0; t
 <span id="langLabel">EN</span>
 </button>
 <button type="button" id="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+
+<!-- ============ MEMBER BUTTON ============ -->
+<a href="#" class="member-btn" onclick="openMemberLogin(event); return false;" title="Member Login">
+    <i class="fa-solid fa-user-lock"></i>
+    <span class="am-text">አባል</span>
+    <span class="en-text">Member</span>
+    <span class="ar-text">عضو</span>
+</a>
+
 <a href="#" class="cart-btn" onclick="openCart(event); return false;">
 <i class="fa-solid fa-shopping-cart"></i>
 <span class="cart-count" id="cartCount">0</span>
@@ -478,6 +513,52 @@ nav ul li a { display: block; padding: 10px; border-bottom: 1px solid #f0f0f0; t
 </nav>
 </div>
 </header>
+
+<!-- ============ MEMBER AREA (Hidden by default) ============ -->
+<div id="memberArea" style="display:none; padding: 60px 20px; max-width: 900px; margin: 0 auto;">
+    <div class="dashboard-section">
+        <h2 class="section-title">
+            <span class="am-text">እንኳን ደህና መጡ! 🎉</span>
+            <span class="en-text">Welcome! 🎉</span>
+            <span class="ar-text">مرحباً! 🎉</span>
+        </h2>
+
+        <div class="member-card">
+            <p style="font-size: 16px; margin: 8px 0;">
+                👤 <strong><span class="am-text">ሙሉ ስም:</span><span class="en-text">Full Name:</span><span class="ar-text">الاسم:</span></strong>
+                <span id="displayMemberName"></span>
+            </p>
+            <p style="font-size: 16px; margin: 8px 0;">
+                🆔 <strong><span class="am-text">የአባልነት መለያ:</span><span class="en-text">Member ID:</span><span class="ar-text">معرف العضو:</span></strong>
+                <span id="displayMemberId"></span>
+            </p>
+        </div>
+
+        <div style="background: #fff; padding: 25px; border-radius: 10px; border-left: 5px solid #d32f2f; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3 style="color: #1b5e20; margin-bottom: 15px;">
+                📢
+                <span class="am-text">ልዩ ማስታወሻ ለአባላት</span>
+                <span class="en-text">Special Notice for Members</span>
+                <span class="ar-text">إشعار خاص للأعضاء</span>
+            </h3>
+            <p style="color: #555; line-height: 1.8;">
+                <span class="am-text">ይህ መልእክት ለአባላት ብቻ የተመደበ ነው። በቅርቡ ስለሚደረጉ ጠቅላላ ጉባኤዎች፣ ልዩ የአክሲዮን ዝመናዎች እና የትርፍ ድርሻ መረጃዎች እዚህ ይለጠፋሉ።</span>
+                <span class="en-text">This message is reserved for members only. Information about upcoming general meetings, special share updates, and dividend details will be posted here.</span>
+                <span class="ar-text">هذه الرسالة مخصصة للأعضاء فقط. سيتم نشر معلومات حول الاجتماعات العامة القادمة وتحديثات الأسهم الخاصة وتفاصيل الأرباح هنا.</span>
+            </p>
+        </div>
+
+        <button class="btn" style="margin-top: 25px; background: #d32f2f; border-color: #d32f2f;" onclick="logoutMember()">
+            <i class="fa-solid fa-sign-out-alt"></i>
+            <span class="am-text">ውጣ</span>
+            <span class="en-text">Logout</span>
+            <span class="ar-text">خروج</span>
+        </button>
+    </div>
+</div>
+
+<!-- ============ MAIN WEBSITE CONTENT ============ -->
+<div id="mainContent">
 
 <section id="home" class="hero">
 <div class="hero-content">
@@ -1060,6 +1141,8 @@ new TradingView.widget({
 </div>
 </section>
 
+</div><!-- /#mainContent -->
+
 <footer>
 <div class="footer-content">
 <img src="logo.png" alt="GMFC Logo" class="footer-logo-img">
@@ -1199,6 +1282,52 @@ new TradingView.widget({
 </div>
 </div>
 </div>
+</div>
+
+<!-- ============ MEMBER LOGIN MODAL ============ -->
+<div class="modal-overlay" id="memberLoginModal">
+    <div class="modal-content" style="max-width: 420px;">
+        <div class="modal-header">
+            <h3>
+                <i class="fa-solid fa-user-lock"></i>
+                <span class="am-text">የአባላት መግቢያ</span>
+                <span class="en-text">Member Login</span>
+                <span class="ar-text">دخول الأعضاء</span>
+            </h3>
+            <button type="button" class="modal-close" onclick="closeMemberLogin()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form onsubmit="handleMemberLogin(event)">
+                <div class="form-group">
+                    <label>
+                        <span class="am-text">የአባልነት መለያ ቁጥር</span>
+                        <span class="en-text">Member ID</span>
+                        <span class="ar-text">معرف العضو</span>
+                        <span class="required">*</span>
+                    </label>
+                    <input type="text" id="memberIdInput" placeholder="GMFC001" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <span class="am-text">የይለፍ ቃል</span>
+                        <span class="en-text">Password</span>
+                        <span class="ar-text">كلمة المرور</span>
+                        <span class="required">*</span>
+                    </label>
+                    <input type="password" id="memberPasswordInput" placeholder="••••••" required autocomplete="current-password">
+                </div>
+                <p id="memberLoginMsg" style="text-align:center; font-size:13px; margin:10px 0; min-height:18px;"></p>
+                <button type="submit" class="btn-submit-order" id="memberLoginBtn">
+                    <i class="fa-solid fa-sign-in-alt"></i>
+                    <span class="am-text">ግባ</span>
+                    <span class="en-text">Login</span>
+                    <span class="ar-text">دخول</span>
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <div class="float-buttons">
@@ -1587,6 +1716,130 @@ function subscribeNewsletter(e) {
 document.getElementById('checkoutModal').addEventListener('click', function (e) { if (e.target.id === 'checkoutModal') closeCheckout(); });
 document.getElementById('successModal').addEventListener('click', function (e) { if (e.target.id === 'successModal') closeSuccess(); });
 document.getElementById('privacyModal').addEventListener('click', function (e) { if (e.target.id === 'privacyModal') closePrivacy(); });
+
+/* ================= MEMBER AUTH ================= */
+
+function openMemberLogin(e) {
+    if (e) e.preventDefault();
+    document.getElementById('memberLoginModal').classList.add('active');
+}
+
+function closeMemberLogin() {
+    document.getElementById('memberLoginModal').classList.remove('active');
+    document.getElementById('memberLoginMsg').textContent = '';
+}
+
+async function handleMemberLogin(e) {
+    e.preventDefault();
+
+    const member_id = document.getElementById('memberIdInput').value.trim();
+    const password = document.getElementById('memberPasswordInput').value;
+    const msgEl = document.getElementById('memberLoginMsg');
+    const btn = document.getElementById('memberLoginBtn');
+
+    if (!member_id || !password) {
+        msgEl.style.color = '#d32f2f';
+        msgEl.textContent = '❌ እባክዎ ሁሉንም መስኮች ይሙሉ።';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> በመግባት ላይ...';
+    msgEl.textContent = '';
+
+    try {
+        const response = await fetch(API_BASE + '/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ member_id, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            msgEl.style.color = '#2e7d32';
+            msgEl.textContent = '✅ በተሳካ ሁኔታ ገብተዋል!';
+
+            localStorage.setItem('gmfc_member', JSON.stringify(data.user));
+
+            setTimeout(() => {
+                closeMemberLogin();
+                showMemberArea(data.user);
+            }, 500);
+        } else {
+            msgEl.style.color = '#d32f2f';
+            msgEl.textContent = '❌ ' + (data.error || 'የተሳሳተ የአባልነት መለያ ወይም የይለፍ ቃል።');
+        }
+    } catch (err) {
+        msgEl.style.color = '#d32f2f';
+        msgEl.textContent = '❌ የኔትወርክ ስህተት፦ ' + err.message;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-sign-in-alt"></i> ግባ';
+    }
+}
+
+function showMemberArea(user) {
+    document.getElementById('displayMemberName').textContent = user.full_name || '';
+    document.getElementById('displayMemberId').textContent = user.member_id || '';
+
+    // Hide main website content
+    const mainContent = document.getElementById('mainContent');
+    if (mainContent) mainContent.style.display = 'none';
+    document.querySelector('.ad-banner').style.display = 'none';
+    document.querySelector('.testimonials-section').style.display = 'none';
+    document.querySelector('.newsletter-section').style.display = 'none';
+
+    // Show member area
+    document.getElementById('memberArea').style.display = 'block';
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function logoutMember() {
+    localStorage.removeItem('gmfc_member');
+    document.getElementById('memberArea').style.display = 'none';
+
+    // Show main content again
+    const mainContent = document.getElementById('mainContent');
+    if (mainContent) mainContent.style.display = 'block';
+    document.querySelector('.ad-banner').style.display = '';
+    document.querySelector('.testimonials-section').style.display = '';
+    document.querySelector('.newsletter-section').style.display = '';
+
+    // Reset form
+    document.getElementById('memberIdInput').value = '';
+    document.getElementById('memberPasswordInput').value = '';
+    document.getElementById('memberLoginMsg').textContent = '';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Auto-login on page load
+window.addEventListener('load', function () {
+    try {
+        const saved = localStorage.getItem('gmfc_member');
+        if (saved) {
+            const user = JSON.parse(saved);
+            if (user && user.member_id) {
+                showMemberArea(user);
+            }
+        }
+    } catch (e) {
+        localStorage.removeItem('gmfc_member');
+    }
+});
+
+// Close member modal on backdrop click
+document.addEventListener('DOMContentLoaded', function () {
+    const m = document.getElementById('memberLoginModal');
+    if (m) {
+        m.addEventListener('click', function (e) {
+            if (e.target.id === 'memberLoginModal') closeMemberLogin();
+        });
+    }
+});
 </script>
 
 <!--Start of Tawk.to Script-->
