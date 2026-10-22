@@ -287,6 +287,36 @@ app.delete('/api/messages/:id', (req, res) => {
         res.json({ success: true });
     });
 });
+// ============= CHAT ROUTES =============
+
+// Send a message
+app.post('/api/chats', (req, res) => {
+    const { member_id, sender_type, message } = req.body;
+    if (!member_id  !sender_type  !message) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+    db.run(
+        INSERT INTO chats (member_id, sender_type, message) VALUES (?, ?, ?),
+        [member_id, sender_type, message],
+        function (err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true, id: this.lastID });
+        }
+    );
+});
+
+// Get messages for a specific member
+app.get('/api/chats/:member_id', (req, res) => {
+    const { member_id } = req.params;
+    db.all(
+        SELECT * FROM chats WHERE member_id = ? ORDER BY created_at ASC, 
+        [member_id], 
+        (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(rows);
+        }
+    );
+});
 
 // ============= 🔴 PRODUCTS ROUTES (MongoDB) =============
 app.post('/api/products', async (req, res) => {
