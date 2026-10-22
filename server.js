@@ -1,5 +1,3 @@
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '1.1.1.1']); // የጎግል እና የCloudflare DNS እንዲጠቀም ለማስገደድ
 const express = require('express');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
@@ -18,10 +16,12 @@ app.use(express.static('.'));
 // ==========================================
 // 🔴 MongoDB Connection (ለ Products ብቻ)
 // ==========================================
-// ⚠️ እዚህ ጋር የራስህን የMongoDB ሊንክ ማስገባትህን አረጋግጥ
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gambella_admin:Admin123!@gammajmembers.di2ho2h.mongodb.net/gambella_coffee_union?retryWrites=true&w=majority';
 
-mongoose.connect(MONGODB_URI)
+mongoose.connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
   .then(() => console.log('✅ MongoDB Connected for Products'))
   .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
