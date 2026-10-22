@@ -313,6 +313,21 @@ app.get('/api/products', async (req, res) => {
         res.status(500).json({ error: "Failed to fetch products" });
     }
 });
+// Delete Product (ማጥፊያ)
+app.delete('/api/products/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedProduct = await Product.findByIdAndDelete(id);
+        
+        if (!deletedProduct) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+        res.json({ success: true, message: "Product deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        res.status(500).json({ error: "Failed to delete product" });
+    }
+});
 
 app.get('/api/stats', (req, res) => {
     db.get("SELECT COUNT(*) as total FROM applications WHERE status = 'approved'", (err, approved) => {
