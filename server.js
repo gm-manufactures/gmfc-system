@@ -328,6 +328,28 @@ app.delete('/api/products/:id', async (req, res) => {
         res.status(500).json({ error: "Failed to delete product" });
     }
 });
+// Update Product (ማስተካከያ)
+app.put('/api/products/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, price, category, description } = req.body;
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            id,
+            { title, price, category, description },
+            { new: true } // የተሻሻለውን አዲስ መረጃ እንዲመልስ
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
+        res.json({ success: true, message: "Product updated successfully", product: updatedProduct });
+    } catch (error) {
+        console.error("Error updating product:", error);
+        res.status(500).json({ error: "Failed to update product" });
+    }
+});
 
 app.get('/api/stats', (req, res) => {
     db.get("SELECT COUNT(*) as total FROM applications WHERE status = 'approved'", (err, approved) => {
