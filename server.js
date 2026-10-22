@@ -8,7 +8,9 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+// 🔴 ፎቶዎች (Base64) ስለሚላኩ የ JSON መጠን ገደብ ከፍ አድርገነዋል
+app.use(express.json({ limit: '50mb' })); 
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static('.'));
 
 // SQLite Database
@@ -31,8 +33,20 @@ db.serialize(() => {
     // Members table
     db.run(`CREATE TABLE IF NOT EXISTS members ( id INTEGER PRIMARY KEY AUTOINCREMENT, member_id TEXT UNIQUE NOT NULL, full_name TEXT NOT NULL, password TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
 
-    // ✅ NEW: Messages table
+    // Messages table
     db.run(`CREATE TABLE IF NOT EXISTS messages ( id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, content TEXT NOT NULL, sender TEXT DEFAULT 'Admin', created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
+
+    // 🔴 NEW: Products table (ለግብይት ገጽ)
+    db.run(`CREATE TABLE IF NOT EXISTS products ( 
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        title TEXT NOT NULL, 
+        price TEXT NOT NULL, 
+        category TEXT NOT NULL, 
+        description TEXT, 
+        image TEXT, 
+        seller_name TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP 
+    )`);
 
     // Insert default company profile if not exists
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
@@ -361,7 +375,6 @@ app.post('/api/login', (req, res) => {
                 return res.status(401).json({ error: "Invalid Member ID or Password" });
             }
 
-            // Success
             res.json({
                 success: true,
                 message: "Login successful",
@@ -375,7 +388,7 @@ app.post('/api/login', (req, res) => {
     );
 });
 
-// ============= MESSAGES ROUTES (አዲስ) =============
+// ============= MESSAGES ROUTES =============
 
 // Get all messages
 app.get('/api/messages', (req, res) => {
@@ -417,6 +430,40 @@ app.delete('/api/messages/:id', (req, res) => {
         res.json({ success: true });
     });
 });
+
+// ============= PRODUCTS ROUTES (አዲስ የተጨመረ) =============
+
+// አዲስ እቃ መመዝገብ (Add Product)
+app.post('/api/products', (req, res) => {
+    const { title, price, category, description, image, seller_name } = req.body;
+
+    if (!title || !price || !category) {
+        return res.status(400).json({ error: "Title, price and category are required" });
+    }
+
+    db.run(
+        `INSERT INTO products (title, price, category, description, image, seller_name) VALUES (?, ?, ?, ?, ?, ?)`,
+        [title, price, category, description || '', image || '', seller_name || 'GMFC Admin'],
+        function (err) {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json({ success: true, message: "Product added successfully", id: this.lastID });
+        }
+    );
+});
+
+// ሁሉንም እቃዎች ማምጣት (Get All Products)
+app.get('/api/products', (req, res) => {
+    db.all("SELECT * FROM products ORDER BY created_at DESC", (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
+});
+
+// ============= STATS ROUTES =============
 
 // Get statistics
 app.get('/api/stats', (req, res) => {
