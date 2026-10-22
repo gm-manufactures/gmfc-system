@@ -17,7 +17,7 @@ app.use(express.static('.'));
 // 🔴 MongoDB Connection (ለ Products ብቻ)
 // ==========================================
 // ⚠️ እባክህ የራስህን የ MongoDB ሊንክ እዚህ አስገባ
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gambella_admin:Admin123!@gammajmembers.di2ho2h.mongodb.net/gambella_coffee_union?retrywrites=majority';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gambella_admin:Admin123!@gammajmembers.di2ho2h.mongodb.net/gambella_coffee_union?retrywrites=true&W=majority';
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('✅ MongoDB Connected for Products'))
