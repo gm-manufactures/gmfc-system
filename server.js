@@ -65,8 +65,6 @@ db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS settings ( id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
     db.run(`CREATE TABLE IF NOT EXISTS members ( id INTEGER PRIMARY KEY AUTOINCREMENT, member_id TEXT UNIQUE NOT NULL, full_name TEXT NOT NULL, password TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
     db.run(`CREATE TABLE IF NOT EXISTS messages ( id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, content TEXT NOT NULL, sender TEXT DEFAULT 'Admin', created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
-    
-    // ✅ የጎደለው የባክቲክ ምልክት (`) ተጨምሯል
     db.run(`CREATE TABLE IF NOT EXISTS chats ( id INTEGER PRIMARY KEY AUTOINCREMENT, member_id TEXT NOT NULL, sender_type TEXT NOT NULL, message TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
 
     // Company Profile
@@ -295,7 +293,6 @@ app.delete('/api/messages/:id', (req, res) => {
 // Send a message
 app.post('/api/chats', (req, res) => {
     const { member_id, sender_type, message } = req.body;
-    // ✅ የጎደለው '||' ኦፕሬተር ተጨምሯል
     if (!member_id || !sender_type || !message) {
         return res.status(400).json({ error: "All fields are required" });
     }
@@ -309,10 +306,17 @@ app.post('/api/chats', (req, res) => {
     );
 });
 
+// ✅ Get all members who have chatted (For Admin) - ከ ':member_id' ሮውት ውጭ ተዛውሯል
+app.get('/api/admin/chats', (req, res) => {
+    db.all("SELECT DISTINCT member_id FROM chats", (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
 // Get messages for a specific member
 app.get('/api/chats/:member_id', (req, res) => {
     const { member_id } = req.params;
-    // ✅ የጎደለው የባክቲክ ምልክት (`) ተጨምሯል
     db.all(
         `SELECT * FROM chats WHERE member_id = ? ORDER BY created_at ASC`, 
         [member_id], 
