@@ -65,8 +65,10 @@ db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS settings ( id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
     db.run(`CREATE TABLE IF NOT EXISTS members ( id INTEGER PRIMARY KEY AUTOINCREMENT, member_id TEXT UNIQUE NOT NULL, full_name TEXT NOT NULL, password TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
     db.run(`CREATE TABLE IF NOT EXISTS messages ( id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, content TEXT NOT NULL, sender TEXT DEFAULT 'Admin', created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
-    // Chat messages table
-db.run(CREATE TABLE IF NOT EXISTS chats ( id INTEGER PRIMARY KEY AUTOINCREMENT, member_id TEXT NOT NULL, sender_type TEXT NOT NULL, message TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP ));
+    
+    // ✅ የጎደለው የባክቲክ ምልክት (`) ተጨምሯል
+    db.run(`CREATE TABLE IF NOT EXISTS chats ( id INTEGER PRIMARY KEY AUTOINCREMENT, member_id TEXT NOT NULL, sender_type TEXT NOT NULL, message TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
+
     // Company Profile
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
         if (!row) {
@@ -287,16 +289,18 @@ app.delete('/api/messages/:id', (req, res) => {
         res.json({ success: true });
     });
 });
+
 // ============= CHAT ROUTES =============
 
 // Send a message
 app.post('/api/chats', (req, res) => {
     const { member_id, sender_type, message } = req.body;
-    if (!member_id  !sender_type  !message) {
+    // ✅ የጎደለው '||' ኦፕሬተር ተጨምሯል
+    if (!member_id || !sender_type || !message) {
         return res.status(400).json({ error: "All fields are required" });
     }
     db.run(
-        INSERT INTO chats (member_id, sender_type, message) VALUES (?, ?, ?),
+        `INSERT INTO chats (member_id, sender_type, message) VALUES (?, ?, ?)`,
         [member_id, sender_type, message],
         function (err) {
             if (err) return res.status(500).json({ error: err.message });
@@ -308,8 +312,9 @@ app.post('/api/chats', (req, res) => {
 // Get messages for a specific member
 app.get('/api/chats/:member_id', (req, res) => {
     const { member_id } = req.params;
+    // ✅ የጎደለው የባክቲክ ምልክት (`) ተጨምሯል
     db.all(
-        SELECT * FROM chats WHERE member_id = ? ORDER BY created_at ASC, 
+        `SELECT * FROM chats WHERE member_id = ? ORDER BY created_at ASC`, 
         [member_id], 
         (err, rows) => {
             if (err) return res.status(500).json({ error: err.message });
@@ -344,6 +349,7 @@ app.get('/api/products', async (req, res) => {
         res.status(500).json({ error: "Failed to fetch products" });
     }
 });
+
 // Delete Product (ማጥፊያ)
 app.delete('/api/products/:id', async (req, res) => {
     try {
@@ -359,6 +365,7 @@ app.delete('/api/products/:id', async (req, res) => {
         res.status(500).json({ error: "Failed to delete product" });
     }
 });
+
 // Update Product (ማስተካከያ)
 app.put('/api/products/:id', async (req, res) => {
     try {
@@ -368,7 +375,7 @@ app.put('/api/products/:id', async (req, res) => {
         const updatedProduct = await Product.findByIdAndUpdate(
             id,
             { title, price, category, description },
-            { new: true } // የተሻሻለውን አዲስ መረጃ እንዲመልስ
+            { new: true }
         );
 
         if (!updatedProduct) {
