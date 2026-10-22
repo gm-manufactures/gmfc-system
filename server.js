@@ -20,7 +20,7 @@ app.use(express.static('.'));
 // ==========================================
 // 🔴 MongoDB Connection
 // ==========================================
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gambella_admin:Admin123!@gammajmembers.di2ho2h.mongodb.net/gambella_coffee_union?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gambella_admin:Admin123%21@gammajmembers.di2ho2h.mongodb.net/gambella_coffee_union?retryWrites=true&w=majority';
 
 mongoose.connect(MONGODB_URI, {
     serverSelectionTimeoutMS: 60000,
