@@ -1,5 +1,5 @@
 const dns = require('dns');
-// DNS ችግርን ለመፍታት የጎግል እና የCloudflare DNS እንጠቀም
+// በRender ላይ የMongoDB Atlas ግንኙነት እንዳይቋረጥ የDNS ማስተካከያ
 dns.setServers(['8.8.8.8', '1.1.1.1']); 
 
 const express = require('express');
@@ -26,10 +26,8 @@ mongoose.connect(MONGODB_URI, {
     serverSelectionTimeoutMS: 60000,
     connectTimeoutMS: 60000,
     socketTimeoutMS: 60000,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
 })
-.then(() => console.log('✅ MongoDB Connected for Products'))
+.then(() => console.log('✅ MongoDB Connected for Products, News, Members & Settings'))
 .catch(err => {
     console.error('❌ MongoDB Connection Error:', err.message);
     if (err.message.includes('querySrv')) {
@@ -38,6 +36,10 @@ mongoose.connect(MONGODB_URI, {
         console.error('💡 የይለፍ ቃል ስህተት ነው። በMONGODB_URI ውስጥ ያለውን ፓስወርድ አረጋግጥ።');
     }
 });
+
+// ==========================================
+// 🔴 MongoDB Schemas
+// ==========================================
 
 // Product Schema
 const productSchema = new mongoose.Schema({
@@ -49,7 +51,6 @@ const productSchema = new mongoose.Schema({
     seller_name: { type: String, default: 'GMFC Admin' },
     createdAt: { type: Date, default: Date.now }
 });
-
 const Product = mongoose.model('Product', productSchema);
 
 // News Schema
@@ -62,22 +63,42 @@ const newsSchema = new mongoose.Schema({
 });
 const News = mongoose.model('News', newsSchema);
 
+// ✅ Member Schema
+const memberSchema = new mongoose.Schema({
+    member_id: { type: String, required: true, unique: true },
+    full_name: { type: String, required: true },
+    password: { type: String, required: true }, 
+    created_at: { type: Date, default: Date.now }
+});
+const Member = mongoose.model('Member', memberSchema);
+
+// ✅ Settings Schema
+const settingsSchema = new mongoose.Schema({
+    exchange_rate: { type: String, default: '161.72' },
+    coffee_price_grade1: { type: String, default: '450' },
+    coffee_price_grade2: { type: String, default: '520' },
+    coffee_price_grade3: { type: String, default: '600' },
+    coffee_price_ground: { type: String, default: '650' },
+    wholesale_price: { type: String, default: '42000' },
+    grade1_price: { type: String, default: '3.94' },
+    grade2_price: { type: String, default: '3.81' },
+    grade3_price: { type: String, default: '2.47' },
+    grade4_price: { type: String, default: '2.74' },
+    grade5_price: { type: String, default: '3.50' }
+}, { timestamps: true });
+const Settings = mongoose.model('Settings', settingsSchema);
+
 // ==========================================
-// SQLite Database (ለተቀሩት ስርዓቶች)
+// SQLite Database (ለተቀሩት ስርዓቶች ብቻ)
 // ==========================================
 const db = new sqlite3.Database('./gmfc_database.db');
 
 db.serialize(() => {
-    // ሠንጠረዦችን መፍጠር
     db.run(`CREATE TABLE IF NOT EXISTS applications ( id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, phone TEXT NOT NULL, amount TEXT NOT NULL, city TEXT, status TEXT DEFAULT 'pending', date TEXT NOT NULL, submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
     db.run(`CREATE TABLE IF NOT EXISTS company_profile ( id INTEGER PRIMARY KEY AUTOINCREMENT, company_name TEXT NOT NULL, license_number TEXT NOT NULL, general_manager TEXT NOT NULL, hero_title TEXT, hero_subtitle TEXT, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
-    db.run(`CREATE TABLE IF NOT EXISTS news ( id INTEGER PRIMARY KEY AUTOINCREMENT, year TEXT NOT NULL, title TEXT NOT NULL, description TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
-    db.run(`CREATE TABLE IF NOT EXISTS settings ( id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT UNIQUE NOT NULL, value TEXT NOT NULL, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
-    db.run(`CREATE TABLE IF NOT EXISTS members ( id INTEGER PRIMARY KEY AUTOINCREMENT, member_id TEXT UNIQUE NOT NULL, full_name TEXT NOT NULL, password TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
     db.run(`CREATE TABLE IF NOT EXISTS messages ( id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, content TEXT NOT NULL, sender TEXT DEFAULT 'Admin', created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
     db.run(`CREATE TABLE IF NOT EXISTS chats ( id INTEGER PRIMARY KEY AUTOINCREMENT, member_id TEXT NOT NULL, sender_type TEXT NOT NULL, message TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
 
-    // Company Profile
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
         if (!row) {
             db.run(
@@ -86,43 +107,13 @@ db.serialize(() => {
             );
         }
     });
-
-    // News
-    db.get("SELECT * FROM news LIMIT 1", (err, row) => {
-        if (!row) {
-            db.run(
-                `INSERT INTO news (year, title, description) VALUES ('መስከረም 2025', 'የጂ+5 ህንፃ ግንባታ ሥራ መጀመሩ ተገለጸ', 'በሜጢ ከተማ የመጀመሪያው የG+5 የንግድ ማዕከል ግንባታ በይፋ ተጀመረ።'), ('ታህሳስ 2025', 'የጫካ ቡና ምርት ወደ ዓለም አቀፍ ገበያ ለመላክ ዝግጅት', 'ከማጃንግ ደኖች የሚገኘው ኦርጋኒክ ቡና በአውሮፓ ገበያ ተቀባይነት አግኝቷል።'), ('ጥር 2026', 'ለወጣቶች የስራ ዕድል ፕሮግራም ተጀመረ', 'ከ50 በላይ ወጣቶች በጫካ ቡና ምርት እና ማቀነባበሪያ ስልጠና እንዲሰጡ ተደረገ።')`
-            );
-        }
-    });
-
-    // Settings
-    db.get("SELECT * FROM settings WHERE key = 'exchange_rate'", (err, row) => {
-        if (!row) {
-            const defaults = [
-                ['exchange_rate', '161.72'], ['coffee_price_grade1', '450'], ['coffee_price_grade2', '520'],
-                ['coffee_price_grade3', '600'], ['coffee_price_ground', '650'], ['wholesale_price', '42000'],
-                ['grade1_price', '3.94'], ['grade2_price', '3.81'], ['grade3_price', '2.47'],
-                ['grade4_price', '2.74'], ['grade5_price', '3.50']
-            ];
-            defaults.forEach(([key, value]) => {
-                db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`, [key, value]);
-            });
-        }
-    });
-
-    // Members
-    db.get("SELECT * FROM members WHERE member_id = 'GMFC001'", (err, row) => {
-        if (!row) {
-            db.run(`INSERT INTO members (member_id, full_name, password) VALUES ('GMFC001', 'Test Member', 'pass123')`);
-        }
-    });
 });
 
 // ============= API ROUTES =============
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 
+// Profile (SQLite)
 app.get('/api/profile', (req, res) => {
     db.get("SELECT * FROM company_profile WHERE id = 1", (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -142,6 +133,7 @@ app.put('/api/profile', (req, res) => {
     );
 });
 
+// Applications (SQLite)
 app.get('/api/applications', (req, res) => {
     db.all("SELECT * FROM applications ORDER BY submitted_at DESC", (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -179,8 +171,6 @@ app.delete('/api/applications/:id', (req, res) => {
 });
 
 // ============= NEWS ROUTES (MongoDB) =============
-
-// Get all news
 app.get('/api/news', async (req, res) => {
     try {
         const news = await News.find().sort({ createdAt: -1 });
@@ -190,11 +180,9 @@ app.get('/api/news', async (req, res) => {
     }
 });
 
-// Add new news
 app.post('/api/news', async (req, res) => {
     try {
         const { year, title, description, image } = req.body;
-        // ✅ የጎደለው '||' ኦፕሬተር ተጨምሯል
         if (!year || !title || !description) {
             return res.status(400).json({ error: "All fields are required" });
         }
@@ -206,7 +194,6 @@ app.post('/api/news', async (req, res) => {
     }
 });
 
-// Delete news
 app.delete('/api/news/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -217,78 +204,112 @@ app.delete('/api/news/:id', async (req, res) => {
     }
 });
 
-app.get('/api/settings', (req, res) => {
-    db.all("SELECT * FROM settings", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        const settingsObj = {};
-        rows.forEach(row => { settingsObj[row.key] = row.value; });
-        res.json(settingsObj);
-    });
+// ============= SETTINGS ROUTES (MongoDB) =============
+async function getOrCreateSettings() {
+    let settings = await Settings.findOne();
+    if (!settings) {
+        settings = await Settings.create({});
+        console.log('✅ አዲስ Settings ሰነድ ተፈጥሯል (MongoDB)');
+    }
+    return settings;
+}
+
+app.get('/api/settings', async (req, res) => {
+    try {
+        const settings = await getOrCreateSettings();
+        res.json(settings);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-app.put('/api/settings', (req, res) => {
-    const updates = req.body;
-    const queries = Object.keys(updates).map(key => new Promise((resolve, reject) => {
-        db.run(`INSERT INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`,
-            [key, updates[key]],
-            function (err) { if (err) reject(err); else resolve(); }
+app.put('/api/settings', async (req, res) => {
+    try {
+        const updates = req.body;
+        const settings = await Settings.findOneAndUpdate(
+            {},
+            { $set: updates },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
         );
-    }));
-    Promise.all(queries).then(() => res.json({ success: true, message: "Settings updated successfully" })).catch(err => res.status(500).json({ error: err.message }));
+        res.json({ success: true, message: "Settings updated successfully", data: settings });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-app.get('/api/members', (req, res) => {
-    db.all("SELECT id, member_id, full_name, created_at FROM members ORDER BY created_at DESC", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
+// ============= MEMBERS ROUTES (MongoDB) =============
+app.get('/api/members', async (req, res) => {
+    try {
+        const members = await Member.find().select('-password').sort({ created_at: -1 }); 
+        res.json(members);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-app.post('/api/members', (req, res) => {
-    const { member_id, full_name, password } = req.body;
-    if (!member_id || !full_name || !password) return res.status(400).json({ error: "All fields are required" });
-    db.run(`INSERT INTO members (member_id, full_name, password) VALUES (?, ?, ?)`,
-        [member_id, full_name, password],
-        function (err) {
-            if (err) {
-                if (err.message.includes('UNIQUE')) return res.status(400).json({ error: "Member ID already exists" });
-                return res.status(500).json({ error: err.message });
-            }
-            res.json({ success: true, message: "Member registered successfully", id: this.lastID });
-        }
-    );
+app.post('/api/members', async (req, res) => {
+    try {
+        const { member_id, full_name, password } = req.body;
+        if (!member_id || !full_name || !password) return res.status(400).json({ error: "All fields are required" });
+        
+        const existingMember = await Member.findOne({ member_id });
+        if (existingMember) return res.status(400).json({ error: "Member ID already exists" });
+
+        const newMember = new Member({ member_id, full_name, password });
+        await newMember.save();
+        res.json({ success: true, message: "Member registered successfully", id: newMember._id });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-app.put('/api/members/:id', (req, res) => {
-    const { id } = req.params;
-    const { full_name, password } = req.body;
-    db.run(`UPDATE members SET full_name = COALESCE(?, full_name), password = COALESCE(?, password) WHERE id = ?`,
-        [full_name, password, id],
-        function (err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true, message: "Member updated successfully" });
-        }
-    );
+app.put('/api/members/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { full_name, password } = req.body;
+        
+        let updateData = { full_name };
+        if (password) updateData.password = password; 
+
+        const updatedMember = await Member.findByIdAndUpdate(id, updateData, { new: true });
+        if (!updatedMember) return res.status(404).json({ error: "Member not found" });
+        
+        res.json({ success: true, message: "Member updated successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-app.delete('/api/members/:id', (req, res) => {
-    const { id } = req.params;
-    db.run(`DELETE FROM members WHERE id = ?`, [id], function (err) {
-        if (err) return res.status(500).json({ error: err.message });
+app.delete('/api/members/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Member.findByIdAndDelete(id);
         res.json({ success: true });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-app.post('/api/login', (req, res) => {
-    const { member_id, password } = req.body;
-    if (!member_id || !password) return res.status(400).json({ error: "Member ID and Password are required" });
-    db.get(`SELECT * FROM members WHERE member_id = ? AND password = ?`, [member_id, password], (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!row) return res.status(401).json({ error: "Invalid Member ID or Password" });
-        res.json({ success: true, message: "Login successful", user: { id: row.id, member_id: row.member_id, full_name: row.full_name } });
-    });
+// Login (MongoDB)
+app.post('/api/login', async (req, res) => {
+    try {
+        const { member_id, password } = req.body;
+        if (!member_id || !password) return res.status(400).json({ error: "Member ID and Password are required" });
+        
+        const user = await Member.findOne({ member_id, password });
+        if (!user) return res.status(401).json({ error: "Invalid Member ID or Password" });
+        
+        res.json({ 
+            success: true, 
+            message: "Login successful", 
+            user: { id: user._id, member_id: user.member_id, full_name: user.full_name } 
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
+// Messages (SQLite)
 app.get('/api/messages', (req, res) => {
     db.all("SELECT * FROM messages ORDER BY created_at DESC", (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -313,9 +334,7 @@ app.delete('/api/messages/:id', (req, res) => {
     });
 });
 
-// ============= CHAT ROUTES =============
-
-// Send a message
+// ============= CHAT ROUTES (SQLite) =============
 app.post('/api/chats', (req, res) => {
     const { member_id, sender_type, message } = req.body;
     if (!member_id || !sender_type || !message) {
@@ -331,7 +350,6 @@ app.post('/api/chats', (req, res) => {
     );
 });
 
-// Get all members who have chatted (For Admin)
 app.get('/api/admin/chats', (req, res) => {
     db.all("SELECT DISTINCT member_id FROM chats", (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -339,7 +357,6 @@ app.get('/api/admin/chats', (req, res) => {
     });
 });
 
-// Get messages for a specific member
 app.get('/api/chats/:member_id', (req, res) => {
     const { member_id } = req.params;
     db.all(
@@ -352,7 +369,7 @@ app.get('/api/chats/:member_id', (req, res) => {
     );
 });
 
-// ============= 🔴 PRODUCTS ROUTES (MongoDB) =============
+// ============= PRODUCTS ROUTES (MongoDB) =============
 app.post('/api/products', async (req, res) => {
     try {
         const { title, price, category, description, image, seller_name } = req.body;
@@ -379,12 +396,10 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-// Delete Product (ማጥፊያ)
 app.delete('/api/products/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const deletedProduct = await Product.findByIdAndDelete(id);
-        
         if (!deletedProduct) {
             return res.status(404).json({ error: "Product not found" });
         }
@@ -395,22 +410,18 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
-// Update Product (ማስተካከያ)
 app.put('/api/products/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { title, price, category, description } = req.body;
-
         const updatedProduct = await Product.findByIdAndUpdate(
             id,
             { title, price, category, description },
             { new: true }
         );
-
         if (!updatedProduct) {
             return res.status(404).json({ error: "Product not found" });
         }
-
         res.json({ success: true, message: "Product updated successfully", product: updatedProduct });
     } catch (error) {
         console.error("Error updating product:", error);
@@ -418,15 +429,22 @@ app.put('/api/products/:id', async (req, res) => {
     }
 });
 
+// ============= STATS (MongoDB & SQLite) =============
 app.get('/api/stats', (req, res) => {
     db.get("SELECT COUNT(*) as total FROM applications WHERE status = 'approved'", (err, approved) => {
         if (err) return res.status(500).json({ error: err.message });
         db.get("SELECT COUNT(*) as total FROM applications WHERE status = 'pending'", (err, pending) => {
             if (err) return res.status(500).json({ error: err.message });
-            db.get("SELECT COUNT(*) as total FROM members", (err, members) => {
-                if (err) return res.status(500).json({ error: err.message });
-                res.json({ totalApproved: approved?.total || 0, totalPending: pending?.total || 0, totalMembers: members?.total || 0 });
-            });
+            
+            Member.countDocuments()
+                .then(memberCount => {
+                    res.json({ 
+                        totalApproved: approved?.total || 0, 
+                        totalPending: pending?.total || 0, 
+                        totalMembers: memberCount || 0 
+                    });
+                })
+                .catch(err => res.status(500).json({ error: err.message }));
         });
     });
 });
