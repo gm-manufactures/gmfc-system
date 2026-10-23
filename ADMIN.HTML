@@ -254,7 +254,6 @@
         <li><a onclick="showSection('profile', this)"><i class="fa-solid fa-building"></i> <span>ድርጅት መረጃ</span></a></li>
         <li><a onclick="showSection('news', this)"><i class="fa-solid fa-newspaper"></i> <span>ዜና አስተዳደር</span></a></li>
         <li><a onclick="showSection('settings', this)"><i class="fa-solid fa-gear"></i> <span>ዋጋ እና ቅንብሮች</span></a></li>
-        <li><a onclick="showSection('adminChat', this)"><i class="fas fa-comments"></i> <span>የድጋፍ ቻት (Support)</span></a></li>
         <li><a href="index.html" target="_blank"><i class="fa-solid fa-globe"></i> <span>ወደ ገጽ</span></a></li>
     </ul>
 </div>
@@ -322,7 +321,7 @@
         </div>
     </div>
 
-    <!-- MESSAGES -->
+    <!-- ✅ MESSAGES (አዲስ) -->
     <div id="messages-section" style="display:none;">
         <div class="dashboard-section">
             <div class="section-heading"><i class="fa-solid fa-paper-plane"></i> አዲስ መልእክት መላኪያ</div>
@@ -340,38 +339,11 @@
                 </button>
             </form>
         </div>
+
         <div class="dashboard-section">
             <div class="section-heading"><i class="fa-solid fa-inbox"></i> የተላኩ መልእክቶች</div>
             <div id="messages-list">
                 <p style="text-align: center; color: #999;">በመጫን ላይ...</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ADMIN CHAT SECTION -->
-    <div id="adminChat-section" style="display:none;">
-        <div class="dashboard-section">
-            <div class="section-heading"><i class="fas fa-comments"></i> የድጋፍ ቻት (Support Chat)</div>
-            <div style="display: flex; height: 600px; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <!-- Users List -->
-                <div style="width: 30%; border-right: 1px solid #ddd; overflow-y: auto;">
-                    <div style="padding: 15px; background: #f8f9fa; font-weight: bold; border-bottom: 1px solid #ddd;">ተጠቃሚዎች</div>
-                    <div id="chatUserList"></div>
-                </div>
-
-                <!-- Chat Box -->
-                <div style="width: 70%; display: flex; flex-direction: column;">
-                    <div style="padding: 15px; background: #2e7d32; color: white; font-weight: bold;" id="chatHeader">ተጠቃሚ ይምረጡ</div>
-                    
-                    <div id="adminChatBox" style="flex: 1; padding: 15px; overflow-y: auto; background: #e5ddd5; display: flex; flex-direction: column;">
-                        <!-- Messages will appear here -->
-                    </div>
-
-                    <div style="padding: 10px; background: #f0f0f0; display: flex; gap: 10px;">
-                        <input type="text" id="adminChatInput" placeholder="መልእክትዎን ይጻፉ..." style="flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ccc; outline: none;">
-                        <button onclick="sendAdminMessage()" style="padding: 10px 20px; background: #2e7d32; color: white; border: none; border-radius: 20px; cursor: pointer;">ላክ</button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -399,14 +371,6 @@
                 <div class="form-group"><label>ዓመት</label><input type="text" id="news-year" placeholder="ለምሳሌ: ጥር 2026" required></div>
                 <div class="form-group full-width"><label>ርዕስ</label><input type="text" id="news-title" required></div>
                 <div class="form-group full-width"><label>ዝርዝር መግለጫ</label><textarea id="news-desc" rows="3" required></textarea></div>
-
-                <!-- ✅ የዜና ፎቶ መምረጫ -->
-                <div class="form-group full-width">
-                    <label>የዜና ፎቶ (Image)</label>
-                    <input type="file" id="newsImage" accept="image/*">
-                    <img id="imagePreview" style="max-width: 200px; max-height: 150px; display: none; margin-top: 10px; border-radius: 5px;">
-                </div>
-
                 <button type="submit" class="btn-submit">ዜና ጨምር</button>
             </form>
         </div>
@@ -480,8 +444,6 @@
 
 <script>
     const API_BASE = window.location.origin + '/api';
-    let currentChatMemberId = null;
-    let uploadedImageBase64 = ""; 
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
@@ -491,7 +453,7 @@
     }
 
     function showSection(section, element) {
-        const sections = ['dashboard', 'applications', 'members', 'messages', 'adminChat', 'profile', 'news', 'settings'];
+        const sections = ['dashboard', 'applications', 'members', 'messages', 'profile', 'news', 'settings'];
         sections.forEach(sec => {
             const el = document.getElementById(sec + '-section');
             if (el) el.style.display = 'none';
@@ -509,7 +471,6 @@
         if (section === 'applications') loadApplications();
         if (section === 'members') loadMembers();
         if (section === 'messages') loadMessages();
-        if (section === 'adminChat') loadChatUsers();
         if (section === 'profile') loadProfile();
         if (section === 'news') loadNewsList();
         if (section === 'settings') loadSettings();
@@ -522,10 +483,21 @@
             const stats = await statsRes.json();
             document.getElementById('total-approved').innerText = stats.totalApproved || 0;
             document.getElementById('total-pending').innerText = stats.totalPending || 0;
-            document.getElementById('total-members').innerText = stats.totalMembers || 0;
 
             const appsRes = await fetch(`${API_BASE}/applications`);
             const apps = await appsRes.json();
+
+            const newsRes = await fetch(`${API_BASE}/news`);
+            const news = await newsRes.json();
+            document.getElementById('total-news') && (document.getElementById('total-news').innerText = news.length || 0);
+
+            try {
+                const membersRes = await fetch(`${API_BASE}/members`);
+                const members = await membersRes.json();
+                document.getElementById('total-members').innerText = members.length || 0;
+            } catch (e) {
+                document.getElementById('total-members').innerText = '0';
+            }
 
             try {
                 const msgRes = await fetch(`${API_BASE}/messages`);
@@ -632,13 +604,13 @@
                     <div class="member-info">
                         <strong>👤 ${m.full_name}</strong>
                         <small>🆔 ${m.member_id}</small>
-                        <small>📅 ${new Date(m.created_at || m.createdAt).toLocaleDateString()}</small>
+                        <small>📅 ${new Date(m.created_at).toLocaleDateString()}</small>
                     </div>
                     <div>
                         <button class="btn btn-edit" onclick='openEditMember(${JSON.stringify(m).replace(/'/g, "\\'")})'>
                             <i class="fa-solid fa-edit"></i> አስተካክል
                         </button>
-                        <button class="btn btn-delete" onclick="deleteMember('${m._id}', '${m.member_id}')">
+                        <button class="btn btn-delete" onclick="deleteMember(${m.id}, '${m.member_id}')">
                             <i class="fa-solid fa-trash"></i> ሰርዝ
                         </button>
                     </div>
@@ -697,7 +669,7 @@
     }
 
     function openEditMember(member) {
-        document.getElementById('edit-member-id').value = member._id;
+        document.getElementById('edit-member-id').value = member.id;
         document.getElementById('edit-member-id-display').value = member.member_id;
         document.getElementById('edit-member-fullname').value = member.full_name;
         document.getElementById('edit-member-password').value = '';
@@ -734,7 +706,7 @@
         }
     });
 
-    /* ================= MESSAGES ================= */
+    /* ================= MESSAGES (አዲስ) ================= */
     async function loadMessages() {
         const container = document.getElementById('messages-list');
         container.innerHTML = '<p style="text-align:center;color:#999;">በመጫን ላይ...</p>';
@@ -823,107 +795,6 @@
         }
     }
 
-    /* ================= ADMIN CHAT LOGIC ================= */
-    async function loadChatUsers() {
-        const listDiv = document.getElementById('chatUserList');
-        listDiv.innerHTML = '<p style="padding:15px;color:#999;">በመጫን ላይ...</p>';
-
-        try {
-            const res = await fetch(`${API_BASE}/admin/chats`);
-            const data = await res.json();
-            listDiv.innerHTML = '';
-
-            if (!data || data.length === 0) {
-                listDiv.innerHTML = '<p style="padding:15px;color:#999;">ምንም ተጠቃሚ አልተጻፈም።</p>';
-                return;
-            }
-
-            data.forEach(user => {
-                const btn = document.createElement('div');
-                btn.style.cssText = 'padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px;';
-                btn.innerHTML = `
-                    <div style="width: 40px; height: 40px; background: #2e7d32; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold;">
-                        ${user.member_id.charAt(0)}
-                    </div>
-                    <strong>👤 ${user.member_id}</strong>
-                `;
-                btn.onmouseover = () => btn.style.background = '#f0f0f0';
-                btn.onmouseout = () => btn.style.background = 'transparent';
-                btn.onclick = () => loadChatMessages(user.member_id);
-                listDiv.appendChild(btn);
-            });
-        } catch (error) {
-            console.error("Error loading chat users:", error);
-            listDiv.innerHTML = '<p style="padding:15px;color:#d32f2f;">ተጠቃሚዎችን መጫን አልተቻለም።</p>';
-        }
-    }
-
-    async function loadChatMessages(memberId) {
-        currentChatMemberId = memberId;
-        document.getElementById('chatHeader').innerText = `ከ ${memberId} ጋር ያለ ውይይት`;
-        
-        const chatBox = document.getElementById('adminChatBox');
-        chatBox.innerHTML = '<p style="text-align:center;color:#999;">በመጫን ላይ...</p>';
-
-        try {
-            const res = await fetch(`${API_BASE}/chats/${memberId}`);
-            const data = await res.json();
-            chatBox.innerHTML = '';
-
-            if (!data || data.length === 0) {
-                chatBox.innerHTML = '<p style="text-align:center;color:#999;">ምንም መልእክት የለም።</p>';
-                return;
-            }
-
-            data.forEach(msg => {
-                const isAdmin = msg.sender_type === 'admin';
-                const bubble = document.createElement('div');
-                bubble.style.cssText = `
-                    max-width: 70%; padding: 10px 15px; border-radius: 15px; margin-bottom: 10px; font-size: 14px;
-                    align-self: ${isAdmin ? 'flex-end' : 'flex-start'};
-                    background: ${isAdmin ? '#2e7d32' : '#fff'};
-                    color: ${isAdmin ? '#fff' : '#333'};
-                    border-bottom-${isAdmin ? 'right' : 'left'}-radius: 0;
-                    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-                `;
-                bubble.innerText = msg.message;
-                chatBox.appendChild(bubble);
-            });
-            
-            chatBox.scrollTop = chatBox.scrollHeight;
-        } catch (error) {
-            console.error("Error loading messages:", error);
-            chatBox.innerHTML = '<p style="text-align:center;color:#d32f2f;">መልእክቶችን መጫን አልተቻለም።</p>';
-        }
-    }
-
-    async function sendAdminMessage() {
-        const input = document.getElementById('adminChatInput');
-        const message = input.value.trim();
-        
-        if (!message || !currentChatMemberId) {
-            alert("እባክዎ መጀመሪያ ተጠቃሚ ይምረጡ ወይም መልእክት ይጻፉ።");
-            return;
-        }
-
-        input.value = '';
-
-        try {
-            await fetch(`${API_BASE}/chats`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    member_id: currentChatMemberId, 
-                    sender_type: 'admin', 
-                    message: message 
-                }),
-            });
-            loadChatMessages(currentChatMemberId);
-        } catch (error) {
-            alert("መልእክት መላክ አልተቻለም።");
-        }
-    }
-
     /* ================= PROFILE ================= */
     async function loadProfile() {
         try {
@@ -975,11 +846,8 @@
             } else {
                 container.innerHTML = news.map(item => `
                     <div class="news-item">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            ${item.image ? `<img src="${item.image}" style="width:60px; height:60px; object-fit:cover; border-radius:6px;" />` : ''}
-                            <div><strong>${item.year}</strong><br><small>${item.title}</small></div>
-                        </div>
-                        <button class="btn btn-delete" onclick="deleteNews('${item._id}')">ሰርዝ</button>
+                        <div><strong>${item.year}</strong><br><small>${item.title}</small></div>
+                        <button class="btn btn-delete" onclick="deleteNews(${item.id})">ሰርዝ</button>
                     </div>
                 `).join('');
             }
@@ -1001,27 +869,12 @@
         }
     }
 
-    document.getElementById('newsImage').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                uploadedImageBase64 = event.target.result;
-                const preview = document.getElementById('imagePreview');
-                preview.src = uploadedImageBase64;
-                preview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
     document.getElementById('news-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {
             year: document.getElementById('news-year').value,
             title: document.getElementById('news-title').value,
-            description: document.getElementById('news-desc').value,
-            image: uploadedImageBase64 || '' 
+            description: document.getElementById('news-desc').value
         };
         try {
             const response = await fetch(`${API_BASE}/news`, {
@@ -1032,8 +885,6 @@
             if (response.ok) {
                 showToast('✅ ዜና ተጨምሯል!');
                 document.getElementById('news-form').reset();
-                document.getElementById('imagePreview').style.display = 'none';
-                uploadedImageBase64 = "";
                 loadNewsList();
                 loadDashboard();
             } else {
