@@ -51,12 +51,13 @@ const productSchema = new mongoose.Schema({
 });
 
 const Product = mongoose.model('Product', productSchema);
+
 // News Schema
 const newsSchema = new mongoose.Schema({
     year: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
-    image: { type: String, default: '' }, // ለፎቶ ሊንክ
+    image: { type: String, default: '' },
     createdAt: { type: Date, default: Date.now }
 });
 const News = mongoose.model('News', newsSchema);
@@ -193,7 +194,8 @@ app.get('/api/news', async (req, res) => {
 app.post('/api/news', async (req, res) => {
     try {
         const { year, title, description, image } = req.body;
-        if (!year  !title  !description) {
+        // ✅ የጎደለው '||' ኦፕሬተር ተጨምሯል
+        if (!year || !title || !description) {
             return res.status(400).json({ error: "All fields are required" });
         }
         const newNews = new News({ year, title, description, image });
@@ -329,7 +331,7 @@ app.post('/api/chats', (req, res) => {
     );
 });
 
-// ✅ Get all members who have chatted (For Admin) - ከ ':member_id' ሮውት ውጭ ተዛውሯል
+// Get all members who have chatted (For Admin)
 app.get('/api/admin/chats', (req, res) => {
     db.all("SELECT DISTINCT member_id FROM chats", (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
