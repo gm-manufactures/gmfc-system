@@ -51,6 +51,15 @@ const productSchema = new mongoose.Schema({
 });
 
 const Product = mongoose.model('Product', productSchema);
+// News Schema
+const newsSchema = new mongoose.Schema({
+    year: { type: String, required: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    image: { type: String, default: '' }, // ለፎቶ ሊንክ
+    createdAt: { type: Date, default: Date.now }
+});
+const News = mongoose.model('News', newsSchema);
 
 // ==========================================
 // SQLite Database (ለተቀሩት ስርዓቶች)
@@ -168,28 +177,42 @@ app.delete('/api/applications/:id', (req, res) => {
     });
 });
 
-app.get('/api/news', (req, res) => {
-    db.all("SELECT * FROM news ORDER BY created_at DESC", (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
+// ============= NEWS ROUTES (MongoDB) =============
+
+// Get all news
+app.get('/api/news', async (req, res) => {
+    try {
+        const news = await News.find().sort({ createdAt: -1 });
+        res.json(news);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-app.post('/api/news', (req, res) => {
-    const { year, title, description } = req.body;
-    if (!year || !title || !description) return res.status(400).json({ error: "All fields are required" });
-    db.run(`INSERT INTO news (year, title, description) VALUES (?, ?, ?)`, [year, title, description], function (err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ success: true, id: this.lastID });
-    });
+// Add new news
+app.post('/api/news', async (req, res) => {
+    try {
+        const { year, title, description, image } = req.body;
+        if (!year  !title  !description) {
+            return res.status(400).json({ error: "All fields are required" });
+        }
+        const newNews = new News({ year, title, description, image });
+        await newNews.save();
+        res.json({ success: true, id: newNews._id });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-app.delete('/api/news/:id', (req, res) => {
-    const { id } = req.params;
-    db.run(`DELETE FROM news WHERE id = ?`, [id], function (err) {
-        if (err) return res.status(500).json({ error: err.message });
+// Delete news
+app.delete('/api/news/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await News.findByIdAndDelete(id);
         res.json({ success: true });
-    });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.get('/api/settings', (req, res) => {
