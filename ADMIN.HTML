@@ -399,6 +399,14 @@
                 <div class="form-group"><label>ዓመት</label><input type="text" id="news-year" placeholder="ለምሳሌ: ጥር 2026" required></div>
                 <div class="form-group full-width"><label>ርዕስ</label><input type="text" id="news-title" required></div>
                 <div class="form-group full-width"><label>ዝርዝር መግለጫ</label><textarea id="news-desc" rows="3" required></textarea></div>
+
+                <!-- ✅ የዜና ፎቶ መምረጫ እዚህ ጋር ተጨምሯል -->
+                <div class="form-group full-width">
+                    <label>የዜና ፎቶ (Image)</label>
+                    <input type="file" id="newsImage" accept="image/*">
+                    <img id="imagePreview" style="max-width: 200px; max-height: 150px; display: none; margin-top: 10px; border-radius: 5px;">
+                </div>
+
                 <button type="submit" class="btn-submit">ዜና ጨምር</button>
             </form>
         </div>
@@ -473,6 +481,7 @@
 <script>
     const API_BASE = window.location.origin + '/api';
     let currentChatMemberId = null;
+    let uploadedImageBase64 = ""; // ✅ የፎቶ Base64 ማስቀመጫ
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
@@ -973,8 +982,11 @@
             } else {
                 container.innerHTML = news.map(item => `
                     <div class="news-item">
-                        <div><strong>${item.year}</strong><br><small>${item.title}</small></div>
-                        <button class="btn btn-delete" onclick="deleteNews(${item.id})">ሰርዝ</button>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            ${item.image ? `<img src="${item.image}" style="width:60px; height:60px; object-fit:cover; border-radius:6px;" />` : ''}
+                            <div><strong>${item.year}</strong><br><small>${item.title}</small></div>
+                        </div>
+                        <button class="btn btn-delete" onclick="deleteNews('${item._id}')">ሰርዝ</button>
                     </div>
                 `).join('');
             }
@@ -996,12 +1008,28 @@
         }
     }
 
+    // ✅ የፎቶ መምረጫ (የላክከው ኮድ በትክክለኛው ቦታ)
+    document.getElementById('newsImage').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                uploadedImageBase64 = event.target.result;
+                const preview = document.getElementById('imagePreview');
+                preview.src = uploadedImageBase64;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     document.getElementById('news-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {
             year: document.getElementById('news-year').value,
             title: document.getElementById('news-title').value,
-            description: document.getElementById('news-desc').value
+            description: document.getElementById('news-desc').value,
+            image: uploadedImageBase64 || '' // ✅ ፎቶው ካለ ወደ ሰርቨር ይላካል
         };
         try {
             const response = await fetch(`${API_BASE}/news`, {
@@ -1012,6 +1040,8 @@
             if (response.ok) {
                 showToast('✅ ዜና ተጨምሯል!');
                 document.getElementById('news-form').reset();
+                document.getElementById('imagePreview').style.display = 'none';
+                uploadedImageBase64 = "";
                 loadNewsList();
                 loadDashboard();
             } else {
