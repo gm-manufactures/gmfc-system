@@ -400,7 +400,7 @@
                 <div class="form-group full-width"><label>ርዕስ</label><input type="text" id="news-title" required></div>
                 <div class="form-group full-width"><label>ዝርዝር መግለጫ</label><textarea id="news-desc" rows="3" required></textarea></div>
 
-                <!-- ✅ የዜና ፎቶ መምረጫ እዚህ ጋር ተጨምሯል -->
+                <!-- ✅ የዜና ፎቶ መምረጫ -->
                 <div class="form-group full-width">
                     <label>የዜና ፎቶ (Image)</label>
                     <input type="file" id="newsImage" accept="image/*">
@@ -481,7 +481,7 @@
 <script>
     const API_BASE = window.location.origin + '/api';
     let currentChatMemberId = null;
-    let uploadedImageBase64 = ""; // ✅ የፎቶ Base64 ማስቀመጫ
+    let uploadedImageBase64 = ""; 
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
@@ -522,17 +522,10 @@
             const stats = await statsRes.json();
             document.getElementById('total-approved').innerText = stats.totalApproved || 0;
             document.getElementById('total-pending').innerText = stats.totalPending || 0;
+            document.getElementById('total-members').innerText = stats.totalMembers || 0;
 
             const appsRes = await fetch(`${API_BASE}/applications`);
             const apps = await appsRes.json();
-
-            try {
-                const membersRes = await fetch(`${API_BASE}/members`);
-                const members = await membersRes.json();
-                document.getElementById('total-members').innerText = members.length || 0;
-            } catch (e) {
-                document.getElementById('total-members').innerText = '0';
-            }
 
             try {
                 const msgRes = await fetch(`${API_BASE}/messages`);
@@ -639,13 +632,13 @@
                     <div class="member-info">
                         <strong>👤 ${m.full_name}</strong>
                         <small>🆔 ${m.member_id}</small>
-                        <small>📅 ${new Date(m.created_at).toLocaleDateString()}</small>
+                        <small>📅 ${new Date(m.created_at || m.createdAt).toLocaleDateString()}</small>
                     </div>
                     <div>
                         <button class="btn btn-edit" onclick='openEditMember(${JSON.stringify(m).replace(/'/g, "\\'")})'>
                             <i class="fa-solid fa-edit"></i> አስተካክል
                         </button>
-                        <button class="btn btn-delete" onclick="deleteMember(${m.id}, '${m.member_id}')">
+                        <button class="btn btn-delete" onclick="deleteMember('${m._id}', '${m.member_id}')">
                             <i class="fa-solid fa-trash"></i> ሰርዝ
                         </button>
                     </div>
@@ -704,7 +697,7 @@
     }
 
     function openEditMember(member) {
-        document.getElementById('edit-member-id').value = member.id;
+        document.getElementById('edit-member-id').value = member._id;
         document.getElementById('edit-member-id-display').value = member.member_id;
         document.getElementById('edit-member-fullname').value = member.full_name;
         document.getElementById('edit-member-password').value = '';
@@ -1008,7 +1001,6 @@
         }
     }
 
-    // ✅ የፎቶ መምረጫ (የላክከው ኮድ በትክክለኛው ቦታ)
     document.getElementById('newsImage').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -1029,7 +1021,7 @@
             year: document.getElementById('news-year').value,
             title: document.getElementById('news-title').value,
             description: document.getElementById('news-desc').value,
-            image: uploadedImageBase64 || '' // ✅ ፎቶው ካለ ወደ ሰርቨር ይላካል
+            image: uploadedImageBase64 || '' 
         };
         try {
             const response = await fetch(`${API_BASE}/news`, {
