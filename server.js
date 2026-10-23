@@ -36,6 +36,20 @@ mongoose.connect(MONGODB_URI, {
         console.error('💡 የይለፍ ቃል ስህተት ነው። በMONGODB_URI ውስጥ ያለውን ፓስወርድ አረጋግጥ።');
     }
 });
+// ✅ የቆየውን የስልክ ቁጥር ኢንዴክስ ለማጥፋት
+mongoose.connection.once('open', async () => {
+    try {
+        await mongoose.connection.db.collection('members').dropIndex('phone_1');
+        console.log('✅ የቆየው የስልክ ቁጥር ኢንዴክስ በተሳካ ሁኔታ ጠፍቷል!');
+    } catch (err) {
+        // ኢንዴክሱ አስቀድሞ ከጠፋ ስህተት እንዳያሳይ
+        if (err.code === 27 || err.message.includes('index not found')) {
+            console.log('ℹ️ ኢንዴክሱ አስቀድሞ ጠፍቷል።');
+        } else {
+            console.log('⚠️ ኢንዴክስ ሲጠፋ ስህተት አጋጥሟል:', err.message);
+        }
+    }
+});
 
 // ==========================================
 // 🔴 MongoDB Schemas
@@ -68,6 +82,7 @@ const memberSchema = new mongoose.Schema({
     member_id: { type: String, required: true, unique: true },
     full_name: { type: String, required: true },
     password: { type: String, required: true }, 
+    phone: { type: String, unique: true, sparse: true },
     created_at: { type: Date, default: Date.now }
 });
 const Member = mongoose.model('Member', memberSchema);
