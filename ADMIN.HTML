@@ -476,7 +476,7 @@
 <script>
     const API_BASE = 'https://gmfc-system-1-gzw8.onrender.com/api';
     let currentChatMemberId = null;
-    let newsMediaBase64 = ''; // ✅ የዜና ፎቶ Base64 ለማስቀመጥ
+    let newsMediaBase64 = ''; 
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
@@ -485,7 +485,6 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    // ✅ የዜና ፎቶ ቅድመ እይታ እና Base64 ልወጣ
     function previewNewsMedia(input) {
         const file = input.files[0];
         if (!file) {
@@ -509,7 +508,6 @@
             const el = document.getElementById(sec + '-section');
             if (el) el.style.display = 'none';
         });
-
         const links = document.querySelectorAll('.sidebar-menu li a');
         links.forEach(link => link.classList.remove('active'));
 
@@ -589,7 +587,7 @@
                 const actions = row.insertCell(5);
                 if (app.status === 'pending') {
                     actions.innerHTML = `<button class="btn btn-approve" onclick="updateStatus(${app.id}, 'approved')">አጽድቅ</button>
-                                        <button class="btn btn-reject" onclick="updateStatus(${app.id}, 'rejected')">ሰርዝ</button>`;
+                        <button class="btn btn-reject" onclick="updateStatus(${app.id}, 'rejected')">ሰርዝ</button>`;
                 } else {
                     actions.innerHTML = `<button class="btn btn-delete" onclick="deleteApplication(${app.id})">ሰርዝ</button>`;
                 }
@@ -658,7 +656,7 @@
                         <button class="btn btn-edit" onclick='openEditMember(${JSON.stringify(m).replace(/'/g, "\\'")})'>
                             <i class="fa-solid fa-edit"></i> አስተካክል
                         </button>
-                        <button class="btn btn-delete" onclick="deleteMember(${m.id}, '${m.member_id}')">
+                        <button class="btn btn-delete" onclick="deleteMember('${m._id}', '${m.member_id}')">
                             <i class="fa-solid fa-trash"></i> ሰርዝ
                         </button>
                     </div>
@@ -685,7 +683,6 @@
                 body: JSON.stringify(payload)
             });
             const data = await response.json();
-
             if (response.ok && data.success) {
                 showToast('✅ አዲስ አባል በተሳካ ሁኔታ ተመዝግቧል!');
                 document.getElementById('member-form').reset();
@@ -717,7 +714,7 @@
     }
 
     function openEditMember(member) {
-        document.getElementById('edit-member-id').value = member.id;
+        document.getElementById('edit-member-id').value = member._id;
         document.getElementById('edit-member-id-display').value = member.member_id;
         document.getElementById('edit-member-fullname').value = member.full_name;
         document.getElementById('edit-member-password').value = '';
@@ -773,15 +770,15 @@
                 <div class="news-item" style="border-left: 4px solid var(--blue); align-items: flex-start;">
                     <div style="flex:1;">
                         <strong style="color: var(--primary-green); display:block; margin-bottom:8px; font-size:15px;">
-                            📌 ${m.title}
+                            📌 ${m.title || 'ርዕስ የለም'}
                         </strong>
-                        <p style="color:#555; margin-bottom:8px; line-height:1.6; white-space:pre-wrap;">${m.content}</p>
+                        <p style="color:#555; margin-bottom:8px; line-height:1.6; white-space:pre-wrap;">${m.message}</p>
                         <small style="color:#999;">
-                            👤 ${m.sender || 'Admin'} &nbsp;•&nbsp;
+                            👤 ${m.sender_type || 'Admin'} &nbsp;•&nbsp;
                             📅 ${new Date(m.created_at).toLocaleString()}
                         </small>
                     </div>
-                    <button class="btn btn-delete" onclick="deleteMessage(${m.id})" title="ሰርዝ">
+                    <button class="btn btn-delete" onclick="deleteMessage('${m._id}')" title="ሰርዝ">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -794,19 +791,23 @@
 
     document.getElementById('message-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const payload = {
-            title: document.getElementById('message-title').value.trim(),
-            content: document.getElementById('message-content').value.trim(),
-            sender: 'Admin'
-        };
+        const title = document.getElementById('message-title').value.trim();
+        const content = document.getElementById('message-content').value.trim();
 
-        if (!payload.title || !payload.content) {
+        if (!title || !content) {
             showToast('❌ ርዕስ እና ይዘት ያስፈልጋሉ', true);
             return;
         }
 
+        // Data Payload format matching the server schema
+        const payload = {
+            member_id: 'ALL', // Broadcast to all
+            sender_type: 'admin',
+            message: `📌 ${title}\n\n${content}`
+        };
+
         try {
-            const response = await fetch(\${API_BASE}/chats, {
+            const response = await fetch(`${API_BASE}/chats`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -830,7 +831,7 @@
         if (!confirm('ይህን መልእክት መሰረዝ ይፈልጋሉ?')) return;
 
         try {
-            const response = await fetch(`${API_BASE}/messages/${id}`, { method: 'DELETE' });
+            const response = await fetch(`${API_BASE}/chats/${id}`, { method: 'DELETE' });
             if (response.ok) {
                 showToast('✅ መልእክት ተሰርዟል');
                 loadMessages();
@@ -1024,7 +1025,7 @@
             year: document.getElementById('news-year').value,
             title: document.getElementById('news-title').value,
             description: document.getElementById('news-desc').value,
-            image: newsMediaBase64 || '' // ✅ ፎቶው ካለ ወደ ሰርቨር ይላካል
+            image: newsMediaBase64 || '' 
         };
         try {
             const response = await fetch(`${API_BASE}/news`, {
