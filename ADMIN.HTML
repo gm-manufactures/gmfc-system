@@ -188,6 +188,15 @@
         .toast.show { opacity: 1; }
         .toast.error { background: var(--accent-red); }
 
+        .preview-img {
+            max-width: 150px;
+            max-height: 100px;
+            border-radius: 6px;
+            margin-top: 8px;
+            display: none;
+            border: 2px solid var(--secondary-green);
+        }
+
         /* Modal */
         .modal-overlay {
             position: fixed;
@@ -353,20 +362,13 @@
         <div class="dashboard-section">
             <div class="section-heading"><i class="fas fa-comments"></i> የድጋፍ ቻት (Support Chat)</div>
             <div style="display: flex; height: 600px; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <!-- Users List -->
                 <div style="width: 30%; border-right: 1px solid #ddd; overflow-y: auto;">
                     <div style="padding: 15px; background: #f8f9fa; font-weight: bold; border-bottom: 1px solid #ddd;">ተጠቃሚዎች</div>
                     <div id="chatUserList"></div>
                 </div>
-
-                <!-- Chat Box -->
                 <div style="width: 70%; display: flex; flex-direction: column;">
                     <div style="padding: 15px; background: #2e7d32; color: white; font-weight: bold;" id="chatHeader">ተጠቃሚ ይምረጡ</div>
-                    
-                    <div id="adminChatBox" style="flex: 1; padding: 15px; overflow-y: auto; background: #e5ddd5; display: flex; flex-direction: column;">
-                        <!-- Messages will appear here -->
-                    </div>
-
+                    <div id="adminChatBox" style="flex: 1; padding: 15px; overflow-y: auto; background: #e5ddd5; display: flex; flex-direction: column;"></div>
                     <div style="padding: 10px; background: #f0f0f0; display: flex; gap: 10px;">
                         <input type="text" id="adminChatInput" placeholder="መልእክትዎን ይጻፉ..." style="flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #ccc; outline: none;">
                         <button onclick="sendAdminMessage()" style="padding: 10px 20px; background: #2e7d32; color: white; border: none; border-radius: 20px; cursor: pointer;">ላክ</button>
@@ -399,6 +401,11 @@
                 <div class="form-group"><label>ዓመት</label><input type="text" id="news-year" placeholder="ለምሳሌ: ጥር 2026" required></div>
                 <div class="form-group full-width"><label>ርዕስ</label><input type="text" id="news-title" required></div>
                 <div class="form-group full-width"><label>ዝርዝር መግለጫ</label><textarea id="news-desc" rows="3" required></textarea></div>
+                <div class="form-group full-width">
+                    <label>ፎቶ ወይም ቪዲዮ ያስገቡ፦</label>
+                    <input type="file" id="newsMedia" accept="image/*,video/*" onchange="previewNewsMedia(this)">
+                    <img id="newsMediaPreview" class="preview-img" />
+                </div>
                 <button type="submit" class="btn-submit">ዜና ጨምር</button>
             </form>
         </div>
@@ -417,23 +424,19 @@
                     <label>1 ዶላር በብር (Exchange Rate)</label>
                     <input type="number" step="0.01" id="setting-exchange" required>
                 </div>
-
                 <div class="form-group"><label>የጫካ ቡና ፍሬ (ጥሬ) - በኪሎ</label><input type="number" id="setting-price1" required></div>
                 <div class="form-group"><label>አረንጓዴ የቡና ባቄላ - በኪሎ</label><input type="number" id="setting-price2" required></div>
                 <div class="form-group"><label>የተቆላ ቡና - በኪሎ</label><input type="number" id="setting-price3" required></div>
                 <div class="form-group"><label>የተፈጨ ቡና - በኪሎ</label><input type="number" id="setting-price4" required></div>
                 <div class="form-group full-width"><label>ጅምላ (ኩንታል) - በኩንታል</label><input type="number" id="setting-price5" required></div>
-
                 <div class="form-group full-width" style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
                     <h4 style="color: var(--primary-green); margin-bottom: 10px;">የኢትዮጵያ የቡና ደረጃዎች (Grade) ዋጋ</h4>
                 </div>
-
                 <div class="form-group"><label>ደረጃ 1 (Grade 1)</label><input type="number" step="0.01" id="setting-grade1" required></div>
                 <div class="form-group"><label>ደረጃ 2 (Grade 2)</label><input type="number" step="0.01" id="setting-grade2" required></div>
                 <div class="form-group"><label>ደረጃ 3 (Grade 3)</label><input type="number" step="0.01" id="setting-grade3" required></div>
                 <div class="form-group"><label>ደረጃ 4 (Grade 4)</label><input type="number" step="0.01" id="setting-grade4" required></div>
                 <div class="form-group"><label>ደረጃ 5 (Grade 5)</label><input type="number" step="0.01" id="setting-grade5" required></div>
-
                 <button type="submit" class="btn-submit" style="margin-top: 20px;">አዳዲስ ዋጋዎችን አስቀምጥ</button>
             </form>
         </div>
@@ -473,12 +476,31 @@
 <script>
     const API_BASE = window.location.origin + '/api';
     let currentChatMemberId = null;
+    let newsMediaBase64 = ''; // ✅ የዜና ፎቶ Base64 ለማስቀመጥ
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
         toast.className = 'toast show' + (isError ? ' error' : '');
         setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // ✅ የዜና ፎቶ ቅድመ እይታ እና Base64 ልወጣ
+    function previewNewsMedia(input) {
+        const file = input.files[0];
+        if (!file) {
+            newsMediaBase64 = '';
+            document.getElementById('newsMediaPreview').style.display = 'none';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            newsMediaBase64 = e.target.result;
+            const preview = document.getElementById('newsMediaPreview');
+            preview.src = newsMediaBase64;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
     }
 
     function showSection(section, element) {
@@ -974,7 +996,7 @@
                 container.innerHTML = news.map(item => `
                     <div class="news-item">
                         <div><strong>${item.year}</strong><br><small>${item.title}</small></div>
-                        <button class="btn btn-delete" onclick="deleteNews(${item.id})">ሰርዝ</button>
+                        <button class="btn btn-delete" onclick="deleteNews('${item._id || item.id}')">ሰርዝ</button>
                     </div>
                 `).join('');
             }
@@ -1001,7 +1023,8 @@
         const payload = {
             year: document.getElementById('news-year').value,
             title: document.getElementById('news-title').value,
-            description: document.getElementById('news-desc').value
+            description: document.getElementById('news-desc').value,
+            image: newsMediaBase64 || '' // ✅ ፎቶው ካለ ወደ ሰርቨር ይላካል
         };
         try {
             const response = await fetch(`${API_BASE}/news`, {
@@ -1012,6 +1035,8 @@
             if (response.ok) {
                 showToast('✅ ዜና ተጨምሯል!');
                 document.getElementById('news-form').reset();
+                document.getElementById('newsMediaPreview').style.display = 'none';
+                newsMediaBase64 = '';
                 loadNewsList();
                 loadDashboard();
             } else {
