@@ -29,7 +29,7 @@ mongoose.connect(MONGODB_URI, {
 .then(() => console.log('✅ MongoDB Connected'))
 .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
-// Product Schema (ከንዑስ ምድብ ጋር)
+// Product Schema
 const productSchema = new mongoose.Schema({
     title: { type: String, required: true },
     price: { type: String, required: true },
@@ -82,7 +82,7 @@ const Member = mongoose.model('Member', memberSchema);
 const postSchema = new mongoose.Schema({
     author_id: { type: String, required: true },
     author_name: { type: String, required: true },
-    content: { type: String, required: true },
+    content: { type: String, default: '' }, // ጽሑፍ ሳይኖር ፎቶ ብቻ እንዲቻል
     image: { type: String, default: '' },
     likes: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
@@ -90,7 +90,7 @@ const postSchema = new mongoose.Schema({
 const Post = mongoose.model('Post', postSchema);
 
 // ==========================================
-// SQLite Database (ለ Applications & Profile ብቻ)
+// SQLite Database
 // ==========================================
 const db = new sqlite3.Database('./gmfc_database.db');
 
@@ -447,7 +447,11 @@ app.get('/api/admin/chats', async (req, res) => {
 app.post('/api/posts', async (req, res) => {
     try {
         const { author_id, author_name, content, image } = req.body;
-        if (!author_id || !author_name || !content) return res.status(400).json({ error: "Content is required" });
+
+        // ጽሑፍ ወይም ፎቶ ከሌለ እንዳይለጠፍ
+        if (!author_id || !author_name || (!content && !image)) {
+            return res.status(400).json({ error: "Content or Image is required" });
+        }
 
         const newPost = new Post({ author_id, author_name, content, image });
         await newPost.save();
@@ -459,7 +463,7 @@ app.post('/api/posts', async (req, res) => {
 
 app.get('/api/posts', async (req, res) => {
     try {
-        const posts = await Post.find().sort({ createdAt: -1 }); // አዲሱ ላይ እንዲሆን
+        const posts = await Post.find().sort({ createdAt: -1 });
         res.json(posts);
     } catch (error) {
         res.status(500).json({ error: error.message });
