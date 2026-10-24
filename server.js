@@ -82,13 +82,18 @@ const Member = mongoose.model('Member', memberSchema);
 const postSchema = new mongoose.Schema({
     author_id: { type: String, required: true },
     author_name: { type: String, required: true },
-    content: { type: String, default: '' }, // ጽሑፍ ሳይኖር ፎቶ ብቻ እንዲቻል
+    content: { type: String, default: '' },
     image: { type: String, default: '' },
     likes: { type: Number, default: 0 },
+    // 👇 አዲስ የተጨመረ (ለኮመንቶች)
+    comments: [{
+        author_id: String,
+        author_name: String,
+        text: String,
+        createdAt: { type: Date, default: Date.now }
+    }],
     createdAt: { type: Date, default: Date.now }
 });
-const Post = mongoose.model('Post', postSchema);
-
 // ==========================================
 // SQLite Database
 // ==========================================
@@ -480,7 +485,25 @@ app.put('/api/posts/:id/like', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+// አዲስ ኮመንት መጨመሪያ
+app.post('/api/posts/:id/comment', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { author_id, author_name, text } = req.body;
 
+        if (!text) return res.status(400).json({ error: "Comment text is required" });
+
+        const post = await Post.findById(id);
+        if (!post) return res.status(404).json({ error: "Post not found" });
+
+        post.comments.push({ author_id, author_name, text });
+        await post.save();
+
+        res.json({ success: true, comments: post.comments });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 app.delete('/api/posts/:id', async (req, res) => {
     try {
         const { id } = req.params;
