@@ -1,6 +1,6 @@
 const dns = require('dns');
 // DNS ችግርን ለመፍታት የጎግል እና የCloudflare DNS እንጠቀም
-dns.setServers(['8.8.8.8', '1.1.1.1']); 
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const express = require('express');
 const cors = require('cors');
@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '50mb' })); 
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static('.'));
 
@@ -78,6 +78,17 @@ const memberSchema = new mongoose.Schema({
 });
 const Member = mongoose.model('Member', memberSchema);
 
+// Post Schema (ለማህበራዊ መረብ)
+const postSchema = new mongoose.Schema({
+    author_id: { type: String, required: true },
+    author_name: { type: String, required: true },
+    content: { type: String, required: true },
+    image: { type: String, default: '' },
+    likes: { type: Number, default: 0 },
+    createdAt: { type: Date, default: Date.now }
+});
+const Post = mongoose.model('Post', postSchema);
+
 // ==========================================
 // SQLite Database (ለ Applications & Profile ብቻ)
 // ==========================================
@@ -138,7 +149,7 @@ seedDatabase();
 // ============= API ROUTES =============
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'ADMIN.HTML'))); // Note: Ensure file name casing matches exactly
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'ADMIN.HTML')));
 
 // ============= PROFILE ROUTES (SQLite) =============
 app.get('/api/profile', (req, res) => {
@@ -211,7 +222,7 @@ app.post('/api/members', async (req, res) => {
     try {
         const { member_id, full_name, password } = req.body;
         if (!member_id || !full_name || !password) return res.status(400).json({ error: "All fields are required" });
-        
+
         const existing = await Member.findOne({ member_id });
         if (existing) return res.status(400).json({ error: "Member ID already exists" });
 
@@ -227,7 +238,7 @@ app.put('/api/members/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { full_name, password } = req.body;
-        
+
         const updateData = {};
         if (full_name) updateData.full_name = full_name;
         if (password) updateData.password = password;
@@ -253,10 +264,10 @@ app.post('/api/login', async (req, res) => {
     try {
         const { member_id, password } = req.body;
         if (!member_id || !password) return res.status(400).json({ error: "Member ID and Password are required" });
-        
+
         const member = await Member.findOne({ member_id, password });
         if (!member) return res.status(401).json({ error: "Invalid Member ID or Password" });
-        
+
         res.json({
             success: true,
             message: "Login successful",
@@ -281,7 +292,7 @@ app.post('/api/news', async (req, res) => {
     try {
         const { year, title, description, image } = req.body;
         if (!year || !title || !description) return res.status(400).json({ error: "All fields are required" });
-        
+
         const newNews = new News({ year, title, description, image });
         await newNews.save();
         res.json({ success: true, id: newNews._id });
@@ -335,7 +346,7 @@ app.post('/api/products', async (req, res) => {
     try {
         const { title, price, category, subcategory, description, image, seller_name } = req.body;
         if (!title || !price || !category) return res.status(400).json({ error: "Title, price and category are required" });
-        
+
         const newProduct = new Product({ title, price, category, subcategory, description, image, seller_name });
         await newProduct.save();
         res.json({ success: true, message: "Product added successfully", id: newProduct._id });
@@ -382,7 +393,7 @@ app.post('/api/chats', async (req, res) => {
     try {
         const { member_id, sender_type, message } = req.body;
         if (!member_id || !sender_type || !message) return res.status(400).json({ error: "All fields are required" });
-        
+
         const newChat = new Chat({ member_id, sender_type, message });
         await newChat.save();
         res.json({ success: true, id: newChat._id });
@@ -404,7 +415,6 @@ app.get('/api/chats/:member_id', async (req, res) => {
 // Admin Broadcast Messages Route
 app.get('/api/messages', async (req, res) => {
     try {
-        // Fetch messages sent by admin to all (broadcasts)
         const messages = await Chat.find({ member_id: 'ALL' }).sort({ created_at: -1 });
         res.json(messages);
     } catch (error) {
@@ -425,10 +435,54 @@ app.delete('/api/chats/:id', async (req, res) => {
 
 app.get('/api/admin/chats', async (req, res) => {
     try {
-        // Exclude 'ALL' to only show individual users
         const uniqueMembers = await Chat.distinct('member_id', { member_id: { $ne: 'ALL' } });
         const formatted = uniqueMembers.map(id => ({ member_id: id }));
         res.json(formatted);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============= POSTS / FEED ROUTES (MongoDB) =============
+app.post('/api/posts', async (req, res) => {
+    try {
+        const { author_id, author_name, content, image } = req.body;
+        if (!author_id || !author_name || !content) return res.status(400).json({ error: "Content is required" });
+
+        const newPost = new Post({ author_id, author_name, content, image });
+        await newPost.save();
+        res.json({ success: true, message: "Post created successfully", post: newPost });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/posts', async (req, res) => {
+    try {
+        const posts = await Post.find().sort({ createdAt: -1 }); // አዲሱ ላይ እንዲሆን
+        res.json(posts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/posts/:id/like', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedPost = await Post.findByIdAndUpdate(id, { $inc: { likes: 1 } }, { new: true });
+        if (!updatedPost) return res.status(404).json({ error: "Post not found" });
+        res.json({ success: true, likes: updatedPost.likes });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/posts/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await Post.findByIdAndDelete(id);
+        if (!deleted) return res.status(404).json({ error: "Post not found" });
+        res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -438,7 +492,7 @@ app.get('/api/admin/chats', async (req, res) => {
 app.get('/api/stats', async (req, res) => {
     try {
         const totalMembers = await Member.countDocuments();
-        
+
         db.get("SELECT COUNT(*) as total FROM applications WHERE status = 'approved'", (err, approved) => {
             if (err) return res.status(500).json({ error: err.message });
             db.get("SELECT COUNT(*) as total FROM applications WHERE status = 'pending'", (err, pending) => {
