@@ -138,7 +138,7 @@ seedDatabase();
 // ============= API ROUTES =============
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'ADMIN.HTML'))); // Note: Ensure file name casing matches exactly
 
 // ============= PROFILE ROUTES (SQLite) =============
 app.get('/api/profile', (req, res) => {
@@ -377,7 +377,7 @@ app.delete('/api/products/:id', async (req, res) => {
     }
 });
 
-// ============= CHAT ROUTES (MongoDB) =============
+// ============= MESSAGES / CHAT ROUTES (MongoDB) =============
 app.post('/api/chats', async (req, res) => {
     try {
         const { member_id, sender_type, message } = req.body;
@@ -401,9 +401,32 @@ app.get('/api/chats/:member_id', async (req, res) => {
     }
 });
 
+// Admin Broadcast Messages Route
+app.get('/api/messages', async (req, res) => {
+    try {
+        // Fetch messages sent by admin to all (broadcasts)
+        const messages = await Chat.find({ member_id: 'ALL' }).sort({ created_at: -1 });
+        res.json(messages);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Delete Broadcast Message Route
+app.delete('/api/chats/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Chat.findByIdAndDelete(id);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('/api/admin/chats', async (req, res) => {
     try {
-        const uniqueMembers = await Chat.distinct('member_id');
+        // Exclude 'ALL' to only show individual users
+        const uniqueMembers = await Chat.distinct('member_id', { member_id: { $ne: 'ALL' } });
         const formatted = uniqueMembers.map(id => ({ member_id: id }));
         res.json(formatted);
     } catch (error) {
