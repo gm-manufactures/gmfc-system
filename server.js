@@ -245,13 +245,20 @@ app.post('/api/members', async (req, res) => {
 app.put('/api/members/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { full_name, password } = req.body;
-
+        const { full_name, password, phone, email, gender, age, region, woreda, blood_type } = req.body;
+        
         const updateData = {};
         if (full_name) updateData.full_name = full_name;
         if (password) updateData.password = password;
+        if (phone) updateData.phone = phone;
+        if (email) updateData.email = email;
+        if (gender) updateData.gender = gender;
+        if (age) updateData.age = age;
+        if (region) updateData.region = region;
+        if (woreda) updateData.woreda = woreda;
+        if (blood_type) updateData.blood_type = blood_type;
 
-        await Member.findByIdAndUpdate(id, updateData);
+        await Member.findByIdAndUpdate(id, updateData, { new: true });
         res.json({ success: true, message: "Member updated successfully" });
     } catch (error) {
         res.status(500).json({ error: error.message });
