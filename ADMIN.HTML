@@ -492,13 +492,15 @@
 
     // አዲስ መልእክት ሲመጣ ማዳመጥ
     socket.on("adminReceiveMessage", (newMessage) => {
-        console.log("New message received:", newMessage);
-        // አሁን ክፍት ያለው ተጠቃሚ ጋር ከተመሳሰለ ብቻ ሳጥኑን አዘምን
-        if (currentChatMemberId === newMessage.member_id || newMessage.member_id === 'ALL') {
-            loadChatMessages(currentChatMemberId); 
-        }
-        loadChatUsers(); // የተጠቃሚዎችን ዝርዝር አዘምን
-    });
+    console.log("📩 Admin received live message:", newMessage); // መልእክቱ መምጣቱን በConsole ለማየት
+    
+    // አሁን ክፍት ያለው ተጠቃሚ ጋር ከተመሳሰለ ወይም ለሁሉም ከሆነ ገጹን አዘምን
+    if (currentChatMemberId === newMessage.member_id || newMessage.member_id === 'ALL') {
+        loadChatMessages(currentChatMemberId); 
+    }
+    // አዲስ መልእክት የመጣበትን ሰው ወደ ዝርዝሩ ላይ አሳይ
+    loadChatUsers(); 
+});
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
