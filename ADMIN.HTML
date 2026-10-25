@@ -482,7 +482,9 @@
     let newsMediaBase64 = ''; 
 
     // ✅ የ Socket.io ግንኙነት
-    const socket = io('https://gmfc-system-1-gzw8.onrender.com');
+    const socket = io('https://gmfc-system-1-gzw8.onrender.com', {
+    transports: ["websocket"]
+});
 
     socket.on("connect", () => {
         console.log("🔌 Admin connected to Socket.io");
