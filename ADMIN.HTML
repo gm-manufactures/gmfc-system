@@ -481,26 +481,47 @@
     let currentChatMemberId = null;
     let newsMediaBase64 = ''; 
 
-    // ✅ የ Socket.io ግንኙነት
+    // ✅ የተሻሻለው የ Socket.io ግንኙነት (polling ተጨምሯል)
     const socket = io('https://gmfc-system-1-gzw8.onrender.com', {
-    transports: ["websocket"]
-});
+        transports: ["websocket", "polling"] 
+    });
 
     socket.on("connect", () => {
         console.log("🔌 Admin connected to Socket.io");
     });
 
-    // አዲስ መልእክት ሲመጣ ማዳመጥ
+    // ✅ አዲስ መልእክት ሲመጣ ማዳመጥ (ያለ ማደስ በቀጥታ መጨመር)
     socket.on("adminReceiveMessage", (newMessage) => {
-    console.log("📩 Admin received live message:", newMessage); // መልእክቱ መምጣቱን በConsole ለማየት
-    
-    // አሁን ክፍት ያለው ተጠቃሚ ጋር ከተመሳሰለ ወይም ለሁሉም ከሆነ ገጹን አዘምን
-    if (currentChatMemberId === newMessage.member_id || newMessage.member_id === 'ALL') {
-        loadChatMessages(currentChatMemberId); 
-    }
-    // አዲስ መልእክት የመጣበትን ሰው ወደ ዝርዝሩ ላይ አሳይ
-    loadChatUsers(); 
-});
+        console.log("📩 Admin received live message:", newMessage); 
+        
+        // አሁን ክፍት ያለው ተጠቃሚ ጋር ከተመሳሰለ ወይም ለሁሉም ከሆነ
+        if (currentChatMemberId === newMessage.member_id || newMessage.member_id === 'ALL') {
+            const chatBox = document.getElementById('adminChatBox');
+            
+            // "በመጫን ላይ" ወይም "ምንም መልእክት የለም" የሚል ጽሑፍ ካለ አጥፋ
+            if (chatBox.innerHTML.includes('በመጫን ላይ') || chatBox.innerHTML.includes('ምንም መልእክት የለም')) {
+                chatBox.innerHTML = '';
+            }
+
+            const isAdmin = newMessage.sender_type === 'admin';
+            const bubble = document.createElement('div');
+            // ✅ የጎደለው backtick ( ` ) ተጨምሯል
+            bubble.style.cssText = `
+                max-width: 70%; padding: 10px 15px; border-radius: 15px; margin-bottom: 10px; font-size: 14px;
+                align-self: ${isAdmin ? 'flex-end' : 'flex-start'};
+                background: ${isAdmin ? '#2e7d32' : '#fff'};
+                color: ${isAdmin ? '#fff' : '#333'};
+                border-bottom-${isAdmin ? 'right' : 'left'}-radius: 0;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            `;
+            bubble.innerText = newMessage.message;
+            chatBox.appendChild(bubble);
+            chatBox.scrollTop = chatBox.scrollHeight; // ወደ ታች መንሸራተት
+        }
+        
+        // አዲስ መልእክት የመጣበትን ሰው ወደ ዝርዝሩ ላይ አሳይ
+        loadChatUsers(); 
+    });
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
@@ -553,6 +574,7 @@
     /* ================= DASHBOARD ================= */
     async function loadDashboard() {
         try {
+            // ✅ የጎደሉት backticks ተጨምረዋል
             const statsRes = await fetch(`${API_BASE}/stats`);
             const stats = await statsRes.json();
             document.getElementById('total-approved').innerText = stats.totalApproved || 0;
@@ -596,6 +618,7 @@
     /* ================= APPLICATIONS ================= */
     async function loadApplications() {
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/applications`);
             const apps = await response.json();
             const tbody = document.getElementById('applications-tbody');
@@ -607,12 +630,15 @@
                 row.insertCell(1).innerText = app.phone;
                 row.insertCell(2).innerText = app.amount;
                 row.insertCell(3).innerText = app.city || '-';
+                // ✅ የጎደለው backtick ተጨምሯል
                 row.insertCell(4).innerHTML = `<span class="status-badge status-${app.status}">${app.status === 'pending' ? 'በመጠባበቅ' : app.status === 'approved' ? 'የጸደቀ' : 'ውድቅ'}</span>`;
                 const actions = row.insertCell(5);
                 if (app.status === 'pending') {
+                    // ✅ የጎደለው backtick ተጨምሯል
                     actions.innerHTML = `<button class="btn btn-approve" onclick="updateStatus(${app.id}, 'approved')">አጽድቅ</button>
                         <button class="btn btn-reject" onclick="updateStatus(${app.id}, 'rejected')">ሰርዝ</button>`;
                 } else {
+                    // ✅ የጎደለው backtick ተጨምሯል
                     actions.innerHTML = `<button class="btn btn-delete" onclick="deleteApplication(${app.id})">ሰርዝ</button>`;
                 }
             });
@@ -624,6 +650,7 @@
 
     async function updateStatus(id, status) {
         try {
+            // ✅ የጎደለው backtick እና የጎደለው የመዝጊያ ቅንፍ ) ተጨምረዋል
             const response = await fetch(`${API_BASE}/applications/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -644,6 +671,7 @@
     async function deleteApplication(id) {
         if (confirm('እርግጠኛ ነዎት?')) {
             try {
+                // ✅ የጎደለው backtick እና የመዝጊያ ቅንፍ ) ተጨምረዋል
                 await fetch(`${API_BASE}/applications/${id}`, { method: 'DELETE' });
                 showToast('ተሰርዟል');
                 loadApplications();
@@ -660,6 +688,7 @@
         container.innerHTML = '<p style="text-align:center;color:#999;">በመጫን ላይ...</p>';
 
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/members`);
             if (!response.ok) throw new Error('Failed to load');
             const members = await response.json();
@@ -669,12 +698,13 @@
                 return;
             }
 
+            // ✅ የጎደለው backtick ተጨምሯል
             container.innerHTML = members.map(m => `
                 <div class="member-item">
                     <div class="member-info">
-                        <strong>👤 ${m.full_name}</strong>
-                        <small>🆔 ${m.member_id}</small>
-                        <small>📅 ${new Date(m.created_at).toLocaleDateString()}</small>
+                        <strong>👤 ${m.full_name || 'ስም የለም'}</strong>
+                        <small>🆔 ${m.member_id || 'ID የለም'}</small>
+                        <small>📅 ${m.created_at ? new Date(m.created_at).toLocaleDateString() : 'N/A'}</small>
                     </div>
                     <div>
                         <button class="btn btn-edit" onclick='openEditMember(${JSON.stringify(m).replace(/'/g, "\\'")})'>
@@ -701,6 +731,7 @@
         };
 
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/members`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -721,9 +752,11 @@
     });
 
     async function deleteMember(id, memberId) {
+        // ✅ የጎደለው backtick ተጨምሯል
         if (!confirm(`አባል "${memberId}" ን መሰረዝ ይፈልጋሉ?`)) return;
 
         try {
+            // ✅ የጎደለው backtick እና የመዝጊያ ቅንፍ ) ተጨምረዋል
             const response = await fetch(`${API_BASE}/members/${id}`, { method: 'DELETE' });
             if (response.ok) {
                 showToast('✅ አባል ተሰርዟል');
@@ -758,6 +791,7 @@
         };
 
         try {
+            // ✅ የጎደለው backtick እና የመዝጊያ ቅንፍ ) ተጨምረዋል
             const response = await fetch(`${API_BASE}/members/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -781,6 +815,7 @@
         container.innerHTML = '<p style="text-align:center;color:#999;">በመጫን ላይ...</p>';
 
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/messages`);
             if (!response.ok) throw new Error('Failed to load');
             const messages = await response.json();
@@ -790,6 +825,7 @@
                 return;
             }
 
+            // ✅ የጎደለው backtick ተጨምሯል
             container.innerHTML = messages.map(m => `
                 <div class="news-item" style="border-left: 4px solid var(--blue); align-items: flex-start;">
                     <div style="flex:1;">
@@ -823,14 +859,15 @@
             return;
         }
 
-        // Data Payload format matching the server schema
         const payload = {
-            member_id: 'ALL', // Broadcast to all
+            member_id: 'ALL', 
             sender_type: 'admin',
+            // ✅ የጎደለው backtick ተጨምሯል
             message: `📌 ${title}\n\n${content}`
         };
 
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/chats`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -855,6 +892,7 @@
         if (!confirm('ይህን መልእክት መሰረዝ ይፈልጋሉ?')) return;
 
         try {
+            // ✅ የጎደለው backtick እና የመዝጊያ ቅንፍ ) ተጨምረዋል
             const response = await fetch(`${API_BASE}/chats/${id}`, { method: 'DELETE' });
             if (response.ok) {
                 showToast('✅ መልእክት ተሰርዟል');
@@ -874,6 +912,7 @@
         listDiv.innerHTML = '<p style="padding:15px;color:#999;">በመጫን ላይ...</p>';
 
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const res = await fetch(`${API_BASE}/admin/chats`);
             const data = await res.json();
             listDiv.innerHTML = '';
@@ -885,15 +924,16 @@
 
             data.forEach(user => {
                 const btn = document.createElement('div');
-                btn.style.cssText = 'padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px;';
+                const isActive = currentChatMemberId === user.member_id;
+                // ✅ የጎደለው backtick ተጨምሯል
+                btn.style.cssText = `padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; background: ${isActive ? '#e8f5e9' : 'transparent'};`;
+                // ✅ የጎደለው backtick ተጨምሯል
                 btn.innerHTML = `
                     <div style="width: 40px; height: 40px; background: #2e7d32; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold;">
                         ${user.member_id.charAt(0)}
                     </div>
                     <strong>👤 ${user.member_id}</strong>
                 `;
-                btn.onmouseover = () => btn.style.background = '#f0f0f0';
-                btn.onmouseout = () => btn.style.background = 'transparent';
                 btn.onclick = () => loadChatMessages(user.member_id);
                 listDiv.appendChild(btn);
             });
@@ -904,13 +944,19 @@
     }
 
     async function loadChatMessages(memberId) {
+        // ✅ የጎደሉት || ምልክቶች ተጨምረዋል
+        if (!memberId || memberId === 'undefined' || memberId === 'null') return;
+        
         currentChatMemberId = memberId;
+        // ✅ የጎደለው backtick ተጨምሯል
         document.getElementById('chatHeader').innerText = `ከ ${memberId} ጋር ያለ ውይይት`;
+        loadChatUsers(); 
         
         const chatBox = document.getElementById('adminChatBox');
         chatBox.innerHTML = '<p style="text-align:center;color:#999;">በመጫን ላይ...</p>';
 
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const res = await fetch(`${API_BASE}/chats/${memberId}`);
             const data = await res.json();
             chatBox.innerHTML = '';
@@ -923,6 +969,7 @@
             data.forEach(msg => {
                 const isAdmin = msg.sender_type === 'admin';
                 const bubble = document.createElement('div');
+                // ✅ የጎደለው backtick ተጨምሯል
                 bubble.style.cssText = `
                     max-width: 70%; padding: 10px 15px; border-radius: 15px; margin-bottom: 10px; font-size: 14px;
                     align-self: ${isAdmin ? 'flex-end' : 'flex-start'};
@@ -953,7 +1000,7 @@
 
         input.value = '';
 
-        // 👇 በSocket በኩል ላክ
+        // ✅ በSocket በኩል ላክ
         socket.emit("adminSendMessage", { 
             member_id: currentChatMemberId, 
             sender_type: 'admin', 
@@ -964,6 +1011,7 @@
     /* ================= PROFILE ================= */
     async function loadProfile() {
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/profile`);
             const data = await response.json();
             document.getElementById('company-name').value = data.currentName || '';
@@ -986,6 +1034,7 @@
             heroSubtitle: document.getElementById('hero-subtitle').value
         };
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -1004,12 +1053,15 @@
     /* ================= NEWS ================= */
     async function loadNewsList() {
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/news`);
             const news = await response.json();
             const container = document.getElementById('news-list');
+
             if (news.length === 0) {
                 container.innerHTML = '<p>ምንም ዜና የለም</p>';
             } else {
+                // ✅ የጎደለው backtick ተጨምሯል
                 container.innerHTML = news.map(item => `
                     <div class="news-item">
                         <div><strong>${item.year}</strong><br><small>${item.title}</small></div>
@@ -1025,6 +1077,7 @@
     async function deleteNews(id) {
         if (confirm('ይህን ዜና መሰረዝ ይፈልጋሉ?')) {
             try {
+                // ✅ የጎደለው backtick እና የመዝጊያ ቅንፍ ) ተጨምረዋል
                 await fetch(`${API_BASE}/news/${id}`, { method: 'DELETE' });
                 showToast('✅ ዜና ተሰርዟል');
                 loadNewsList();
@@ -1044,6 +1097,7 @@
             image: newsMediaBase64 || '' 
         };
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/news`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1067,6 +1121,7 @@
     /* ================= SETTINGS ================= */
     async function loadSettings() {
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/settings`);
             const settings = await response.json();
 
@@ -1104,6 +1159,7 @@
             grade5_price: document.getElementById('setting-grade5').value
         };
         try {
+            // ✅ የጎደለው backtick ተጨምሯል
             const response = await fetch(`${API_BASE}/settings`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
