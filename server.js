@@ -36,7 +36,7 @@ app.use(express.static('.'));
 // 🔴 MongoDB Connection & Schemas
 // ==========================================
 // ✅ የጎደለው || ተጨምሯል
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gambella_admin:Admin1234@gammajmembers.di2ho2h.mongodb.net/gambella_coffee_union?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gambella_admin:Admin1234@gammajmembers.di2ho2h.mongodb.net/gmfc_system_app?retryWrites=true&w=majority';
 
 mongoose.connect(MONGODB_URI, {
     serverSelectionTimeoutMS: 60000,
