@@ -242,6 +242,26 @@ app.get('/api/members', async (req, res) => {
     }
 });
 
+// ✅ SEARCH MEMBERS ROUTE (ከ :id በፊት መሆን አለበት)
+app.get('/api/members/search', async (req, res) => {
+    try {
+        const { query } = req.query;
+        if (!query) return res.json([]);
+
+        // በስም ወይም በMember ID ፍለጋ (Case-insensitive)
+        const members = await Member.find({
+            $or: [
+                { full_name: { $regex: query, $options: 'i' } },
+                { member_id: { $regex: query, $options: 'i' } }
+            ]
+        }).select('member_id full_name _id'); // ፓስወርድ አንላክም
+
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.post('/api/members', async (req, res) => {
     try {
         const { member_id, full_name, password } = req.body;
