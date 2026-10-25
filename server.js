@@ -321,6 +321,21 @@ app.post('/api/members/:id/unfollow', async (req, res) => {
     }
 });
 
+// ✅ አንተ የዚያን ሰው መከተልህን ወይም አለመከተልህን የሚያረጋግጥ
+app.get('/api/members/:id/status/:currentUserId', async (req, res) => {
+    try {
+        const { id, currentUserId } = req.params;
+        const member = await Member.findOne({ member_id: currentUserId });
+
+        if (!member) return res.json({ isFollowing: false });
+
+        const isFollowing = member.following.includes(id);
+        res.json({ isFollowing });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // የአንድ የተወሰነ ሰው ፖስቶችን ብቻ ለማምጣት
 app.get('/api/members/:id/posts', async (req, res) => {
     try {
