@@ -116,7 +116,7 @@ const postSchema = new mongoose.Schema({
 const Post = mongoose.model('Post', postSchema);
 
 // ==========================================
-// ✅ SOCKET.IO LOGIC
+// ✅ SOCKET.IO LOGIC (የተሻሻለ)
 // ==========================================
 io.on("connection", (socket) => {
     console.log("🔌 A user connected:", socket.id);
@@ -124,23 +124,42 @@ io.on("connection", (socket) => {
     // ተጠቃሚው ወደ መግቢያው (Room) ሲቀላቀል
     socket.on("joinRoom", (member_id) => {
         socket.join(member_id);
+        // ✅ የጎደለው backtick ተጨምሯል
         console.log(`User joined room: ${member_id}`);
     });
 
-    // አዲስ መልእክት ሲመጣ
+    // ተጠቃሚ መልእክት ሲልክ
     socket.on("sendMessage", async (data) => {
         try {
-            // መልእክቱን ወደ MongoDB አስቀምጥ
             const newChat = new Chat(data);
             await newChat.save();
 
             // መልእክቱን ለተጠቃሚው (ለክፍሉ) ላክ
             io.to(data.member_id).emit("receiveMessage", newChat);
-            
             // ለአድሚን ዳሽቦርድም ላክ
             io.emit("adminReceiveMessage", newChat);
         } catch (error) {
             console.error("Error saving chat:", error);
+        }
+    });
+
+    // ✅ አድሚን መልእክት ሲልክ
+    socket.on("adminSendMessage", async (data) => {
+        try {
+            const newChat = new Chat(data);
+            await newChat.save();
+
+            // መልእክቱን ለተጠቃሚው ላክ
+            if (data.member_id !== 'ALL') {
+                io.to(data.member_id).emit("receiveMessage", newChat);
+            } else {
+                io.emit("receiveMessage", newChat); // ለሁሉም
+            }
+            
+            // ለአድሚን ዳሽቦርድም ላክ (ራሱ እንዲያየው)
+            io.emit("adminReceiveMessage", newChat);
+        } catch (error) {
+            console.error("Error saving admin chat:", error);
         }
     });
 
