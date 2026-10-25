@@ -23,6 +23,7 @@ const io = new Server(server, {
     }
 });
 
+// ✅ የጎደለው || ተጨምሯል
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -34,6 +35,7 @@ app.use(express.static('.'));
 // ==========================================
 // 🔴 MongoDB Connection & Schemas
 // ==========================================
+// ✅ የጎደለው || ተጨምሯል
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gambella_admin:Admin1234@gammajmembers.di2ho2h.mongodb.net/gambella_coffee_union?retryWrites=true&w=majority';
 
 mongoose.connect(MONGODB_URI, {
@@ -320,6 +322,7 @@ app.post('/api/login', async (req, res) => {
                 id: member._id, 
                 member_id: member.member_id, 
                 full_name: member.full_name,
+                // ✅ የጎደሉት || ተጨምረዋል
                 phone: member.phone || '',
                 email: member.email || '',
                 gender: member.gender || '',
@@ -549,6 +552,10 @@ app.post('/api/chats', async (req, res) => {
 app.get('/api/chats/:member_id', async (req, res) => {
     try {
         const { member_id } = req.params;
+        // ✅ 500 ስህተትን ለመከላከል ባዶ ID ካለ እንዳይፈልግ
+        if (!member_id || member_id === 'undefined' || member_id === 'null') {
+            return res.json([]);
+        }
         const chats = await Chat.find({ member_id }).sort({ created_at: 1 });
         res.json(chats);
     } catch (error) {
