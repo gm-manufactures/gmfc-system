@@ -8,17 +8,21 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const mongoose = require('mongoose');
 
-// ✅ ለSocket.io
+// ✅ ለ Socket.io የሚያስፈልጉ
 const http = require('http');
 const { Server } = require("socket.io");
 
 const app = express();
-const server = http.createServer(app); // ✅ ከ app.listen ይልቅ ይህን እንጠቀማለን
+// ✅ ከ app.listen ይልቅ server እንጠቀማለን
+const server = http.createServer(app);
+
 const io = new Server(server, {
-    cors: { origin: "*" } // ሁሉም ቦታ እንዲገናኝ ፈቅድ
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
 });
 
-// ✅ የጎደለው || ተጨምሯል
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -30,7 +34,6 @@ app.use(express.static('.'));
 // ==========================================
 // 🔴 MongoDB Connection & Schemas
 // ==========================================
-// ✅ የጎደለው || ተጨምሯል
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gambella_admin:Admin1234@gammajmembers.di2ho2h.mongodb.net/gambella_coffee_union?retryWrites=true&w=majority';
 
 mongoose.connect(MONGODB_URI, {
@@ -80,7 +83,7 @@ const chatSchema = new mongoose.Schema({
 });
 const Chat = mongoose.model('Chat', chatSchema);
 
-// Member Schema (ከአዲሶቹ መስኮች ጋር)
+// Member Schema
 const memberSchema = new mongoose.Schema({
     member_id: { type: String, required: true, unique: true },
     full_name: { type: String, required: true },
@@ -116,60 +119,7 @@ const postSchema = new mongoose.Schema({
 const Post = mongoose.model('Post', postSchema);
 
 // ==========================================
-// ✅ SOCKET.IO LOGIC (የተሻሻለ)
-// ==========================================
-io.on("connection", (socket) => {
-    console.log("🔌 A user connected:", socket.id);
-
-    // ተጠቃሚው ወደ መግቢያው (Room) ሲቀላቀል
-    socket.on("joinRoom", (member_id) => {
-        socket.join(member_id);
-        // ✅ የጎደለው backtick ተጨምሯል
-        console.log(`User joined room: ${member_id}`);
-    });
-
-    // ተጠቃሚ መልእክት ሲልክ
-    socket.on("sendMessage", async (data) => {
-        try {
-            const newChat = new Chat(data);
-            await newChat.save();
-
-            // መልእክቱን ለተጠቃሚው (ለክፍሉ) ላክ
-            io.to(data.member_id).emit("receiveMessage", newChat);
-            // ለአድሚን ዳሽቦርድም ላክ
-            io.emit("adminReceiveMessage", newChat);
-        } catch (error) {
-            console.error("Error saving chat:", error);
-        }
-    });
-
-    // ✅ አድሚን መልእክት ሲልክ
-    socket.on("adminSendMessage", async (data) => {
-        try {
-            const newChat = new Chat(data);
-            await newChat.save();
-
-            // መልእክቱን ለተጠቃሚው ላክ
-            if (data.member_id !== 'ALL') {
-                io.to(data.member_id).emit("receiveMessage", newChat);
-            } else {
-                io.emit("receiveMessage", newChat); // ለሁሉም
-            }
-            
-            // ለአድሚን ዳሽቦርድም ላክ (ራሱ እንዲያየው)
-            io.emit("adminReceiveMessage", newChat);
-        } catch (error) {
-            console.error("Error saving admin chat:", error);
-        }
-    });
-
-    socket.on("disconnect", () => {
-        console.log("🔌 User disconnected");
-    });
-});
-
-// ==========================================
-// SQLite Database (ለ Applications እና Profile ብቻ)
+// SQLite Database
 // ==========================================
 const db = new sqlite3.Database('./gmfc_database.db');
 
@@ -298,26 +248,6 @@ app.delete('/api/applications/:id', (req, res) => {
 app.get('/api/members', async (req, res) => {
     try {
         const members = await Member.find().sort({ created_at: -1 });
-        res.json(members);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ✅ SEARCH MEMBERS ROUTE (ከ :id በፊት መሆን አለበት)
-app.get('/api/members/search', async (req, res) => {
-    try {
-        const { query } = req.query;
-        if (!query) return res.json([]);
-
-        // በስም ወይም በMember ID ፍለጋ (Case-insensitive)
-        const members = await Member.find({
-            $or: [
-                { full_name: { $regex: query, $options: 'i' } },
-                { member_id: { $regex: query, $options: 'i' } }
-            ]
-        }).select('member_id full_name _id'); // ፓስወርድ አንላክም
-
         res.json(members);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -626,7 +556,6 @@ app.get('/api/chats/:member_id', async (req, res) => {
     }
 });
 
-// Admin Broadcast Messages Route
 app.get('/api/messages', async (req, res) => {
     try {
         const messages = await Chat.find({ member_id: 'ALL' }).sort({ created_at: -1 });
@@ -636,7 +565,6 @@ app.get('/api/messages', async (req, res) => {
     }
 });
 
-// Delete Broadcast Message Route
 app.delete('/api/chats/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -669,7 +597,6 @@ app.post('/api/posts', async (req, res) => {
 
         const newPost = new Post({ author_id, author_name, content, image });
         await newPost.save();
-
         res.json({ success: true, message: "Post created successfully", post: newPost });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -696,7 +623,6 @@ app.put('/api/posts/:id/like', async (req, res) => {
     }
 });
 
-// አዲስ ኮመንት መጨመሪያ
 app.post('/api/posts/:id/comment', async (req, res) => {
     try {
         const { id } = req.params;
@@ -752,7 +678,51 @@ app.get('/api/stats', async (req, res) => {
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
-// Start server (✅ ከ app.listen ወደ server.listen ተቀይሯል)
+// ==========================================
+// 🔴 SOCKET.IO LOGIC (ለ Real-time Chat)
+// ==========================================
+io.on("connection", (socket) => {
+    console.log("🔌 A user connected:", socket.id);
+
+    socket.on("joinRoom", (member_id) => {
+        socket.join(member_id);
+        // ✅ የጎደለው backtick ተጨምሯል
+        console.log(`User joined room: ${member_id}`);
+    });
+
+    socket.on("sendMessage", async (data) => {
+        try {
+            const newChat = new Chat(data);
+            await newChat.save();
+            io.to(data.member_id).emit("receiveMessage", newChat);
+            io.emit("adminReceiveMessage", newChat);
+        } catch (error) {
+            console.error("Error saving chat:", error);
+        }
+    });
+
+    socket.on("adminSendMessage", async (data) => {
+        try {
+            const newChat = new Chat(data);
+            await newChat.save();
+            if (data.member_id !== 'ALL') {
+                io.to(data.member_id).emit("receiveMessage", newChat);
+            } else {
+                io.emit("receiveMessage", newChat);
+            }
+            io.emit("adminReceiveMessage", newChat);
+        } catch (error) {
+            console.error("Error saving admin chat:", error);
+        }
+    });
+
+    socket.on("disconnect", () => {
+        console.log("🔌 User disconnected");
+    });
+});
+
+// ============= START SERVER =============
+// ✅ ከ app.listen ወደ server.listen ተቀይሯል
 server.listen(PORT, '0.0.0.0', () => {
     // ✅ የጎደሉት backticks ተጨምረዋል
     console.log(`✅ GMFC Server running on port ${PORT}`);
