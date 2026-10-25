@@ -350,6 +350,22 @@ app.get('/api/members/:id/stats', async (req, res) => {
     }
 });
 
+// ✅ የተከታዮች ወይም የሚከታተላቸው ዝርዝር (ስም + መለያ)
+app.get('/api/members/:id/connections/:type', async (req, res) => {
+    try {
+        const { id, type } = req.params; // type ማለት 'followers' ወይም 'following'
+        const member = await Member.findOne({ member_id: id });
+        if (!member) return res.status(404).json({ error: "Member not found" });
+
+        const ids = type === 'followers' ? member.followers : member.following;
+        // የዚያን ሰዎች ስም እና ID ፈልገን እናመጣለን
+        const connections = await Member.find({ member_id: { $in: ids } }, 'member_id full_name');
+        res.json(connections);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // የአንድ የተወሰነ ሰው ፖስቶችን ብቻ ለማምጣት
 app.get('/api/members/:id/posts', async (req, res) => {
     try {
