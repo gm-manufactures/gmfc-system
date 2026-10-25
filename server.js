@@ -74,18 +74,19 @@ const memberSchema = new mongoose.Schema({
     member_id: { type: String, required: true, unique: true },
     full_name: { type: String, required: true },
     password: { type: String, required: true },
+    following: { type: [String], default: [] },
+    followers: { type: [String], default: [] },
     created_at: { type: Date, default: Date.now }
 });
 const Member = mongoose.model('Member', memberSchema);
 
-// Post Schema (ለማህበራዊ መረብ)
+// Post Schema
 const postSchema = new mongoose.Schema({
     author_id: { type: String, required: true },
     author_name: { type: String, required: true },
     content: { type: String, default: '' },
     image: { type: String, default: '' },
     likes: { type: Number, default: 0 },
-    // 👇 አዲስ የተጨመረ (ለኮመንቶች)
     comments: [{
         author_id: String,
         author_name: String,
@@ -95,6 +96,7 @@ const postSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 const Post = mongoose.model('Post', postSchema);
+
 // ==========================================
 // SQLite Database
 // ==========================================
@@ -279,6 +281,52 @@ app.post('/api/login', async (req, res) => {
             message: "Login successful",
             user: { id: member._id, member_id: member.member_id, full_name: member.full_name }
         });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============= FOLLOW / UNFOLLOW ROUTES =============
+app.post('/api/members/:id/follow', async (req, res) => {
+    try {
+        const targetMemberId = req.params.id; // ልንከታተለው የምንፈልገው ሰው
+        const { currentUserId } = req.body; // እኛ (የምንከታተለው)
+
+        if (targetMemberId === currentUserId) {
+            return res.status(400).json({ error: "እራስዎን ማሳደድ አይችሉም" });
+        }
+
+        // እኛ ያንን ሰው በ Following ዝርዝራችን ውስጥ እንጨምር
+        await Member.updateOne({ member_id: currentUserId }, { $addToSet: { following: targetMemberId } });
+        // እሱም እኛን በ Followers ዝርዝሩ ውስጥ እንዲጨምር
+        await Member.updateOne({ member_id: targetMemberId }, { $addToSet: { followers: currentUserId } });
+
+        res.json({ success: true, message: "በተሳካ ሁኔታ ተከትለዋል" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/members/:id/unfollow', async (req, res) => {
+    try {
+        const targetMemberId = req.params.id;
+        const { currentUserId } = req.body;
+
+        await Member.updateOne({ member_id: currentUserId }, { $pull: { following: targetMemberId } });
+        await Member.updateOne({ member_id: targetMemberId }, { $pull: { followers: currentUserId } });
+
+        res.json({ success: true, message: "ከመከታተያ ዝርዝር ተወግዷል" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// የአንድ የተወሰነ ሰው ፖስቶችን ብቻ ለማምጣት
+app.get('/api/members/:id/posts', async (req, res) => {
+    try {
+        const targetMemberId = req.params.id;
+        const posts = await Post.find({ author_id: targetMemberId }).sort({ createdAt: -1 });
+        res.json(posts);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -486,6 +534,7 @@ app.put('/api/posts/:id/like', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 // አዲስ ኮመንት መጨመሪያ
 app.post('/api/posts/:id/comment', async (req, res) => {
     try {
@@ -505,6 +554,7 @@ app.post('/api/posts/:id/comment', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 app.delete('/api/posts/:id', async (req, res) => {
     try {
         const { id } = req.params;
