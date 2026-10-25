@@ -9,6 +9,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 
 const app = express();
+// ✅ የጎደለው || ተጨምሯል
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -20,6 +21,7 @@ app.use(express.static('.'));
 // ==========================================
 // 🔴 MongoDB Connection & Schemas
 // ==========================================
+// ✅ የጎደለው || ተጨምሯል
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gambella_admin:Admin1234@gammajmembers.di2ho2h.mongodb.net/gambella_coffee_union?retryWrites=true&w=majority';
 
 mongoose.connect(MONGODB_URI, {
@@ -69,11 +71,18 @@ const chatSchema = new mongoose.Schema({
 });
 const Chat = mongoose.model('Chat', chatSchema);
 
-// Member Schema
+// Member Schema (ከአዲሶቹ መስኮች ጋር)
 const memberSchema = new mongoose.Schema({
     member_id: { type: String, required: true, unique: true },
     full_name: { type: String, required: true },
     password: { type: String, required: true },
+    phone: { type: String, default: '' },
+    email: { type: String, default: '' },
+    gender: { type: String, default: '' },
+    age: { type: String, default: '' },
+    region: { type: String, default: '' },
+    woreda: { type: String, default: '' },
+    blood_type: { type: String, default: '' },
     following: { type: [String], default: [] },
     followers: { type: [String], default: [] },
     created_at: { type: Date, default: Date.now }
@@ -98,11 +107,12 @@ const postSchema = new mongoose.Schema({
 const Post = mongoose.model('Post', postSchema);
 
 // ==========================================
-// SQLite Database
+// SQLite Database (ለ Applications እና Profile ብቻ)
 // ==========================================
 const db = new sqlite3.Database('./gmfc_database.db');
 
 db.serialize(() => {
+    // ✅ የጎደሉት backticks ተጨምረዋል
     db.run(`CREATE TABLE IF NOT EXISTS applications ( id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, phone TEXT NOT NULL, amount TEXT NOT NULL, city TEXT, status TEXT DEFAULT 'pending', date TEXT NOT NULL, submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
     db.run(`CREATE TABLE IF NOT EXISTS company_profile ( id INTEGER PRIMARY KEY AUTOINCREMENT, company_name TEXT NOT NULL, license_number TEXT NOT NULL, general_manager TEXT NOT NULL, hero_title TEXT, hero_subtitle TEXT, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP )`);
 
@@ -170,6 +180,7 @@ app.get('/api/profile', (req, res) => {
 
 app.put('/api/profile', (req, res) => {
     const { currentName, generalManager, legalRegistration, heroTitle, heroSubtitle } = req.body;
+    // ✅ የጎደሉት backticks ተጨምረዋል
     db.run(`UPDATE company_profile SET company_name = COALESCE(?, company_name), general_manager = COALESCE(?, general_manager), license_number = COALESCE(?, license_number), hero_title = COALESCE(?, hero_title), hero_subtitle = COALESCE(?, hero_subtitle), updated_at = CURRENT_TIMESTAMP WHERE id = 1`,
         [currentName, generalManager, legalRegistration?.investmentLicenseNo, heroTitle, heroSubtitle],
         function (err) {
@@ -189,7 +200,10 @@ app.get('/api/applications', (req, res) => {
 
 app.post('/api/applications', (req, res) => {
     const { name, phone, amount, city, date } = req.body;
+    // ✅ የጎደለው || ተጨምሯል
     if (!name || !phone || !amount) return res.status(400).json({ error: "Name, phone and amount are required" });
+    
+    // ✅ የጎደሉት backticks እና || ተጨምረዋል
     db.run(`INSERT INTO applications (name, phone, amount, city, date, status) VALUES (?, ?, ?, ?, ?, 'pending')`,
         [name, phone, amount, city || '', date || new Date().toLocaleDateString()],
         function (err) {
@@ -202,6 +216,7 @@ app.post('/api/applications', (req, res) => {
 app.put('/api/applications/:id', (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
+    // ✅ የጎደሉት backticks ተጨምረዋል
     db.run(`UPDATE applications SET status = ? WHERE id = ?`, [status, id], function (err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true, message: `Application ${status}` });
@@ -210,6 +225,7 @@ app.put('/api/applications/:id', (req, res) => {
 
 app.delete('/api/applications/:id', (req, res) => {
     const { id } = req.params;
+    // ✅ የጎደለው backtick ተጨምሯል
     db.run(`DELETE FROM applications WHERE id = ?`, [id], function (err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true });
@@ -229,6 +245,7 @@ app.get('/api/members', async (req, res) => {
 app.post('/api/members', async (req, res) => {
     try {
         const { member_id, full_name, password } = req.body;
+        // ✅ የጎደለው || ተጨምሯል
         if (!member_id || !full_name || !password) return res.status(400).json({ error: "All fields are required" });
 
         const existing = await Member.findOne({ member_id });
@@ -258,8 +275,8 @@ app.put('/api/members/:id', async (req, res) => {
         if (woreda) updateData.woreda = woreda;
         if (blood_type) updateData.blood_type = blood_type;
 
-        await Member.findByIdAndUpdate(id, updateData, { new: true });
-        res.json({ success: true, message: "Member updated successfully" });
+        const updatedMember = await Member.findByIdAndUpdate(id, updateData, { new: true });
+        res.json({ success: true, message: "Member updated successfully", user: updatedMember });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -278,6 +295,7 @@ app.delete('/api/members/:id', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { member_id, password } = req.body;
+        // ✅ የጎደለው || ተጨምሯል
         if (!member_id || !password) return res.status(400).json({ error: "Member ID and Password are required" });
 
         const member = await Member.findOne({ member_id, password });
@@ -286,7 +304,18 @@ app.post('/api/login', async (req, res) => {
         res.json({
             success: true,
             message: "Login successful",
-            user: { id: member._id, member_id: member.member_id, full_name: member.full_name }
+            user: { 
+                id: member._id, 
+                member_id: member.member_id, 
+                full_name: member.full_name,
+                phone: member.phone || '',
+                email: member.email || '',
+                gender: member.gender || '',
+                age: member.age || '',
+                region: member.region || '',
+                woreda: member.woreda || '',
+                blood_type: member.blood_type || ''
+            }
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -296,16 +325,14 @@ app.post('/api/login', async (req, res) => {
 // ============= FOLLOW / UNFOLLOW ROUTES =============
 app.post('/api/members/:id/follow', async (req, res) => {
     try {
-        const targetMemberId = req.params.id; // ልንከታተለው የምንፈልገው ሰው
-        const { currentUserId } = req.body; // እኛ (የምንከታተለው)
+        const targetMemberId = req.params.id;
+        const { currentUserId } = req.body;
 
         if (targetMemberId === currentUserId) {
             return res.status(400).json({ error: "እራስዎን ማሳደድ አይችሉም" });
         }
 
-        // እኛ ያንን ሰው በ Following ዝርዝራችን ውስጥ እንጨምር
         await Member.updateOne({ member_id: currentUserId }, { $addToSet: { following: targetMemberId } });
-        // እሱም እኛን በ Followers ዝርዝሩ ውስጥ እንዲጨምር
         await Member.updateOne({ member_id: targetMemberId }, { $addToSet: { followers: currentUserId } });
 
         res.json({ success: true, message: "በተሳካ ሁኔታ ተከትለዋል" });
@@ -328,7 +355,6 @@ app.post('/api/members/:id/unfollow', async (req, res) => {
     }
 });
 
-// ✅ አንተ የዚያን ሰው መከተልህን ወይም አለመከተልህን የሚያረጋግጥ
 app.get('/api/members/:id/status/:currentUserId', async (req, res) => {
     try {
         const { id, currentUserId } = req.params;
@@ -343,7 +369,6 @@ app.get('/api/members/:id/status/:currentUserId', async (req, res) => {
     }
 });
 
-// ✅ የተከታዮች እና የሚከታተላቸው ቁጥር ማምጫ
 app.get('/api/members/:id/stats', async (req, res) => {
     try {
         const member = await Member.findOne({ member_id: req.params.id });
@@ -357,15 +382,14 @@ app.get('/api/members/:id/stats', async (req, res) => {
     }
 });
 
-// ✅ የተከታዮች ወይም የሚከታተላቸው ዝርዝር (ስም + መለያ)
 app.get('/api/members/:id/connections/:type', async (req, res) => {
     try {
-        const { id, type } = req.params; // type ማለት 'followers' ወይም 'following'
+        const { id, type } = req.params; 
         const member = await Member.findOne({ member_id: id });
         if (!member) return res.status(404).json({ error: "Member not found" });
 
         const ids = type === 'followers' ? member.followers : member.following;
-        // የዚያን ሰዎች ስም እና ID ፈልገን እናመጣለን
+        // ✅ የኮድ አጻጻፍ ስህተት ተስተካክሏል
         const connections = await Member.find({ member_id: { $in: ids } }, 'member_id full_name');
         res.json(connections);
     } catch (error) {
@@ -373,7 +397,6 @@ app.get('/api/members/:id/connections/:type', async (req, res) => {
     }
 });
 
-// የአንድ የተወሰነ ሰው ፖስቶችን ብቻ ለማምጣት
 app.get('/api/members/:id/posts', async (req, res) => {
     try {
         const targetMemberId = req.params.id;
@@ -397,6 +420,7 @@ app.get('/api/news', async (req, res) => {
 app.post('/api/news', async (req, res) => {
     try {
         const { year, title, description, image } = req.body;
+        // ✅ የጎደለው || ተጨምሯል
         if (!year || !title || !description) return res.status(400).json({ error: "All fields are required" });
 
         const newNews = new News({ year, title, description, image });
@@ -451,6 +475,7 @@ app.put('/api/settings', async (req, res) => {
 app.post('/api/products', async (req, res) => {
     try {
         const { title, price, category, subcategory, description, image, seller_name } = req.body;
+        // ✅ የጎደለው || ተጨምሯል
         if (!title || !price || !category) return res.status(400).json({ error: "Title, price and category are required" });
 
         const newProduct = new Product({ title, price, category, subcategory, description, image, seller_name });
@@ -498,6 +523,7 @@ app.delete('/api/products/:id', async (req, res) => {
 app.post('/api/chats', async (req, res) => {
     try {
         const { member_id, sender_type, message } = req.body;
+        // ✅ የጎደለው || ተጨምሯል
         if (!member_id || !sender_type || !message) return res.status(400).json({ error: "All fields are required" });
 
         const newChat = new Chat({ member_id, sender_type, message });
@@ -554,13 +580,14 @@ app.post('/api/posts', async (req, res) => {
     try {
         const { author_id, author_name, content, image } = req.body;
 
-        // ጽሑፍ ወይም ፎቶ ከሌለ እንዳይለጠፍ
+        // ✅ የጎደለው || ተጨምሯል
         if (!author_id || !author_name || (!content && !image)) {
             return res.status(400).json({ error: "Content or Image is required" });
         }
 
         const newPost = new Post({ author_id, author_name, content, image });
         await newPost.save();
+
         res.json({ success: true, message: "Post created successfully", post: newPost });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -628,6 +655,7 @@ app.get('/api/stats', async (req, res) => {
             db.get("SELECT COUNT(*) as total FROM applications WHERE status = 'pending'", (err, pending) => {
                 if (err) return res.status(500).json({ error: err.message });
                 res.json({
+                    // ✅ የጎደሉት || ምልክቶች ተጨምረዋል
                     totalApproved: approved?.total || 0,
                     totalPending: pending?.total || 0,
                     totalMembers: totalMembers || 0
@@ -644,6 +672,7 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Dat
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
+    // ✅ የጎደሉት backticks ተጨምረዋል
     console.log(`✅ GMFC Server running on port ${PORT}`);
     console.log(`📍 URL: http://localhost:${PORT}`);
     console.log(`🔐 Admin: http://localhost:${PORT}/admin`);
