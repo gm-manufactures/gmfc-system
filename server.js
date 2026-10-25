@@ -8,7 +8,16 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const mongoose = require('mongoose');
 
+// ✅ ለSocket.io
+const http = require('http');
+const { Server } = require("socket.io");
+
 const app = express();
+const server = http.createServer(app); // ✅ ከ app.listen ይልቅ ይህን እንጠቀማለን
+const io = new Server(server, {
+    cors: { origin: "*" } // ሁሉም ቦታ እንዲገናኝ ፈቅድ
+});
+
 // ✅ የጎደለው || ተጨምሯል
 const PORT = process.env.PORT || 5000;
 
@@ -105,6 +114,40 @@ const postSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 const Post = mongoose.model('Post', postSchema);
+
+// ==========================================
+// ✅ SOCKET.IO LOGIC
+// ==========================================
+io.on("connection", (socket) => {
+    console.log("🔌 A user connected:", socket.id);
+
+    // ተጠቃሚው ወደ መግቢያው (Room) ሲቀላቀል
+    socket.on("joinRoom", (member_id) => {
+        socket.join(member_id);
+        console.log(`User joined room: ${member_id}`);
+    });
+
+    // አዲስ መልእክት ሲመጣ
+    socket.on("sendMessage", async (data) => {
+        try {
+            // መልእክቱን ወደ MongoDB አስቀምጥ
+            const newChat = new Chat(data);
+            await newChat.save();
+
+            // መልእክቱን ለተጠቃሚው (ለክፍሉ) ላክ
+            io.to(data.member_id).emit("receiveMessage", newChat);
+            
+            // ለአድሚን ዳሽቦርድም ላክ
+            io.emit("adminReceiveMessage", newChat);
+        } catch (error) {
+            console.error("Error saving chat:", error);
+        }
+    });
+
+    socket.on("disconnect", () => {
+        console.log("🔌 User disconnected");
+    });
+});
 
 // ==========================================
 // SQLite Database (ለ Applications እና Profile ብቻ)
@@ -690,8 +733,8 @@ app.get('/api/stats', async (req, res) => {
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
+// Start server (✅ ከ app.listen ወደ server.listen ተቀይሯል)
+server.listen(PORT, '0.0.0.0', () => {
     // ✅ የጎደሉት backticks ተጨምረዋል
     console.log(`✅ GMFC Server running on port ${PORT}`);
     console.log(`📍 URL: http://localhost:${PORT}`);
