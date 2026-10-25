@@ -336,6 +336,20 @@ app.get('/api/members/:id/status/:currentUserId', async (req, res) => {
     }
 });
 
+// ✅ የተከታዮች እና የሚከታተላቸው ቁጥር ማምጫ
+app.get('/api/members/:id/stats', async (req, res) => {
+    try {
+        const member = await Member.findOne({ member_id: req.params.id });
+        if (!member) return res.status(404).json({ error: "Member not found" });
+        res.json({
+            followers: member.followers ? member.followers.length : 0,
+            following: member.following ? member.following.length : 0
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // የአንድ የተወሰነ ሰው ፖስቶችን ብቻ ለማምጣት
 app.get('/api/members/:id/posts', async (req, res) => {
     try {
