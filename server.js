@@ -33,6 +33,35 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static('.'));
 
 // ==========================================
+// 📱 EXPO PUSH NOTIFICATION HELPER
+// ==========================================
+// ✅ የ Expo Push Notification መላኪያ
+async function sendPushNotification(expoPushToken, title, body) {
+    if (!expoPushToken || !expoPushToken.startsWith('ExponentPushToken')) return;
+    const message = {
+        to: expoPushToken,
+        sound: 'default',
+        title: title,
+        body: body,
+        data: { someData: 'goes here' },
+    };
+
+    try {
+        await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Accept-encoding': 'gzip, deflate',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(message),
+        });
+    } catch (error) {
+        console.log("Error sending push notification:", error);
+    }
+}
+
+// ==========================================
 // 🔴 MongoDB Connection & Schemas
 // ==========================================
 // ✅ የጎደለው || ተጨምሯል
@@ -99,6 +128,7 @@ const memberSchema = new mongoose.Schema({
     blood_type: { type: String, default: '' },
     following: { type: [String], default: [] },
     followers: { type: [String], default: [] },
+    pushToken: { type: String, default: '' }, // ✅ አዲስ የተጨመረ
     created_at: { type: Date, default: Date.now }
 });
 const Member = mongoose.model('Member', memberSchema);
@@ -306,6 +336,27 @@ app.delete('/api/members/:id', async (req, res) => {
     }
 });
 
+// ✅ Push Token endpoint — saves/updates the Expo push token for a member
+app.post('/api/members/:id/push-token', async (req, res) => {
+    try {
+        const { token } = req.body;
+        if (!token) return res.status(400).json({ error: "token is required" });
+
+        const result = await Member.updateOne(
+            { member_id: req.params.id },
+            { pushToken: token }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ error: "Member not found" });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.post('/api/login', async (req, res) => {
     try {
         const { member_id, password } = req.body;
@@ -329,7 +380,8 @@ app.post('/api/login', async (req, res) => {
                 age: member.age || '',
                 region: member.region || '',
                 woreda: member.woreda || '',
-                blood_type: member.blood_type || ''
+                blood_type: member.blood_type || '',
+                pushToken: member.pushToken || '' // ✅ አዲስ ተጨምሯል
             }
         });
     } catch (error) {
@@ -543,6 +595,27 @@ app.post('/api/chats', async (req, res) => {
 
         const newChat = new Chat({ member_id, sender_type, message });
         await newChat.save();
+
+        // ✅ Admin መልእክት ከላከ ለአባሉ ወይም ለሁሉም Push Notification ይላካል
+        if (sender_type === 'admin') {
+            if (member_id !== 'ALL') {
+                const member = await Member.findOne({ member_id });
+                if (member && member.pushToken) {
+                    await sendPushNotification(
+                        member.pushToken,
+                        "አዲስ መልእክት ከ GMFC Admin",
+                        message.length > 100 ? message.substring(0, 100) + '...' : message
+                    );
+                }
+            } else {
+                // ✅ ለሁሉም — ብዙ ተጠቃሚዎችን በአንድ ጊዜ ላክ
+                const users = await Member.find({ pushToken: { $ne: '' } });
+                for (let u of users) {
+                    await sendPushNotification(u.pushToken, "ማስታወቂያ ከ GMFC", message);
+                }
+            }
+        }
+
         res.json({ success: true, id: newChat._id });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -708,10 +781,35 @@ io.on("connection", (socket) => {
         }
     });
 
+    // ✅ Admin መልእክት ሲልክ — ለአንድ ተጠቃሚ ወይም ለሁሉም Push Notification ይላካል
     socket.on("adminSendMessage", async (data) => {
         try {
             const newChat = new Chat(data);
             await newChat.save();
+
+            // ✅ ለተጠቃሚው ማሳወቂያ ላክ
+            if (data.member_id !== 'ALL') {
+                const user = await Member.findOne({ member_id: data.member_id });
+                if (user && user.pushToken) {
+                    await sendPushNotification(
+                        user.pushToken,
+                        "አዲስ መልእክት ከ GMFC Admin",
+                        data.message
+                    );
+                }
+            } else {
+                // ✅ ለሁሉም ከሆነ ሁሉንም ተጠቃሚዎች ፈልገን ላክ
+                const users = await Member.find({ pushToken: { $ne: '' } });
+                for (let u of users) {
+                    await sendPushNotification(
+                        u.pushToken,
+                        "ማስታወቂያ ከ GMFC",
+                        data.message
+                    );
+                }
+            }
+
+            // ✅ Real-time message delivery (ያለው ኮድ)
             if (data.member_id !== 'ALL') {
                 io.to(data.member_id).emit("receiveMessage", newChat);
             } else {
